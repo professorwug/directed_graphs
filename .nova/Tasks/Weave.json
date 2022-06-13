@@ -1,0 +1,11 @@
+{
+  "actions" : {
+    "build" : {
+      "enabled" : true,
+      "script" : "\/Users\/adjourner\/models\/Literate\/bin\/lit $FILE"
+    }
+  },
+  "environment" : {
+    "FILE" : "${File}"
+  }
+}
