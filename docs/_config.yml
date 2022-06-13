@@ -1,7 +1,7 @@
-repository: {user}/{lib_name}
+repository: professorwug/directed_graphs
 output: web
-topnav_title: {lib_name}
-site_title: {lib_name}
+topnav_title: directed_graphs
+site_title: directed_graphs
 company_name: Riddle Group
 description: Explorations of directed graphs.
 # Set to false to disable KaTeX math
