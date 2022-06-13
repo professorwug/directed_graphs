@@ -4,6 +4,8 @@
     "module name here": "core.html",
     "Porting Diffusion Curvature to Directed Graphs": "Diffusion Curvature of Directed Graphs.html",
     "Directed Graph Utils": "Directed_graph_utils.html",
-    "Differentiable Diffusion Curvature ": "differentiable_diffusion_curvature.html"
+    "Title": "Toy_Graph_Datasets.html",
+    "Differentiable Diffusion Curvature ": "differentiable_diffusion_curvature.html",
+    "Stanford Large Network Datasets with Ground-truth Communities": "Communities_Datasets.html"
   }
 }

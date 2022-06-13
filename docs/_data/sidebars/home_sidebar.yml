@@ -19,8 +19,14 @@ entries:
       title: Directed Graph Utils
       url: Directed_graph_utils.html
     - output: web,pdf
+      title: Title
+      url: Toy_Graph_Datasets.html
+    - output: web,pdf
       title: 'Differentiable Diffusion Curvature '
       url: differentiable_diffusion_curvature.html
+    - output: web,pdf
+      title: Stanford Large Network Datasets with Ground-truth Communities
+      url: Communities_Datasets.html
     output: web
     title: directed_graphs
   output: web
