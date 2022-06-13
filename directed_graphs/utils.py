@@ -5,7 +5,7 @@ __all__ = ['diffusion_matrix_from_graph']
 # Cell
 import torch
 from torch import sparse
-def diffusion_matrix_from_graph(A = None, G = None):
+def diffusion_matrix_from_graph(A = None, G = None, self_loops=5):
   """
   Given directed adjacency matrix (sparse or unsparse), returns sparse diffusion matrix.
   Accepts tensor inputs of `A`, in COO sparse form, or dense, or can work directly from a PyG graph, given via argument `G`.
@@ -17,6 +17,8 @@ def diffusion_matrix_from_graph(A = None, G = None):
     # check if A is sparse
     if not A.is_sparse:
       A = A.to_sparse()
+    if self_loops > 0:
+      A = A + torch.eye(A.shape[0])
     # We now have a sparse tensor: get row sums and set zeros equal to one
     # this prevents division by zero errors
     degree = sparse.sum(A, dim=[1]).to_dense()

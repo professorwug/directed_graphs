@@ -1,0 +1,13 @@
+@title Embedding Directed Graphs
+
+@s Mission 
+How to effectively embed a directed graph into a low-dimensional space? This document approaches the problem through the lens of diffusion probabilities: embeddings can be viewed as a (nonlinear) *change of basis*. The given basis for directed graphs encodes the connectivity from node to node via the adjacency matrix. But there are many other descriptions of a graph, and leveraging these may allow us to obtain low-dimensional representations of the graph with minimal loss of information.
+
+Diffusion probabilities give such an alternate description of the graph. We can imagine the diffusion probabilities resulting from diffusion a dirac at point $i$ for $t$ steps representing a single view of the city, from a person living at point $i$. The probabilities, especially if considered over multiple scales, correspond to the distances our fellow must travel to reach every other part of the graph. This single viewpoint of the graph gives one compression; it may be expanded by considering additional viewpoints. 
+
+
+``` directed_graphs/embedding.py
+def graph_embedding(G,i):
+	print('hi')
+```
+
