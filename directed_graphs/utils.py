@@ -18,7 +18,7 @@ def diffusion_matrix_from_graph(A = None, G = None, self_loops=5):
     if not A.is_sparse:
       A = A.to_sparse()
     if self_loops > 0:
-      A = A + torch.eye(A.shape[0])
+      A = A + (self_loops * torch.eye(A.shape[0])).to_sparse()
     # We now have a sparse tensor: get row sums and set zeros equal to one
     # this prevents division by zero errors
     degree = sparse.sum(A, dim=[1]).to_dense()

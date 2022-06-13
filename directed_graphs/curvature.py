@@ -6,12 +6,12 @@ __all__ = ['diffusion_curvature']
 from .differentiable_laziness import curvature
 from .utils import diffusion_matrix_from_graph
 import warnings
-def diffusion_curvature(G = None, t = 8, A = None):
+def diffusion_curvature(G = None, t = 8, A = None, self_loops=10,aperture=1):
   """Computes diffusion curvature of graph (or raw adjacency matrix), with tunable parameter t"""
   assert (G is not None) or (A is not None)
   if G is not None:
-    P = diffusion_matrix_from_graph(G)
+    P = diffusion_matrix_from_graph(G=G, self_loops=self_loops)
   if A is not None:
-    P = diffusion_matrix_from_graph(A)
-  ks = curvature(P,t = t)
+    P = diffusion_matrix_from_graph(A=A, self_loops=self_loops)
+  ks = curvature(P,diffusion_powers = t,aperture=aperture)
   return ks

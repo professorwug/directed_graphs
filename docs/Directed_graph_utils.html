@@ -477,9 +477,9 @@ Is undirected: False
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>tensor([[0.+0.8110j, 0.+0.7465j, 0.+0.0247j],
-        [0.+0.0318j, 0.+0.8726j, 0.+0.9146j],
-        [0.+0.1726j, 0.+0.5156j, 0.+0.9229j]])</pre>
+<pre>tensor([[0.+0.9586j, 0.+0.1400j, 0.+0.8984j],
+        [0.+0.7221j, 0.+0.7698j, 0.+0.2241j],
+        [0.+0.1167j, 0.+0.7521j, 0.+0.5159j]])</pre>
 </div>
 
 </div>
@@ -822,26 +822,9 @@ Accepts tensor inputs of <code>A</code>, in COO sparse form, or dense, or can wo
 
 <div class="output_area">
 
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb Cell 38&#39;</span> in <span class="ansi-cyan-fg">&lt;cell line: 3&gt;</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">      &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000037?line=0&#39;&gt;1&lt;/a&gt;</span> # Does it work on matrix data?
-<span class="ansi-green-intense-fg ansi-bold">      &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000037?line=1&#39;&gt;2&lt;/a&gt;</span> X = torch.rand(20,20)
-<span class="ansi-green-fg">----&gt; &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000037?line=2&#39;&gt;3&lt;/a&gt;</span> P = diffusion_matrix_from_graph(A = X)
-<span class="ansi-green-intense-fg ansi-bold">      &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000037?line=3&#39;&gt;4&lt;/a&gt;</span> # the maximum rowsum should be one, and the min should be either one or zero
-<span class="ansi-green-intense-fg ansi-bold">      &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000037?line=4&#39;&gt;5&lt;/a&gt;</span> max_row_sum = max(sparse.sum(P, dim=[1]).to_dense())
-
-<span class="ansi-green-intense-fg ansi-bold">/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb Cell 36&#39;</span> in <span class="ansi-cyan-fg">diffusion_matrix_from_graph</span><span class="ansi-blue-fg">(A, G, self_loops)</span>
-<span class="ansi-green-intense-fg ansi-bold">     &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000035?line=14&#39;&gt;15&lt;/a&gt;</span>   A = A.to_sparse()
-<span class="ansi-green-intense-fg ansi-bold">     &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000035?line=15&#39;&gt;16&lt;/a&gt;</span> if self_loops &gt; 0:
-<span class="ansi-green-fg">---&gt; &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000035?line=16&#39;&gt;17&lt;/a&gt;</span>   A = A + torch.eye(A.shape[0])
-<span class="ansi-green-intense-fg ansi-bold">     &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000035?line=17&#39;&gt;18&lt;/a&gt;</span> # We now have a sparse tensor: get row sums and set zeros equal to one
-<span class="ansi-green-intense-fg ansi-bold">     &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000035?line=18&#39;&gt;19&lt;/a&gt;</span> # this prevents division by zero errors
-<span class="ansi-green-intense-fg ansi-bold">     &lt;a href=&#39;vscode-notebook-cell:/Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb#ch0000035?line=19&#39;&gt;20&lt;/a&gt;</span> degree = sparse.sum(A, dim=[1]).to_dense()
-
-<span class="ansi-red-fg">RuntimeError</span>: add(sparse, dense) is not supported. Use add(dense, sparse) instead.</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>tensor(1.0000)
+</pre>
 </div>
 </div>
 
@@ -874,7 +857,7 @@ Accepts tensor inputs of <code>A</code>, in COO sparse form, or dense, or can wo
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>tensor(1.)
+<pre>tensor(1.0000)
 </pre>
 </div>
 </div>
@@ -941,6 +924,9 @@ Accepts tensor inputs of <code>A</code>, in COO sparse form, or dense, or can wo
 <pre>Converted 00_core.ipynb.
 Converted 01_Diffusion Curvature of Directed Graphs.ipynb.
 Converted 02_Directed_graph_utils.ipynb.
+Converted 03_Toy_Graph_Datasets.ipynb.
+Converted 12_differentiable_diffusion_curvature.ipynb.
+Converted 21_Communities_Datasets.ipynb.
 Converted index.ipynb.
 </pre>
 </div>
@@ -959,10 +945,25 @@ Converted index.ipynb.
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">diffusion_curvature.core</span> <span class="kn">import</span> <span class="n">plot_3d</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>nbdev_build_docs
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>converting: /Users/adjourner/Projects/directed_graphs/02_Directed_graph_utils.ipynb
+converting /Users/adjourner/Projects/directed_graphs/index.ipynb to README.md
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
