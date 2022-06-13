@@ -1,0 +1,7 @@
+numpy
+torch
+torch-sparse
+torch-scatter
+torch-geometric
+matplotlib
+networkx
