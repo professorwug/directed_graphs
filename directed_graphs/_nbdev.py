@@ -4,11 +4,14 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb",
          "diffusion_matrix_from_graph": "02_Directed_graph_utils.ipynb",
-         "curvature": "12_differentiable_diffusion_curvature.ipynb"}
+         "curvature": "12_differentiable_diffusion_curvature.ipynb",
+         "EmailEuNetwork": "21_Communities_Datasets.ipynb",
+         "SourceSink": "21_Communities_Datasets.ipynb"}
 
 modules = ["curvature.py",
            "utils.py",
-           "differentiable_laziness.py"]
+           "differentiable_laziness.py",
+           "datasets.py"]
 
 doc_url = "https://professorwug.github.io/directed_graphs/"
 
