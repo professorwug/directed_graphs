@@ -5,7 +5,10 @@
     "Porting Diffusion Curvature to Directed Graphs": "Diffusion Curvature of Directed Graphs.html",
     "Directed Graph Utils": "Directed_graph_utils.html",
     "Title": "Toy_Graph_Datasets.html",
+    "Testing node2vec on Directed Graphs": "testing node2vec on directed graphs.html",
     "Differentiable Diffusion Curvature ": "differentiable_diffusion_curvature.html",
-    "Stanford Large Network Datasets with Ground-truth Communities": "Communities_Datasets.html"
+    "Stanford Large Network Datasets with Ground-truth Communities": "Communities_Datasets.html",
+    "Small Random Toy Directed Graphs": "Small_Random_Directed_Graphs.html",
+    "Directed Stochastic Block Model": "Directed Stochastic Block Model.html"
   }
 }

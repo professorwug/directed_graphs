@@ -1,0 +1,52 @@
+@code_type Python .py
+@comment_type #
+
+@title Flow Visualizations for Directed Graphs
+
+@s Introduction: Directed Graph Embeddings into Model Spaces with Flow
+
+A plain, undirected graph can be taken as a discretization of a manifold. A graph endowed with edge attributes can be interpreted as a discretization of a manifold under a function. In the special case of *undirected graphs*, in which these edge features are directions ('there' or 'back again'), we can continuously approximate the undirected graph by points on a manifold with flow.
+
+There are many existing techniques for compressing a manifold into lower dimensions while preserving pairwise distances or neighborhood affinities. Here we present a proof of concept for dimensionality reduction of directed graphs whereby nodes are projected into a low-dimensional model space such that the distances under flow are roughly preserved.
+
+# Outline
+The program involves three components. We'll implement them in a class, since they involve computations that work best if stored and reused without having to be recalculated.
+
+``` directed_graphs/flow_visualization.py
+@{Imports}
+class Flow_artist:
+	def __init__(self, 
+		graph,
+		@{Arguments}
+		):
+		self.graph = graph
+		# compute distances
+		@{Process Graph and Return Visualization}
+	def compute_distance(self):
+		@{Distance computations}
+	def flow_mds(self):
+		@{SGD-Aided Projection into a Flow Space}
+	def visualize(self):
+		@{Graphing the results}
+```
+
+# Imports
+As always, we want a minimal program with as few dependencies as possible.
+``` Imports
+import torch # differentiable computing
+import numpy as np # matrix math
+import graph-tool # compute shortest path distances on graph
+import matplotlib.pyplot as plt # for visualization
+```
+
+# Distance Computation
+- [ ] Computing pairwise shortest path distances is computationally difficult for large undirected graphs. Consider a replacement for graph-tool, perhaps using diffusion distances
+
+Currently, I'm using `graph-tool` to compute shortest-path distances on the manifold.
+
+``` Distance computations
+graph = self.graph
+@{Conversion to graph-tool format}
+@{graph-tool pairwise distance computation}
+```
+
