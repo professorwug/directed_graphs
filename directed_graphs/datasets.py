@@ -176,6 +176,7 @@ class SmallRandom(InMemoryDataset):
 # Cell
 import warnings
 import torch
+import numpy as np
 from torch_geometric.data import Data, InMemoryDataset
 from torch_sparse import SparseTensor
 from torch_geometric.utils import remove_self_loops

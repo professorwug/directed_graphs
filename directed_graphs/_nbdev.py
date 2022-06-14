@@ -13,7 +13,6 @@ index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb
 
 modules = ["curvature.py",
            "utils.py",
-           "None.py",
            "differentiable_laziness.py",
            "datasets.py"]
 
