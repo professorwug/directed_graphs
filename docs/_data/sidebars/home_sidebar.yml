@@ -22,11 +22,20 @@ entries:
       title: Title
       url: Toy_Graph_Datasets.html
     - output: web,pdf
+      title: Testing node2vec on Directed Graphs
+      url: testing node2vec on directed graphs.html
+    - output: web,pdf
       title: 'Differentiable Diffusion Curvature '
       url: differentiable_diffusion_curvature.html
     - output: web,pdf
       title: Stanford Large Network Datasets with Ground-truth Communities
       url: Communities_Datasets.html
+    - output: web,pdf
+      title: Small Random Toy Directed Graphs
+      url: Small_Random_Directed_Graphs.html
+    - output: web,pdf
+      title: Directed Stochastic Block Model
+      url: Directed Stochastic Block Model.html
     output: web
     title: directed_graphs
   output: web
