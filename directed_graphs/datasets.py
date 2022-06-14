@@ -144,7 +144,7 @@ class SourceSink(BaseTransform):
     edge_index = torch.t(torch.tensor(edge_array))
     data.edge_index = sort_edge_index(edge_index)
     data.y = y
-    return data
+    return data.coalesce()
 
 # Cell
 import warnings
