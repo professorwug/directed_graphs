@@ -118,7 +118,7 @@ class SourceSink(BaseTransform):
       sources = source_classes
       sinks = sink_classes
     else:
-      warnings.warn("Data has no groud-truth labels")
+      warnings.warn("Data has no ground-truth labels")
       # randomly choose source and sink nodes
       nodes = torch.arange(data.num_nodes)
       mask = torch.rand(data.num_nodes)
