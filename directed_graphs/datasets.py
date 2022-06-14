@@ -9,6 +9,13 @@ from torch_geometric.data import Data, InMemoryDataset, download_url, extract_gz
 from torch_geometric.utils import sort_edge_index
 
 class EmailEuNetwork(InMemoryDataset):
+  """"
+  email-Eu-core network from Stanford Large Network Dataset Collection
+
+  The network was generated from the email exchanges within a large European research institution.
+  Each node represents an individual, and a directional edge from one individual to another represents some email exchanges between them in the specified direction.
+  Each individual belongs to exactly one of 42 departments in the institution.
+  """
   def __init__(self, transform=None, pre_transform=None):
     super().__init__("./datasets/email_Eu_network", transform, pre_transform)
     self.data, self.slices = torch.load(self.processed_paths[0])
@@ -53,6 +60,30 @@ from torch_geometric.transforms import BaseTransform
 from torch_geometric.utils import sort_edge_index
 
 class SourceSink(BaseTransform):
+  """
+  Transform a (directed or undirected) graph into a directed graph
+  with a proportion of the nodes with mostly out-edges
+  and a porportion of the nodes with mostly in-edges
+
+  Parameters
+  ----------
+  prob_source : float
+      must be between 0 and 1
+      Proportion of nodes/communities to turn into source nodes/communities
+      (with mostly out-edges)
+  prob_sink : float
+      must be between 0 and 1
+      prob_source and prob_sink must add up to no more than 1
+      Proportion of nodes/communities to turn into sink nodes/communities
+      (with mostly in-edges)
+  adv_prob : float
+      must be between 0 and 1
+      Probability of in-edges for source nodes and/or out-edges for sink nodes
+  remove_prob : float
+      must be between 0 and 1
+      Probability of removing an in-edge for source nodes and/or out-edges for sink nodes
+      1 - remove_prob is the probability of reversing the direction of in-edge for source nodes and/or out-edges for sink nodes
+  """
   def __init__(self, prob_source=0.1, prob_sink=0.1, adv_prob=0, remove_prob=0):
     if prob_source + prob_sink > 1:
       warnings.warn("Total probability of source and sink exceeds 1")
@@ -87,7 +118,7 @@ class SourceSink(BaseTransform):
       sources = source_classes
       sinks = sink_classes
     else:
-      warnings.warn("Data has no groud-truth labels")
+      warnings.warn("Data has no ground-truth labels")
       # randomly choose source and sink nodes
       nodes = torch.arange(data.num_nodes)
       mask = torch.rand(data.num_nodes)
@@ -113,7 +144,7 @@ class SourceSink(BaseTransform):
     edge_index = torch.t(torch.tensor(edge_array))
     data.edge_index = sort_edge_index(edge_index)
     data.y = y
-    return data
+    return data.coalesce()
 
 # Cell
 import warnings
@@ -145,6 +176,7 @@ class SmallRandom(InMemoryDataset):
 # Cell
 import warnings
 import torch
+import numpy as np
 from torch_geometric.data import Data, InMemoryDataset
 from torch_sparse import SparseTensor
 from torch_geometric.utils import remove_self_loops
