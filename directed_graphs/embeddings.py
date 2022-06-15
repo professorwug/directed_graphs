@@ -16,7 +16,7 @@ def node2vec_and_plot(data,n_clusters,title=""):
   wordlist = [str(i) for i in range(n_points)]
   clusters = np.repeat(list(range(n_clusters)),n_points/n_clusters)
   # Extract embeddings
-  word2vec_embeddings = model.wv[wordlist]
+  ems = model.wv[wordlist]
   print("performing PCA...")
   pca = PCA(n_components=2)
   clusters = np.repeat(list(range(n_clusters)),n_points/n_clusters)
