@@ -4,15 +4,20 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb",
          "diffusion_matrix_from_graph": "02_Directed_graph_utils.ipynb",
+         "node2vec_and_plot": "04_testing node2vec on directed graphs.ipynb",
          "curvature": "12_differentiable_diffusion_curvature.ipynb",
          "diffusion_curvature_of_graph": "12_differentiable_diffusion_curvature.ipynb",
          "EmailEuNetwork": "21_Communities_Datasets.ipynb",
          "SourceSink": "21_Communities_Datasets.ipynb",
          "SmallRandom": "22_Small_Random_Directed_Graphs.ipynb",
-         "DirectedStochasticBlockModel": "24_Directed Stochastic Block Model.ipynb"}
+         "visualize_graph": "22_Small_Random_Directed_Graphs.ipynb",
+         "DirectedStochasticBlockModel": "24_Directed Stochastic Block Model.ipynb",
+         "source_graph": "24_Directed Stochastic Block Model.ipynb",
+         "sink_graph": "24_Directed Stochastic Block Model.ipynb"}
 
 modules = ["curvature.py",
            "utils.py",
+           "embeddings.py",
            "differentiable_laziness.py",
            "datasets.py"]
 
