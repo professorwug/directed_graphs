@@ -10,6 +10,9 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
+      title: Plotting Vector Fields using matplotlib
+      url: playground.html
+    - output: web,pdf
       title: module name here
       url: core.html
     - output: web,pdf
@@ -25,6 +28,9 @@ entries:
       title: Testing node2vec on Directed Graphs
       url: testing node2vec on directed graphs.html
     - output: web,pdf
+      title: DeepWalk with Backwards Connection
+      url: DeepWalk_with_Backwards_Connection.html
+    - output: web,pdf
       title: 'Differentiable Diffusion Curvature '
       url: differentiable_diffusion_curvature.html
     - output: web,pdf
@@ -36,6 +42,12 @@ entries:
     - output: web,pdf
       title: Directed Stochastic Block Model
       url: Directed Stochastic Block Model.html
+    - output: web,pdf
+      title: Model Embedding Spaces
+      url: model_spaces.html
+    - output: web,pdf
+      title: Testing the Flow Embedder
+      url: testing Flow Embedder.html
     output: web
     title: directed_graphs
   output: web

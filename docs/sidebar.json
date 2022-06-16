@@ -1,14 +1,18 @@
 {
   "directed_graphs": {
     "Overview": "/",
+    "Plotting Vector Fields using matplotlib": "playground.html",
     "module name here": "core.html",
     "Porting Diffusion Curvature to Directed Graphs": "Diffusion Curvature of Directed Graphs.html",
     "Directed Graph Utils": "Directed_graph_utils.html",
     "Title": "Toy_Graph_Datasets.html",
     "Testing node2vec on Directed Graphs": "testing node2vec on directed graphs.html",
+    "DeepWalk with Backwards Connection": "DeepWalk_with_Backwards_Connection.html",
     "Differentiable Diffusion Curvature ": "differentiable_diffusion_curvature.html",
     "Stanford Large Network Datasets with Ground-truth Communities": "Communities_Datasets.html",
     "Small Random Toy Directed Graphs": "Small_Random_Directed_Graphs.html",
-    "Directed Stochastic Block Model": "Directed Stochastic Block Model.html"
+    "Directed Stochastic Block Model": "Directed Stochastic Block Model.html",
+    "Model Embedding Spaces": "model_spaces.html",
+    "Testing the Flow Embedder": "testing Flow Embedder.html"
   }
 }

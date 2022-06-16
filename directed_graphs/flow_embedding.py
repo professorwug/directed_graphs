@@ -8,7 +8,7 @@ from tqdm import trange
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
-
+import torch.nn.functional as F
 class FlowEmbedder(torch.nn.Module):
 	def __init__(self, graph, model_space, flow_strength):
 		"""
@@ -29,11 +29,11 @@ class FlowEmbedder(torch.nn.Module):
 		# Model parameters
 		self.embedded_points = nn.Parameter(torch.rand(self.nnodes,2))
 		# Flow field
-		self.flowfield = nn.Sequential(nn.Linear(2, 2),
-		                       nn.ReLU(),
-		                       nn.Linear(2, 2),
-		                       nn.ReLU(),
-		                       nn.Linear(2, 2))
+		self.flowfield = nn.Sequential(nn.Linear(2, 10),
+		                       nn.Tanh(),
+		                       nn.Linear(10, 10),
+		                       nn.Tanh(),
+		                       nn.Linear(10, 2))
 		self.flow_field_parameters = nn.Parameter(torch.randn(self.degree_polynomial + 1))
 		self.flow_field_parameters2 = nn.Parameter(torch.randn(self.degree_polynomial + 1))
 		
@@ -101,7 +101,7 @@ class FlowEmbedder(torch.nn.Module):
 		loss = torch.linalg.norm(torch.log(1 + self.ground_truth_distances) - torch.log(1 + self.embedding_D))**2
 		return loss
 		
-	def visualize_points(self):
+	def visualize_points(self, ):
 		# controls the x and y axes of the plot
 		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
 		x, y = np.meshgrid(np.linspace(-2,2,20),np.linspace(-2,2,20))

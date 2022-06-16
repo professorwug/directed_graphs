@@ -15,7 +15,10 @@ index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb
          "DirectedStochasticBlockModel": "24_Directed Stochastic Block Model.ipynb",
          "source_graph": "24_Directed Stochastic Block Model.ipynb",
          "sink_graph": "24_Directed Stochastic Block Model.ipynb",
-         "ChainGraph": "24_Directed Stochastic Block Model.ipynb"}
+         "ChainGraph": "24_Directed Stochastic Block Model.ipynb",
+         "ChainGraph2": "24_Directed Stochastic Block Model.ipynb",
+         "ChainGraph3": "24_Directed Stochastic Block Model.ipynb",
+         "CycleGraph": "24_Directed Stochastic Block Model.ipynb"}
 
 modules = ["curvature.py",
            "utils.py",
