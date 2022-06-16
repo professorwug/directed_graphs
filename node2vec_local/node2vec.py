@@ -1,3 +1,4 @@
+# Node2Vec python implementation by Aditya Grover
 import numpy as np
 import networkx as nx
 import random
