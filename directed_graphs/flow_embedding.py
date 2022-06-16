@@ -8,17 +8,18 @@ from tqdm import trange
 import networkx as nx
 
 class FlowEmbedder(torch.nn.Module):
-	def __init__(graph, model_space, flow_strength):
+	def __init__(self, graph, model_space, flow_strength):
 		"""
 		Instantiate a Flow Embedder object, supplying
 		graph: a single torch geometric graph object
 		model_space: str, one of ["Cartesian Plane","Poincare Disk","Everything Bagel"]
 		flow_strength: when moving with the flow, the cost of motion is the euclidean distance divided by this constant.
 		"""
+		super(FlowEmbedder, self).__init__()
 		self.graph = graph
 		self.nnodes = graph.num_nodes
 		self.flow_strength = flow_strength
-		self.ground_truth_distances = torch.empty(self.num_nodes, self.num_nodes)
+		self.ground_truth_distances = torch.empty(self.nnodes, self.nnodes)
 		self.disconnected_distance_constant = 1000 # large number we use as the distance between nodes in the graph without a connecting path
 		self.degree_polynomial = 3
 		self.step_size = 0.1
@@ -33,10 +34,11 @@ class FlowEmbedder(torch.nn.Module):
 	def calculate_shortest_path_distances(self):
 		G_nx = to_networkx(self.graph)
 		path_lengths = dict(nx.all_pairs_shortest_path_length(G_nx))
-		for i in range(self.num_nodes):
-			for j in range(self.num_nodes):
+		path_distance_array = torch.empty(self.nnodes,self.nnodes)
+		for i in range(self.nnodes):
+			for j in range(self.nnodes):
 				try:
-					path_distance_array[i][j] = paths[i][j]
+					path_distance_array[i][j] = path_lengths[i][j]
 				except KeyError:
 					warnings.warn("Graph is not strongly connected. Embedding results are not guaranteed. Consider tweaking the constant for 'disconnected distance'.")
 					path_distance_array[i][j] = 1000
