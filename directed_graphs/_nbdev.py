@@ -5,6 +5,7 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb",
          "diffusion_matrix_from_graph": "02_Directed_graph_utils.ipynb",
          "node2vec_and_plot": "04_testing node2vec on directed graphs.ipynb",
+         "deepwalk_and_pca_plot": "06_DeepWalk_with_Backwards_Connection.ipynb",
          "curvature": "12_differentiable_diffusion_curvature.ipynb",
          "diffusion_curvature_of_graph": "12_differentiable_diffusion_curvature.ipynb",
          "EmailEuNetwork": "21_Communities_Datasets.ipynb",
