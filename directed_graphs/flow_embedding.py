@@ -4,6 +4,9 @@ from torch_geometric.utils import to_networkx
 import warnings
 from torch import nn
 import math
+from tqdm import trange
+import networkx as nx
+
 class FlowEmbedder(torch.nn.Module):
 	def __init__(graph, model_space, flow_strength):
 		"""
@@ -19,15 +22,14 @@ class FlowEmbedder(torch.nn.Module):
 		self.disconnected_distance_constant = 1000 # large number we use as the distance between nodes in the graph without a connecting path
 		self.degree_polynomial = 3
 		self.step_size = 0.1
-		
+
 		# Model parameters
 		self.embedded_points = nn.Parameter(torch.rand(self.nnodes,2))
 		# Flow field
 		self.flow_field_parameters = nn.Parameter(torch.randn(self.degree_polynomial,2))
-		
-		# Fit transform
+		# Set up for fitting		
 		self.calculate_shortest_path_distances()
-		
+
 	def calculate_shortest_path_distances(self):
 		G_nx = to_networkx(self.graph)
 		path_lengths = dict(nx.all_pairs_shortest_path_length(G_nx))
@@ -59,6 +61,37 @@ class FlowEmbedder(torch.nn.Module):
 		return cost
 	def cost_normalizer(self,dot):
 		return self.flow_strength*torch.exp(dot)/((self.flow_strength - 1) + torch.exp(dot))
+		
+	def compute_embedding_distances(self):
+		self.embedding_D = torch.empty(self.nnodes,self.nnodes)
+		for i in range(self.nnodes):
+			for j in range(self.nnodes):
+				self.embedding_D[i][j] = self.cost(self.embedded_points[i],self.embedded_points[j])
+		
+	def loss(self):
+		# calculate error in embedded points
+		self.embedding_distance_matrix()
+		loss = (torch.log(1 + self.ground_truth_distances) - torch.log(1 + self.embedding_D))**2
+		return loss
+		
+	def fit(self,n_steps = 1000):
+		# train Flow Embedder on the provided graph
+		self.train()
+		optim = torch.optim.Adam(self.parameters)
+		for step in trange(n_steps):
+			optim.zero_grad()
+			# compute distances in flow field
+			self.compute_embedding_distances()
+			# compute loss
+			loss = self.loss()
+			print("loss is ",loss)
+			# compute gradient and step backwards
+			loss.backward()
+			optim.step()
+		print("Exiting training with loss ",loss)
+		return self.embedded_points
+		
+			
 		
 		
 		
