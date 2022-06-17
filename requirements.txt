@@ -6,3 +6,4 @@ torch-geometric
 matplotlib
 networkx
 node2vec
+karateclub
