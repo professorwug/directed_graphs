@@ -75,6 +75,12 @@ nb_path: "41_node2vec_graph_reversal_walk.ipynb"
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Reverse-the-directed-graph">Reverse the directed graph<a class="anchor-link" href="#Reverse-the-directed-graph"> </a></h1>
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -190,6 +196,12 @@ nb_path: "41_node2vec_graph_reversal_walk.ipynb"
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Manually-create-a-directed-graph">Manually create a directed graph<a class="anchor-link" href="#Manually-create-a-directed-graph"> </a></h1>
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -1146,6 +1158,83 @@ Generating walks (CPU: 4): 100%|██████████| 50/50 [00:02&lt;
 
 </div>
 </div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">node2vec</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>node2vec.node2vec.Node2Vec</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="DirectedStochasticBlockModelHelper" class="doc_header"><code>DirectedStochasticBlockModelHelper</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/datasets.py#L369" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>DirectedStochasticBlockModelHelper</code>(<strong><code>num_nodes</code></strong>:<code>int</code>, <strong><code>num_clusters</code></strong>:<code>int</code>, <strong><code>edge_index</code></strong>:<code>ndarray</code>, <strong><code>undir_prob</code></strong>=<em><code>[0.4]</code></em>, <strong><code>dir_prob</code></strong>=<em><code>[0.9]</code></em>)</p>
+</blockquote>
+<p>Directed SBM Helper</p>
+<h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>num_nodes : int
+    <em>description</em>
+num_clusters : int
+    must evenly divide num_nodes
+edge_index : np.ndarray
+    see edge_index as in <a href="https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html">https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html</a>
+undir_prob : List, optional
+    Specifies probabilities of (undirected) connection between clusters i and j.  The default probability is 0.4.
+dir_prob : List, optional
+    Specifies probabilities with which the edges made via aij are converted to directed edges. The default probability for bij is 0.9 where bij + bji = 1.</p>
+<h2 id="Returns">Returns<a class="anchor-link" href="#Returns"> </a></h2><p>dataset : DirectedStochasticBlockModel
+    See (class) DirectedStochasticBlockModel</p>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
 
 </div>
     {% endraw %}
