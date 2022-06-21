@@ -408,4 +408,4 @@ def DirectedStochasticBlockModelHelper(num_nodes: int, num_clusters: int, edge_i
     for x, y in zip(edge_index[0], edge_index[1]):
         bij[x,y] = dir_prob[0]
         bij[y,x] = 1 - dir_prob[0]
-    return DirectedStochasticBlockModel(num_nodes=100, num_clusters = 2, aij=aij, bij=bij)
+    return DirectedStochasticBlockModel(num_nodes, num_clusters, aij=aij, bij=bij)
