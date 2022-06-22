@@ -249,51 +249,67 @@ class DirectedStochasticBlockModel(InMemoryDataset):
 
 
 # Cell
-def source_graph(n_points = 700):
+def source_graph(n_points = 700, num_clusters=7):
   # we'll start with 7 clusters; six on the outside, one on the inside
-  aij = np.array(
-    [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-     [0.9, 0.9, 0, 0, 0, 0, 0],
-     [0.9, 0, 0.9, 0, 0, 0, 0],
-     [0.9, 0, 0, 0.9, 0, 0, 0],
-     [0.9, 0, 0, 0, 0.9, 0, 0],
-     [0.9, 0, 0, 0, 0, 0.9, 0],
-     [0.9, 0, 0, 0, 0, 0, 0.9]]
-  )
-  bij = np.array(
-    [[0.5, 1, 1, 1, 1, 1, 1],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
-  )
-  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=7, aij = aij, bij = bij)
+  aij = np.zeros((num_clusters, num_clusters))
+  aij[0,:] = 0.9
+  aij[:,0] = 0.9
+  np.fill_diagonal(aij, 0.9)
+  # aij = np.array(
+  #   [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+  #    [0.9, 0.9, 0, 0, 0, 0, 0],
+  #    [0.9, 0, 0.9, 0, 0, 0, 0],
+  #    [0.9, 0, 0, 0.9, 0, 0, 0],
+  #    [0.9, 0, 0, 0, 0.9, 0, 0],
+  #    [0.9, 0, 0, 0, 0, 0.9, 0],
+  #    [0.9, 0, 0, 0, 0, 0, 0.9]]
+  # )
+  bij = np.zeros((num_clusters, num_clusters))
+  bij[0,:] = 1.0
+  bij[:,0] = 0.0
+  np.fill_diagonal(bij, 0.5)
+  # bij = np.array(
+  #   [[0.5, 1, 1, 1, 1, 1, 1],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
+  # )
+  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=num_clusters, aij = aij, bij = bij)
   return dataset
 
 # Cell
-def sink_graph(n_points = 700):
+def sink_graph(n_points = 700, num_clusters=7):
   # we'll start with 7 clusters; six on the outside, one on the inside
-  aij = np.array(
-    [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-     [0.9, 0.9, 0, 0, 0, 0, 0],
-     [0.9, 0, 0.9, 0, 0, 0, 0],
-     [0.9, 0, 0, 0.9, 0, 0, 0],
-     [0.9, 0, 0, 0, 0.9, 0, 0],
-     [0.9, 0, 0, 0, 0, 0.9, 0],
-     [0.9, 0, 0, 0, 0, 0, 0.9]]
-  )
-  bij = np.array(
-    [[0.5,0, 0, 0, 0, 0, 0],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
-  )
-  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=7, aij = aij, bij = bij)
+  aij = np.zeros((num_clusters, num_clusters))
+  aij[0,:] = 0.9
+  aij[:,0] = 0.9
+  np.fill_diagonal(aij, 0.9)
+  # aij = np.array(
+  #   [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+  #    [0.9, 0.9, 0, 0, 0, 0, 0],
+  #    [0.9, 0, 0.9, 0, 0, 0, 0],
+  #    [0.9, 0, 0, 0.9, 0, 0, 0],
+  #    [0.9, 0, 0, 0, 0.9, 0, 0],
+  #    [0.9, 0, 0, 0, 0, 0.9, 0],
+  #    [0.9, 0, 0, 0, 0, 0, 0.9]]
+  # )
+  bij = np.zeros((num_clusters, num_clusters))
+  bij[0,:] = 0.0
+  bij[:,0] = 1.0
+  np.fill_diagonal(bij, 0.5)
+  # bij = np.array(
+  #   [[0.5,0, 0, 0, 0, 0, 0],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
+  # )
+  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=num_clusters, aij = aij, bij = bij)
   return dataset
 
 # Cell
