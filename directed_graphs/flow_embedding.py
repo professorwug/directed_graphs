@@ -9,8 +9,14 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+
+if torch.__version__[:4] == "1.13":
+	device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.has_mps else 'cpu')
+else:
+	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 class FlowEmbedder(torch.nn.Module):
-	def __init__(self, graph, model_space, flow_strength):
+	def __init__(self, graph, model_space, flow_strength, disconnected_distance_constant = 1000):
 		"""
 		Instantiate a Flow Embedder object, supplying
 		graph: a single torch geometric graph object
@@ -20,11 +26,13 @@ class FlowEmbedder(torch.nn.Module):
 		super(FlowEmbedder, self).__init__()
 		self.graph = graph
 		self.nnodes = graph.num_nodes
+		self.embedding_dimension = 2
 		self.flow_strength = flow_strength
 		self.ground_truth_distances = torch.empty(self.nnodes, self.nnodes)
-		self.disconnected_distance_constant = 1000 # large number we use as the distance between nodes in the graph without a connecting path
+		self.disconnected_distance_constant = disconnected_distance_constant # large number we use as the distance between nodes in the graph without a connecting path
 		self.degree_polynomial = 1
 		self.step_size = 0.1
+		self.num_steps = 10
 
 		# Model parameters
 		self.embedded_points = nn.Parameter(torch.rand(self.nnodes,2))
@@ -90,6 +98,25 @@ class FlowEmbedder(torch.nn.Module):
 		for i in range(self.nnodes):
 			for j in range(self.nnodes):
 				self.embedding_D[i][j] = self.cost(self.embedded_points[i],self.embedded_points[j])
+
+	def fast_compute_embedding_distances(self):
+		self.embedding_D = torch.empty(self.nnodes,self.nnodes)
+		# Find matrix of delta x
+		XX = self.embedded_points.repeat(self.nnodes,1,1)
+		XXT = XX.transpose(0,1)
+		deltaX = XXT - XX
+		# Discretize the line between the points 
+		# This is an array with copies of the points
+		steps = XXT[:,:,:,None].repeat(1,1,1,self.num_steps)
+		# Now add to this the distance travelled in each step
+		stepnums = torch.arange(self.num_steps).repeat(self.nnodes,self.nnodes,self.embedding_dimension,1)
+		step_distances = deltaX[:,:,:,None].repeat(1,1,1,4) * stepnums
+		steps = steps + step_distances
+		# Put the features on the end
+		steps = steps.transpose(2,3)
+		# Evaluate the flows at each step
+		flows_per_step = self.flowfield(steps)
+		# flows_per_step = flows_per_step.transpose(2,3)
 		
 	def loss(self):
 		# calculate error in embedded points
@@ -104,11 +131,14 @@ class FlowEmbedder(torch.nn.Module):
 	def visualize_points(self, ):
 		# controls the x and y axes of the plot
 		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
-		x, y = np.meshgrid(np.linspace(-2,2,20),np.linspace(-2,2,20))
+		minx = min(self.embedded_points[:,0].detach().numpy())-1
+		maxx = max(self.embedded_points[:,0].detach().numpy())+1
+		miny = min(self.embedded_points[:,1].detach().numpy())-1
+		maxy = max(self.embedded_points[:,1].detach().numpy())+1
+		x, y = np.meshgrid(np.linspace(minx,maxx,20),np.linspace(miny,maxy,20))
 		x = torch.tensor(x,dtype=float)
 		y = torch.tensor(y,dtype=float)
-		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
-		
+		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to(device)
 		uv = self.flowfield(xy_t).detach()
 		u = uv[:,:,0]
 		v = uv[:,:,1]

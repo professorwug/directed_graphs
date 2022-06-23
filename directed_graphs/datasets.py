@@ -277,67 +277,51 @@ class DirectedStochasticBlockModel(InMemoryDataset):
 
 
 # Cell
-def source_graph(n_points = 700, num_clusters=7):
+def source_graph(n_points = 700):
   # we'll start with 7 clusters; six on the outside, one on the inside
-  aij = np.zeros((num_clusters, num_clusters))
-  aij[0,:] = 0.9
-  aij[:,0] = 0.9
-  np.fill_diagonal(aij, 0.9)
-  # aij = np.array(
-  #   [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-  #    [0.9, 0.9, 0, 0, 0, 0, 0],
-  #    [0.9, 0, 0.9, 0, 0, 0, 0],
-  #    [0.9, 0, 0, 0.9, 0, 0, 0],
-  #    [0.9, 0, 0, 0, 0.9, 0, 0],
-  #    [0.9, 0, 0, 0, 0, 0.9, 0],
-  #    [0.9, 0, 0, 0, 0, 0, 0.9]]
-  # )
-  bij = np.zeros((num_clusters, num_clusters))
-  bij[0,:] = 1.0
-  bij[:,0] = 0.0
-  np.fill_diagonal(bij, 0.5)
-  # bij = np.array(
-  #   [[0.5, 1, 1, 1, 1, 1, 1],
-  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
-  # )
-  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=num_clusters, aij = aij, bij = bij)
+  aij = np.array(
+    [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+     [0.9, 0.9, 0, 0, 0, 0, 0],
+     [0.9, 0, 0.9, 0, 0, 0, 0],
+     [0.9, 0, 0, 0.9, 0, 0, 0],
+     [0.9, 0, 0, 0, 0.9, 0, 0],
+     [0.9, 0, 0, 0, 0, 0.9, 0],
+     [0.9, 0, 0, 0, 0, 0, 0.9]]
+  )
+  bij = np.array(
+    [[0.5, 1, 1, 1, 1, 1, 1],
+     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
+  )
+  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=7, aij = aij, bij = bij)
   return dataset
 
 # Cell
-def sink_graph(n_points = 700, num_clusters=7):
+def sink_graph(n_points = 700):
   # we'll start with 7 clusters; six on the outside, one on the inside
-  aij = np.zeros((num_clusters, num_clusters))
-  aij[0,:] = 0.9
-  aij[:,0] = 0.9
-  np.fill_diagonal(aij, 0.9)
-  # aij = np.array(
-  #   [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-  #    [0.9, 0.9, 0, 0, 0, 0, 0],
-  #    [0.9, 0, 0.9, 0, 0, 0, 0],
-  #    [0.9, 0, 0, 0.9, 0, 0, 0],
-  #    [0.9, 0, 0, 0, 0.9, 0, 0],
-  #    [0.9, 0, 0, 0, 0, 0.9, 0],
-  #    [0.9, 0, 0, 0, 0, 0, 0.9]]
-  # )
-  bij = np.zeros((num_clusters, num_clusters))
-  bij[0,:] = 0.0
-  bij[:,0] = 1.0
-  np.fill_diagonal(bij, 0.5)
-  # bij = np.array(
-  #   [[0.5,0, 0, 0, 0, 0, 0],
-  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
-  # )
-  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=num_clusters, aij = aij, bij = bij)
+  aij = np.array(
+    [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+     [0.9, 0.9, 0, 0, 0, 0, 0],
+     [0.9, 0, 0.9, 0, 0, 0, 0],
+     [0.9, 0, 0, 0.9, 0, 0, 0],
+     [0.9, 0, 0, 0, 0.9, 0, 0],
+     [0.9, 0, 0, 0, 0, 0.9, 0],
+     [0.9, 0, 0, 0, 0, 0, 0.9]]
+  )
+  bij = np.array(
+    [[0.5,0, 0, 0, 0, 0, 0],
+     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
+  )
+  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=7, aij = aij, bij = bij)
   return dataset
 
 # Cell
@@ -406,50 +390,19 @@ class CycleGraph(InMemoryDataset):
     data = Data(x=x, edge_index=edge_index)
     self.data, self.slices = self.collate([data])
 
-# Comes from 41_node2vec_graph_reversal_walk.ipynb, cell
-from .datasets import DirectedStochasticBlockModel
-from typing import *
-import numpy as np
-def DirectedStochasticBlockModelHelper(num_nodes: int, num_clusters: int, edge_index: np.ndarray, undir_prob = [0.4], dir_prob = [0.9]):
-    """Directed SBM Helper
+# Cell
+class HalfCycleGraph(InMemoryDataset):
+  def __init__(self,num_nodes = 3,transform=None):
+    super().__init__(".", transform)
+    dense_adj = torch.tensor(
+      [[0,1,0],
+      [1,0,1],
+      [1,0,0]]
+    )
+    sparse_adj = SparseTensor.from_dense(dense_adj)
+    row, col, _ = sparse_adj.coo()
+    edge_index, _ = remove_self_loops(torch.stack([row, col]))
 
-    Parameters
-    ----------
-    num_nodes : int
-        _description_
-    num_clusters : int
-        must evenly divide num_nodes
-    edge_index : np.ndarray
-        see edge_index as in https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html
-    undir_prob : List, optional
-        Specifies probabilities of (undirected) connection between clusters i and j.  The default probability is 0.4.
-    dir_prob : List, optional
-        Specifies probabilities with which the edges made via aij are converted to directed edges. The default probability for bij is 0.9 where bij + bji = 1.
-
-    Returns
-    ----------
-    dataset : DirectedStochasticBlockModel
-        See (class) DirectedStochasticBlockModel
-    """
-    # need to include warnings about the corresponding sizes
-    # of edge_index and undir_prob
-    maxN = edge_index.max() + 1
-
-    # construct aij
-    aij = np.zeros((maxN, maxN))
-
-    # default probability of connections across
-    # and within specified clusters is 0.4
-    if len(undir_prob) == 1:
-        np.fill_diagonal(aij, undir_prob[0])
-        for x, y in zip(edge_index[0], edge_index[1]):
-            aij[x,y] = undir_prob[0]
-            aij[y,x] = undir_prob[0]
-
-    # construct bij
-    bij = np.zeros((maxN, maxN))
-    np.fill_diagonal(bij, 0.5)
-    for x, y in zip(edge_index[0], edge_index[1]):
-        bij[x,y] = dir_prob[0]
-        bij[y,x] = 1 - dir_prob[0]
-    return DirectedStochasticBlockModel(num_nodes, num_clusters, aij=aij, bij=bij)
+    x = torch.eye(num_nodes, dtype=torch.float)
+    data = Data(x=x, edge_index=edge_index)
+    self.data, self.slices = self.collate([data])
