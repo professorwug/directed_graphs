@@ -9,7 +9,12 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
-device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.has_mps else 'cpu')
+
+if torch.__version__[:4] == "1.13":
+	device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.has_mps else 'cpu')
+else:
+	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 class FlowEmbedder(torch.nn.Module):
 	def __init__(self, graph, model_space, flow_strength, disconnected_distance_constant = 1000):
 		"""
