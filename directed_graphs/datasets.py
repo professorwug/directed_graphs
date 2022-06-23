@@ -479,5 +479,3 @@ import torch
 def visualize_edge_index(num_clusters, edge_index):
   data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
   visualize_graph(data)
-
-visualize_edge_index(num_clusters, edge_index)
