@@ -476,6 +476,24 @@ from torch_geometric.data import Data
 from .datasets import visualize_graph
 import torch
 
-def visualize_edge_index(num_clusters, edge_index):
-  data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
-  visualize_graph(data)
+def visualize_edge_index(data, num_clusters=7):
+  num_nodes = data.num_nodes
+  nodes_per_cluster = num_nodes//num_clusters
+  A = torch.sparse_coo_tensor(data.edge_index,torch.ones(data.edge_index.shape[1])).to_dense()
+  row = []
+  col = []
+  for i in range(num_clusters):
+    for j in range(i+1,num_clusters):
+      ij_cnt = A[i*nodes_per_cluster:(i+1)*nodes_per_cluster,j*nodes_per_cluster:(j+1)*nodes_per_cluster].sum()
+      ji_cnt = A[j*nodes_per_cluster:(j+1)*nodes_per_cluster,i*nodes_per_cluster:(i+1)*nodes_per_cluster].sum()
+      if ij_cnt == 0 and ji_cnt == 0:
+        continue
+      if ij_cnt > ji_cnt:
+        row.append(i)
+        col.append(j)
+      else:
+        row.append(j)
+        col.append(i)
+  edge_index = torch.tensor([row, col])
+  cluster_data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
+  visualize_graph(cluster_data)
