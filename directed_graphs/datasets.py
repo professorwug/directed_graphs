@@ -2,7 +2,7 @@
 
 __all__ = ['plot_embeddings', 'EmailEuNetwork', 'visualize_heatmap', 'SourceSink', 'SmallRandom', 'visualize_graph',
            'DirectedStochasticBlockModel', 'source_graph', 'sink_graph', 'ChainGraph', 'ChainGraph2', 'ChainGraph3',
-           'CycleGraph', 'DirectedStochasticBlockModelHelper']
+           'CycleGraph', 'HalfCycleGraph', 'DirectedStochasticBlockModelHelper', 'visualize_edge_index']
 
 # Comes from 06_Node2Vec_with_Backwards_Connection.ipynb, cell
 import numpy as np
@@ -277,51 +277,67 @@ class DirectedStochasticBlockModel(InMemoryDataset):
 
 
 # Cell
-def source_graph(n_points = 700):
+def source_graph(n_points = 700, num_clusters=7):
   # we'll start with 7 clusters; six on the outside, one on the inside
-  aij = np.array(
-    [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-     [0.9, 0.9, 0, 0, 0, 0, 0],
-     [0.9, 0, 0.9, 0, 0, 0, 0],
-     [0.9, 0, 0, 0.9, 0, 0, 0],
-     [0.9, 0, 0, 0, 0.9, 0, 0],
-     [0.9, 0, 0, 0, 0, 0.9, 0],
-     [0.9, 0, 0, 0, 0, 0, 0.9]]
-  )
-  bij = np.array(
-    [[0.5, 1, 1, 1, 1, 1, 1],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
-  )
-  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=7, aij = aij, bij = bij)
+  aij = np.zeros((num_clusters, num_clusters))
+  aij[0,:] = 0.9
+  aij[:,0] = 0.9
+  np.fill_diagonal(aij, 0.9)
+  # aij = np.array(
+  #   [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+  #    [0.9, 0.9, 0, 0, 0, 0, 0],
+  #    [0.9, 0, 0.9, 0, 0, 0, 0],
+  #    [0.9, 0, 0, 0.9, 0, 0, 0],
+  #    [0.9, 0, 0, 0, 0.9, 0, 0],
+  #    [0.9, 0, 0, 0, 0, 0.9, 0],
+  #    [0.9, 0, 0, 0, 0, 0, 0.9]]
+  # )
+  bij = np.zeros((num_clusters, num_clusters))
+  bij[0,:] = 1.0
+  bij[:,0] = 0.0
+  np.fill_diagonal(bij, 0.5)
+  # bij = np.array(
+  #   [[0.5, 1, 1, 1, 1, 1, 1],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
+  # )
+  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=num_clusters, aij = aij, bij = bij)
   return dataset
 
 # Cell
-def sink_graph(n_points = 700):
+def sink_graph(n_points = 700, num_clusters=7):
   # we'll start with 7 clusters; six on the outside, one on the inside
-  aij = np.array(
-    [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-     [0.9, 0.9, 0, 0, 0, 0, 0],
-     [0.9, 0, 0.9, 0, 0, 0, 0],
-     [0.9, 0, 0, 0.9, 0, 0, 0],
-     [0.9, 0, 0, 0, 0.9, 0, 0],
-     [0.9, 0, 0, 0, 0, 0.9, 0],
-     [0.9, 0, 0, 0, 0, 0, 0.9]]
-  )
-  bij = np.array(
-    [[0.5,0, 0, 0, 0, 0, 0],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-     [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
-  )
-  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=7, aij = aij, bij = bij)
+  aij = np.zeros((num_clusters, num_clusters))
+  aij[0,:] = 0.9
+  aij[:,0] = 0.9
+  np.fill_diagonal(aij, 0.9)
+  # aij = np.array(
+  #   [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+  #    [0.9, 0.9, 0, 0, 0, 0, 0],
+  #    [0.9, 0, 0.9, 0, 0, 0, 0],
+  #    [0.9, 0, 0, 0.9, 0, 0, 0],
+  #    [0.9, 0, 0, 0, 0.9, 0, 0],
+  #    [0.9, 0, 0, 0, 0, 0.9, 0],
+  #    [0.9, 0, 0, 0, 0, 0, 0.9]]
+  # )
+  bij = np.zeros((num_clusters, num_clusters))
+  bij[0,:] = 0.0
+  bij[:,0] = 1.0
+  np.fill_diagonal(bij, 0.5)
+  # bij = np.array(
+  #   [[0.5,0, 0, 0, 0, 0, 0],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+  #    [1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
+  # )
+  dataset = DirectedStochasticBlockModel(num_nodes=n_points, num_clusters=num_clusters, aij = aij, bij = bij)
   return dataset
 
 # Cell
@@ -406,3 +422,78 @@ class HalfCycleGraph(InMemoryDataset):
     x = torch.eye(num_nodes, dtype=torch.float)
     data = Data(x=x, edge_index=edge_index)
     self.data, self.slices = self.collate([data])
+
+# Comes from 41_node2vec_graph_reversal_walk.ipynb, cell
+from .datasets import DirectedStochasticBlockModel
+from typing import *
+import numpy as np
+def DirectedStochasticBlockModelHelper(num_nodes: int, num_clusters: int, edge_index: np.ndarray, undir_prob = [0.4], dir_prob = [0.9]):
+    """Directed SBM Helper
+
+    Parameters
+    ----------
+    num_nodes : int
+        _description_
+    num_clusters : int
+        must evenly divide num_nodes
+    edge_index : np.ndarray
+        see edge_index as in https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html
+    undir_prob : List, optional
+        Specifies probabilities of (undirected) connection between clusters i and j.  The default probability is 0.4.
+    dir_prob : List, optional
+        Specifies probabilities with which the edges made via aij are converted to directed edges. The default probability for bij is 0.9 where bij + bji = 1.
+
+    Returns
+    ----------
+    dataset : DirectedStochasticBlockModel
+        See (class) DirectedStochasticBlockModel
+    """
+    # need to include warnings about the corresponding sizes
+    # of edge_index and undir_prob
+    # maxN = edge_index.max() + 1
+
+    # construct aij
+    aij = np.zeros((num_clusters, num_clusters))
+
+    # default probability of connections across
+    # and within specified clusters is 0.4
+    if len(undir_prob) == 1:
+        np.fill_diagonal(aij, undir_prob[0])
+        for x, y in zip(edge_index[0], edge_index[1]):
+            aij[x,y] = undir_prob[0]
+            aij[y,x] = undir_prob[0]
+
+    # construct bij
+    bij = np.zeros((num_clusters, num_clusters))
+    np.fill_diagonal(bij, 0.5)
+    for x, y in zip(edge_index[0], edge_index[1]):
+        bij[x,y] = dir_prob[0]
+        bij[y,x] = 1 - dir_prob[0]
+    return DirectedStochasticBlockModel(num_nodes, num_clusters, aij=aij, bij=bij)
+
+# Comes from 43_Node2Vec_on_MultiTree.ipynb, cell
+from torch_geometric.data import Data
+from .datasets import visualize_graph
+import torch
+
+def visualize_edge_index(data, num_clusters=7):
+  num_nodes = data.num_nodes
+  nodes_per_cluster = num_nodes//num_clusters
+  A = torch.sparse_coo_tensor(data.edge_index,torch.ones(data.edge_index.shape[1])).to_dense()
+  row = []
+  col = []
+  for i in range(num_clusters):
+    for j in range(i+1,num_clusters):
+      ij_cnt = A[i*nodes_per_cluster:(i+1)*nodes_per_cluster,j*nodes_per_cluster:(j+1)*nodes_per_cluster].sum()
+      ji_cnt = A[j*nodes_per_cluster:(j+1)*nodes_per_cluster,i*nodes_per_cluster:(i+1)*nodes_per_cluster].sum()
+      if ij_cnt == 0 and ji_cnt == 0:
+        continue
+      if ij_cnt > ji_cnt:
+        row.append(i)
+        col.append(j)
+      else:
+        row.append(j)
+        col.append(i)
+  edge_index = torch.tensor([row, col])
+  cluster_data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
+  visualize_graph(cluster_data)
