@@ -472,9 +472,11 @@ def DirectedStochasticBlockModelHelper(num_nodes: int, num_clusters: int, edge_i
     return DirectedStochasticBlockModel(num_nodes, num_clusters, aij=aij, bij=bij)
 
 # Comes from 43_Node2Vec_on_MultiTree.ipynb, cell
+import matplotlib.pyplot as plt
 from torch_geometric.data import Data
-from .datasets import visualize_graph
+from torch_geometric.utils import to_networkx
 import torch
+import networkx as nx
 
 def visualize_edge_index(data, num_clusters=7):
   num_nodes = data.num_nodes
@@ -496,4 +498,6 @@ def visualize_edge_index(data, num_clusters=7):
         col.append(i)
   edge_index = torch.tensor([row, col])
   cluster_data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
-  visualize_graph(cluster_data)
+  G = to_networkx(cluster_data, to_undirected=False)
+  nx.draw_networkx(G, pos=nx.planar_layout(G), arrowsize=20, node_color="#adade0")
+  plt.show()
