@@ -10,26 +10,32 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
-      title: Plotting Vector Fields using matplotlib
-      url: playground.html
-    - output: web,pdf
       title: module name here
       url: core.html
     - output: web,pdf
       title: Porting Diffusion Curvature to Directed Graphs
       url: Diffusion Curvature of Directed Graphs.html
     - output: web,pdf
+      title: 'Graph Utilities: kernels, normalizations, and building diffusion matrices'
+      url: graph_building.html
+    - output: web,pdf
       title: Directed Graph Utils
       url: Directed_graph_utils.html
     - output: web,pdf
       title: Title
-      url: Toy_Graph_Datasets.html
+      url: Node2Vec_on_RootedTree.html
     - output: web,pdf
       title: Testing node2vec on Directed Graphs
       url: testing node2vec on directed graphs.html
     - output: web,pdf
-      title: DeepWalk with Backwards Connection
-      url: DeepWalk_with_Backwards_Connection.html
+      title: DeepWalk with Backwards Connections Directed Graphs
+      url: DeepWalk_with_Backwards_Connections.html
+    - output: web,pdf
+      title: Node2Vec with Backwards Connection
+      url: Node2Vec_with_Backwards_Connection.html
+    - output: web,pdf
+      title: node2vec with Backwards Walk
+      url: Backwards_Node2Vec.html
     - output: web,pdf
       title: 'Differentiable Diffusion Curvature '
       url: differentiable_diffusion_curvature.html
@@ -43,11 +49,32 @@ entries:
       title: Directed Stochastic Block Model
       url: Directed Stochastic Block Model.html
     - output: web,pdf
+      title: Test Example
+      url: Test_node2vec_on_DirectedGraphs.html
+    - output: web,pdf
       title: Model Embedding Spaces
       url: model_spaces.html
     - output: web,pdf
       title: Testing the Flow Embedder
       url: testing Flow Embedder.html
+    - output: web,pdf
+      title: Flow Embedding with Implicit Vectors
+      url: Flow_Embedding_with_Implicit_Vectors.html
+    - output: web,pdf
+      title: Visualizations for our Presentation
+      url: visualizations_for_presentations.html
+    - output: web,pdf
+      title: Perrault-Jonas2011's Directed Graph Embeddings
+      url: UW_Manifold_Based_Directed_Embedding.html
+    - output: web,pdf
+      title: Node2Vec Graph Reversal
+      url: node2vec_graph_reversal_walk.html
+    - output: web,pdf
+      title: '`Node2Vec` on MultiTree'
+      url: Node2Vec_on_MultiTree.html
+    - output: web,pdf
+      title: '`Node2Vec` on PolyTree'
+      url: Node2Vec_on_PolyTree.html
     output: web
     title: directed_graphs
   output: web
