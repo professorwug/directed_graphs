@@ -15,7 +15,7 @@ def plot_embeddings(emb, num_nodes, num_clusters, title=""):
     pca = PCA(n_components=2)
     emb= pca.fit_transform(emb)
   plt.figure()
-  sc = plt.scatter(emb[:,0], emb[:,1], c=clusters)
+  sc = plt.scatter(emb[:,0], emb[:,1], c=clusters, cmap="Dark2")
   plt.legend(handles = sc.legend_elements()[0], title="Clusters", labels=list(range(num_clusters)))
   plt.suptitle(title)
   plt.show()
@@ -478,7 +478,7 @@ from torch_geometric.utils import to_networkx
 import torch
 import networkx as nx
 
-def visualize_edge_index(data, num_clusters=7):
+def visualize_edge_index(data, num_clusters=7, pos=None):
   num_nodes = data.num_nodes
   nodes_per_cluster = num_nodes//num_clusters
   A = torch.sparse_coo_tensor(data.edge_index,torch.ones(data.edge_index.shape[1])).to_dense()
@@ -499,5 +499,7 @@ def visualize_edge_index(data, num_clusters=7):
   edge_index = torch.tensor([row, col])
   cluster_data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
   G = to_networkx(cluster_data, to_undirected=False)
-  nx.draw_networkx(G, pos=nx.planar_layout(G), arrowsize=20, node_color="#adade0")
+  if pos is None:
+    pos = nx.planar_layout(G)
+  nx.draw_networkx(G, pos=pos, arrowsize=20, node_color=list(range(num_clusters)), cmap=plt.cm.Dark2, font_color="whitesmoke")
   plt.show()
