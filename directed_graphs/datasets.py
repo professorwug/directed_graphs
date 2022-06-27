@@ -15,7 +15,7 @@ def plot_embeddings(emb, num_nodes, num_clusters, title=""):
     pca = PCA(n_components=2)
     emb= pca.fit_transform(emb)
   plt.figure()
-  sc = plt.scatter(emb[:,0], emb[:,1], c=clusters)
+  sc = plt.scatter(emb[:,0], emb[:,1], c=clusters, cmap="Dark2")
   plt.legend(handles = sc.legend_elements()[0], title="Clusters", labels=list(range(num_clusters)))
   plt.suptitle(title)
   plt.show()
@@ -187,9 +187,9 @@ class SmallRandom(InMemoryDataset):
   def __init__(self, num_nodes=5, prob_edge=0.2, transform=None, pre_transform=None):
     super().__init__(".", transform, pre_transform)
 
-    if num_nodes > 30:
-      num_nodes = 30
-      warnings.warn("Number of nodes is too large for SmallRandom dataset. Reset num_nodes = ", num_nodes)
+    if num_nodes > 300:
+      num_nodes = 300
+      warnings.warn(f"Number of nodes is too large for SmallRandom dataset. Reset num_nodes =  {num_nodes}")
 
     dense_adj = (torch.rand((num_nodes, num_nodes)) < prob_edge).int()
     sparse_adj = SparseTensor.from_dense(dense_adj)
@@ -472,10 +472,34 @@ def DirectedStochasticBlockModelHelper(num_nodes: int, num_clusters: int, edge_i
     return DirectedStochasticBlockModel(num_nodes, num_clusters, aij=aij, bij=bij)
 
 # Comes from 43_Node2Vec_on_MultiTree.ipynb, cell
+import matplotlib.pyplot as plt
 from torch_geometric.data import Data
-from .datasets import visualize_graph
+from torch_geometric.utils import to_networkx
 import torch
+import networkx as nx
 
-def visualize_edge_index(num_clusters, edge_index):
-  data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
-  visualize_graph(data)
+def visualize_edge_index(data, num_clusters=7, pos=None):
+  num_nodes = data.num_nodes
+  nodes_per_cluster = num_nodes//num_clusters
+  A = torch.sparse_coo_tensor(data.edge_index,torch.ones(data.edge_index.shape[1])).to_dense()
+  row = []
+  col = []
+  for i in range(num_clusters):
+    for j in range(i+1,num_clusters):
+      ij_cnt = A[i*nodes_per_cluster:(i+1)*nodes_per_cluster,j*nodes_per_cluster:(j+1)*nodes_per_cluster].sum()
+      ji_cnt = A[j*nodes_per_cluster:(j+1)*nodes_per_cluster,i*nodes_per_cluster:(i+1)*nodes_per_cluster].sum()
+      if ij_cnt == 0 and ji_cnt == 0:
+        continue
+      if ij_cnt > ji_cnt:
+        row.append(i)
+        col.append(j)
+      else:
+        row.append(j)
+        col.append(i)
+  edge_index = torch.tensor([row, col])
+  cluster_data = Data(x=torch.eye(num_clusters), edge_index=edge_index)
+  G = to_networkx(cluster_data, to_undirected=False)
+  if pos is None:
+    pos = nx.planar_layout(G)
+  nx.draw_networkx(G, pos=pos, arrowsize=20, node_color=list(range(num_clusters)), cmap=plt.cm.Dark2, font_color="whitesmoke")
+  plt.show()
