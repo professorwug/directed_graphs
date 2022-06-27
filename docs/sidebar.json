@@ -1,18 +1,27 @@
 {
   "directed_graphs": {
     "Overview": "/",
-    "Plotting Vector Fields using matplotlib": "playground.html",
     "module name here": "core.html",
     "Porting Diffusion Curvature to Directed Graphs": "Diffusion Curvature of Directed Graphs.html",
+    "Graph Utilities: kernels, normalizations, and building diffusion matrices": "graph_building.html",
     "Directed Graph Utils": "Directed_graph_utils.html",
-    "Title": "Toy_Graph_Datasets.html",
+    "Title": "Node2Vec_on_RootedTree.html",
     "Testing node2vec on Directed Graphs": "testing node2vec on directed graphs.html",
-    "DeepWalk with Backwards Connection": "DeepWalk_with_Backwards_Connection.html",
+    "DeepWalk with Backwards Connections Directed Graphs": "DeepWalk_with_Backwards_Connections.html",
+    "Node2Vec with Backwards Connection": "Node2Vec_with_Backwards_Connection.html",
+    "node2vec with Backwards Walk": "Backwards_Node2Vec.html",
     "Differentiable Diffusion Curvature ": "differentiable_diffusion_curvature.html",
     "Stanford Large Network Datasets with Ground-truth Communities": "Communities_Datasets.html",
     "Small Random Toy Directed Graphs": "Small_Random_Directed_Graphs.html",
     "Directed Stochastic Block Model": "Directed Stochastic Block Model.html",
+    "Test Example": "Test_node2vec_on_DirectedGraphs.html",
     "Model Embedding Spaces": "model_spaces.html",
-    "Testing the Flow Embedder": "testing Flow Embedder.html"
+    "Testing the Flow Embedder": "testing Flow Embedder.html",
+    "Flow Embedding with Implicit Vectors": "Flow_Embedding_with_Implicit_Vectors.html",
+    "Visualizations for our Presentation": "visualizations_for_presentations.html",
+    "Perrault-Jonas2011's Directed Graph Embeddings": "UW_Manifold_Based_Directed_Embedding.html",
+    "Node2Vec Graph Reversal": "node2vec_graph_reversal_walk.html",
+    "`Node2Vec` on MultiTree": "Node2Vec_on_MultiTree.html",
+    "`Node2Vec` on PolyTree": "Node2Vec_on_PolyTree.html"
   }
 }
