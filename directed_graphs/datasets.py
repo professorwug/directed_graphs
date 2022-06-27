@@ -187,9 +187,9 @@ class SmallRandom(InMemoryDataset):
   def __init__(self, num_nodes=5, prob_edge=0.2, transform=None, pre_transform=None):
     super().__init__(".", transform, pre_transform)
 
-    if num_nodes > 30:
-      num_nodes = 30
-      warnings.warn("Number of nodes is too large for SmallRandom dataset. Reset num_nodes = ", num_nodes)
+    if num_nodes > 300:
+      num_nodes = 300
+      warnings.warn(f"Number of nodes is too large for SmallRandom dataset. Reset num_nodes =  {num_nodes}")
 
     dense_adj = (torch.rand((num_nodes, num_nodes)) < prob_edge).int()
     sparse_adj = SparseTensor.from_dense(dense_adj)

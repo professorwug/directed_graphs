@@ -47,7 +47,7 @@ nb_path: "21_Communities_Datasets.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="EmailEuNetwork" class="doc_header"><code>class</code> <code>EmailEuNetwork</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/datasets.py#L12" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>EmailEuNetwork</code>(<strong><code>transform</code></strong>=<em><code>None</code></em>, <strong><code>pre_transform</code></strong>=<em><code>None</code></em>) :: <code>InMemoryDataset</code></p>
+<h2 id="EmailEuNetwork" class="doc_header"><code>class</code> <code>EmailEuNetwork</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/datasets.py#L29" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>EmailEuNetwork</code>(<strong><code>transform</code></strong>=<em><code>None</code></em>, <strong><code>pre_transform</code></strong>=<em><code>None</code></em>) :: <code>InMemoryDataset</code></p>
 </blockquote>
 <p>"
 email-Eu-core network from Stanford Large Network Dataset Collection</p>
@@ -157,23 +157,43 @@ Has self-loops: True
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="visualize_heatmap" class="doc_header"><code>visualize_heatmap</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/datasets.py#L80" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>visualize_heatmap</code>(<strong><code>edge_index</code></strong>, <strong><code>order_ind</code></strong>=<em><code>None</code></em>, <strong><code>cmap</code></strong>=<em><code>'viridis'</code></em>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">torch_geometric.utils</span> <span class="kn">import</span> <span class="n">to_dense_adj</span>
-
-<span class="k">def</span> <span class="nf">visualize_heatmap</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">order_ind</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="n">dense_adj</span> <span class="o">=</span> <span class="n">to_dense_adj</span><span class="p">(</span><span class="n">edge_index</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="k">if</span> <span class="n">order_ind</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">dense_adj</span> <span class="o">=</span> <span class="n">dense_adj</span><span class="p">[</span><span class="n">order_ind</span><span class="p">,:][:,</span><span class="n">order_ind</span><span class="p">]</span>
-  <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">dense_adj</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;hot&quot;</span><span class="p">)</span>
-  <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="n">order_ind</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">visualize_heatmap</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">order_ind</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">order_ind</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">visualize_heatmap</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">order_ind</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;hot&quot;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -221,7 +241,7 @@ Has self-loops: True
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="SourceSink" class="doc_header"><code>class</code> <code>SourceSink</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/datasets.py#L63" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SourceSink</code>(<strong><code>prob_source</code></strong>=<em><code>0.1</code></em>, <strong><code>prob_sink</code></strong>=<em><code>0.1</code></em>, <strong><code>adv_prob</code></strong>=<em><code>0</code></em>, <strong><code>remove_prob</code></strong>=<em><code>0</code></em>) :: <code>BaseTransform</code></p>
+<h2 id="SourceSink" class="doc_header"><code>class</code> <code>SourceSink</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/datasets.py#L92" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SourceSink</code>(<strong><code>prob_source</code></strong>=<em><code>0.1</code></em>, <strong><code>prob_sink</code></strong>=<em><code>0.1</code></em>, <strong><code>adv_prob</code></strong>=<em><code>0</code></em>, <strong><code>remove_prob</code></strong>=<em><code>0</code></em>) :: <code>BaseTransform</code></p>
 </blockquote>
 <p>Transform a (directed or undirected) graph into a directed graph
 with a proportion of the nodes with mostly out-edges

@@ -13,10 +13,12 @@ index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb
          "diffusion_map_from_points": "01_graph_building.ipynb",
          "diffusion_matrix_from_graph": "02_Directed_graph_utils.ipynb",
          "node2vec_and_plot": "04_testing node2vec on directed graphs.ipynb",
-         "deepwalk_and_pca_plot": "06_Node2Vec_with_Backwards_Connection.ipynb",
+         "plot_embeddings": "06_Node2Vec_with_Backwards_Connection.ipynb",
+         "BackwardsNode2Vec": "06_Node2Vec_with_Backwards_Connection.ipynb",
          "curvature": "12_differentiable_diffusion_curvature.ipynb",
          "diffusion_curvature_of_graph": "12_differentiable_diffusion_curvature.ipynb",
          "EmailEuNetwork": "21_Communities_Datasets.ipynb",
+         "visualize_heatmap": "21_Communities_Datasets.ipynb",
          "SourceSink": "21_Communities_Datasets.ipynb",
          "SmallRandom": "22_Small_Random_Directed_Graphs.ipynb",
          "visualize_graph": "22_Small_Random_Directed_Graphs.ipynb",
@@ -30,13 +32,15 @@ index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb
          "HalfCycleGraph": "24_Directed Stochastic Block Model.ipynb",
          "GeneralFlowEmbedder": "33_Flow_Embedding_with_Implicit_Vectors.ipynb",
          "directed_diffusion_map": "40_UW_Manifold_Based_Directed_Embedding.ipynb",
-         "DirectedStochasticBlockModelHelper": "41_node2vec_graph_reversal_walk.ipynb"}
+         "DirectedStochasticBlockModelHelper": "41_node2vec_graph_reversal_walk.ipynb",
+         "visualize_edge_index": "43_Node2Vec_on_MultiTree.ipynb"}
 
 modules = ["curvature.py",
            "utils.py",
            "embeddings.py",
-           "differentiable_laziness.py",
            "datasets.py",
+           "backwards.py",
+           "differentiable_laziness.py",
            "directed_diffusion_maps.py"]
 
 doc_url = "https://professorwug.github.io/directed_graphs/"
