@@ -33,7 +33,8 @@ index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb
          "GeneralFlowEmbedder": "33_Flow_Embedding_with_Implicit_Vectors.ipynb",
          "directed_diffusion_map": "40_UW_Manifold_Based_Directed_Embedding.ipynb",
          "DirectedStochasticBlockModelHelper": "41_node2vec_graph_reversal_walk.ipynb",
-         "visualize_edge_index": "43_Node2Vec_on_MultiTree.ipynb"}
+         "visualize_edge_index": "43_Node2Vec_on_MultiTree.ipynb",
+         "plot_multiple_embeddings": "43_Node2Vec_on_MultiTree.ipynb"}
 
 modules = ["curvature.py",
            "utils.py",
