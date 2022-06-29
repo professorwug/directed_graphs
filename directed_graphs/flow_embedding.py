@@ -9,6 +9,7 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+from directed_graphs.utils import diffusion_matrix_from_graph
 
 if torch.__version__[:4] == "1.13":
 	device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.has_mps else 'cpu')
@@ -45,7 +46,7 @@ class FlowEmbedder(torch.nn.Module):
 		self.flow_field_parameters = nn.Parameter(torch.randn(self.degree_polynomial + 1))
 		self.flow_field_parameters2 = nn.Parameter(torch.randn(self.degree_polynomial + 1))
 		
-		
+		 
 
 		# Set up for fitting		
 		self.calculate_shortest_path_distances()
@@ -168,12 +169,9 @@ class FlowEmbedder(torch.nn.Module):
 			optim.step()
 		print("Exiting training with loss ",loss)
 		return self.embedded_points
-		
-			
-		
-		
-		
-		
+
+
+
 	
 	
 		
