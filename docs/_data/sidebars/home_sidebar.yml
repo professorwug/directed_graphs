@@ -23,7 +23,7 @@ entries:
       url: Directed_graph_utils.html
     - output: web,pdf
       title: Title
-      url: Node2Vec_on_RootedTree.html
+      url: Toy_Graph_Datasets.html
     - output: web,pdf
       title: Testing node2vec on Directed Graphs
       url: testing node2vec on directed graphs.html
@@ -70,11 +70,35 @@ entries:
       title: Node2Vec Graph Reversal
       url: node2vec_graph_reversal_walk.html
     - output: web,pdf
+      title: node2vec on Rooted Tree
+      url: Node2Vec_on_RootedTree.html
+    - output: web,pdf
       title: '`Node2Vec` on MultiTree'
       url: Node2Vec_on_MultiTree.html
     - output: web,pdf
       title: '`Node2Vec` on PolyTree'
       url: Node2Vec_on_PolyTree.html
+    - output: web,pdf
+      title: Graph 1
+      url: Node2Vec_on_Cyclic_Graphs.html
+    - output: web,pdf
+      title: Create sink
+      url: Sink.html
+    - output: web,pdf
+      title: Create source
+      url: Source.html
+    - output: web,pdf
+      title: Flow Embedding with Diffusion
+      url: flow_embedding_with_diffusion.html
+    - output: web,pdf
+      title: Testing the Diffusion Flow Embedder
+      url: testing_diffusion_flow_embedder.html
+    - output: web,pdf
+      title: Manifold With Flow Datasets
+      url: Directed_SBM_On_Manifold.html
+    - output: web,pdf
+      title: PHATE
+      url: playground.html
     output: web
     title: directed_graphs
   output: web

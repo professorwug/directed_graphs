@@ -750,10 +750,7 @@ Is undirected: False
 <p>{% raw %}
 $$ P = D^{-1} A $$
 {% endraw %}</p>
-<p>The only difficulty lays in normalization: directed graphs may have rows with zero sum. To counteract that, we use a normalization function which takes the rowsums, and returns an indicator vector: 1 if zero, 0 otherwise. This is done in a slightly hacky way, by taking</p>
-<p>{% raw %}
-$$ \text{floor}(2^{-rowsums}) $$
-{% endraw %}</p>
+<p>The only difficulty lays in normalization: directed graphs may have rows with zero sum. To counteract that, we set any zero rowsums equal to one, noting that they are multiplied by zero anyway, so the value (as long as not infinite) doesn't matter.</p>
 
 </div>
 </div>
@@ -901,6 +898,12 @@ Accepts tensor inputs of <code>A</code>, in COO sparse form, or dense, or can wo
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Powering-the-Diffusion-Matrix">Powering the Diffusion Matrix<a class="anchor-link" href="#Powering-the-Diffusion-Matrix"> </a></h1>
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">

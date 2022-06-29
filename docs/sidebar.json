@@ -5,7 +5,7 @@
     "Porting Diffusion Curvature to Directed Graphs": "Diffusion Curvature of Directed Graphs.html",
     "Graph Utilities: kernels, normalizations, and building diffusion matrices": "graph_building.html",
     "Directed Graph Utils": "Directed_graph_utils.html",
-    "Title": "Node2Vec_on_RootedTree.html",
+    "Title": "Toy_Graph_Datasets.html",
     "Testing node2vec on Directed Graphs": "testing node2vec on directed graphs.html",
     "DeepWalk with Backwards Connections Directed Graphs": "DeepWalk_with_Backwards_Connections.html",
     "Node2Vec with Backwards Connection": "Node2Vec_with_Backwards_Connection.html",
@@ -21,7 +21,15 @@
     "Visualizations for our Presentation": "visualizations_for_presentations.html",
     "Perrault-Jonas2011's Directed Graph Embeddings": "UW_Manifold_Based_Directed_Embedding.html",
     "Node2Vec Graph Reversal": "node2vec_graph_reversal_walk.html",
+    "node2vec on Rooted Tree": "Node2Vec_on_RootedTree.html",
     "`Node2Vec` on MultiTree": "Node2Vec_on_MultiTree.html",
-    "`Node2Vec` on PolyTree": "Node2Vec_on_PolyTree.html"
+    "`Node2Vec` on PolyTree": "Node2Vec_on_PolyTree.html",
+    "Graph 1": "Node2Vec_on_Cyclic_Graphs.html",
+    "Create sink": "Sink.html",
+    "Create source": "Source.html",
+    "Flow Embedding with Diffusion": "flow_embedding_with_diffusion.html",
+    "Testing the Diffusion Flow Embedder": "testing_diffusion_flow_embedder.html",
+    "Manifold With Flow Datasets": "Directed_SBM_On_Manifold.html",
+    "PHATE": "playground.html"
   }
 }
