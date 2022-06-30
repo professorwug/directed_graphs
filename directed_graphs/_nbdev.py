@@ -34,7 +34,14 @@ index = {"diffusion_curvature": "01_Diffusion Curvature of Directed Graphs.ipynb
          "directed_diffusion_map": "40_UW_Manifold_Based_Directed_Embedding.ipynb",
          "DirectedStochasticBlockModelHelper": "41_node2vec_graph_reversal_walk.ipynb",
          "visualize_edge_index": "43_Node2Vec_on_MultiTree.ipynb",
-         "plot_multiple_embeddings": "43_Node2Vec_on_MultiTree.ipynb"}
+         "plot_multiple_embeddings": "43_Node2Vec_on_MultiTree.ipynb",
+         "affinity_from_flow": "50_flow_embedding_with_diffusion.ipynb",
+         "affinity_matrix_from_pointset_to_pointset": "50_flow_embedding_with_diffusion.ipynb",
+         "DiffusionFlowEmbedder": "50_flow_embedding_with_diffusion.ipynb",
+         "sbm": "52_Directed_SBM_On_Manifold.ipynb",
+         "outward_flow": "52_Directed_SBM_On_Manifold.ipynb",
+         "inward_flow": "52_Directed_SBM_On_Manifold.ipynb",
+         "visualize_points_on_flow_field": "52_Directed_SBM_On_Manifold.ipynb"}
 
 modules = ["curvature.py",
            "utils.py",
@@ -42,7 +49,9 @@ modules = ["curvature.py",
            "datasets.py",
            "backwards.py",
            "differentiable_laziness.py",
-           "directed_diffusion_maps.py"]
+           "directed_diffusion_maps.py",
+           "diffusion_flow_embedding.py",
+           "pointclouds.py"]
 
 doc_url = "https://professorwug.github.io/directed_graphs/"
 

@@ -42,7 +42,7 @@ def affinity_from_flow(flows, directions_array, sigma=1):
 
 
 # Cell
-def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flow,n_neighbors=None,sigma=0.5):
+def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flows,n_neighbors=None,sigma=0.5):
   """Compute affinity matrix between the points of pointset1 and pointset2, using the provided flow.
 
   Parameters
@@ -58,8 +58,6 @@ def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flow,n_neigh
   Returns:
   Affinity matrix: torch tensor of shape n1 x n2
   """
-  # Calculate the flows from pointset 1
-  flows = flow(pointset1)
   # Calculate the directions from point i in pointset 1 to point j in pointset 2
   n1 = pointset1.shape[0]
   n2 = pointset2.shape[0]
@@ -83,51 +81,81 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class DiffusionFlowEmbedder(torch.nn.Module):
-	def __init__(self,graph, t = 4, sigma=0.5):
+	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2):
 		"""Flow Embedding with diffusion
 
 		Parameters
 		----------
-		graph : pyg graph
-			a directed graph, to be embedded by the flow embedder, in pytorch geometric data format
+		X : torch tensor n_points x n_dim
+			data matrix
+		flows : torch tensor n_points x n_dim
+			The flow at each point
+		t : int
+			Loss is computed with the diffusion operator powered to this number
+		sigma in [0,1]
+			Kernel bandwidth in the embedding
 		"""
+		# initialize parameters
 		super(DiffusionFlowEmbedder, self).__init__()
-		self.graph = graph
+		self.X = X
+		self.ground_truth_flows = flows
 		self.t = t
-		self.sigma = 0.5
-		self.nnodes = graph.num_nodes
-		self.embedding_dimension = 2
+		self.sigma_embedding = sigma_embedding
+		self.sigma_graph = sigma_graph
+		self.nnodes = X.shape[0]
+		self.data_dimension = X.shape[1]
+		self.losses = []
+		self.embedding_dimension = embedding_dimension
 		# Compute P^t of the graph, the powered diffusion matrix
 		# TODO: This can be optimized using landmarks, etc. For now it's straight sparse matrix multiplication
-		self.P_graph = diffusion_matrix_from_graph(G = graph)
+		# TODO: Migrate to a specialized function for dataset affinity calculation, with automatic kernel bandwidth selection, and the like
+		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph)
 		self.P_graph_t = torch.matrix_power(self.P_graph,self.t)
-		# Embedding points
-		self.embedded_points = nn.Parameter(torch.rand(self.nnodes,2))
 		# Flow field
 		self.FlowArtist = nn.Sequential(nn.Linear(2, 10),
 		                       nn.Tanh(),
 		                       nn.Linear(10, 10),
 		                       nn.Tanh(),
 		                       nn.Linear(10, 2))
+		# Autoencoder to embed the points into a low dimension
+		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, 100),
+															nn.ReLU(),
+															nn.Linear(100, 10),
+															nn.ReLU(),
+															nn.Linear(10, self.embedding_dimension))
+		self.decoder = nn.Sequential(nn.Linear(self.embedding_dimension, 10),
+															nn.ReLU(),
+															nn.Linear(10, 100),
+															nn.ReLU(),
+															nn.Linear(100, self.data_dimension))
 		# training ops
 		self.KLD = nn.KLDivLoss(reduction='batchmean',log_target=False)
+		self.MSE = nn.MSELoss()
 		self.optim = torch.optim.Adam(self.parameters())
 									
 
 	def compute_embedding_P(self):
-		A = affinity_matrix_from_pointset_to_pointset(self.embedded_points,self.embedded_points,flow = self.FlowArtist, sigma = self.sigma)
+		A = affinity_matrix_from_pointset_to_pointset(self.embedded_points,self.embedded_points,flows = self.FlowArtist(self.embedded_points), sigma = self.sigma_embedding)
 		# flow
 		self.P_embedding = torch.diag(1/A.sum(axis=1)) @ A
 		# power it
 		self.P_embedding_t = torch.matrix_power(self.P_embedding,self.t)
 
 	def loss(self):
+		self.embedded_points = self.encoder(self.X)
 		# compute embedding diffusion matrix
 		self.compute_embedding_P()
+		# compute autoencoder loss
+		X_reconstructed = self.decoder(self.embedded_points)
+		reconstruction_loss = self.MSE(X_reconstructed, self.X)
 		# take KL divergence between it and actual P
 		log_P_embedding_t = torch.log(self.P_embedding_t)
-		cost = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
+		diffusion_loss = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
+		cost = diffusion_loss + reconstruction_loss
+		# print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
+		self.losses.append([diffusion_loss,reconstruction_loss])
 		return cost
+
 	def visualize_points(self, labels):
 		# controls the x and y axes of the plot
 		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
@@ -142,16 +170,16 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		uv = self.FlowArtist(xy_t).detach()
 		u = uv[:,:,0]
 		v = uv[:,:,1]
-		"""
-		quiver
-			plots a 2D field of arrows
-			quiver([X, Y], U, V, [C], **kw);
-			X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
-		"""
+		
+		# quiver
+		# 	plots a 2D field of arrows
+		# 	quiver([X, Y], U, V, [C], **kw);
+		# 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
+		
 		plt.quiver(x,y,u,v)
 		sc = plt.scatter(self.embedded_points[:,0].detach(),self.embedded_points[:,1].detach(), c=labels)
-		plt.legend(handles = sc.legend_elements()[0], title="Blobs", labels=labels)
-		"""Display all open figures."""
+		plt.legend()
+		# Display all open figures.
 		plt.show()
 
 
@@ -166,9 +194,6 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			# compute gradient and step backwards
 			loss.backward()
 			self.optim.step()
+			# TODO: Criteria to automatically end training
 		print("Exiting training with loss ",loss)
 		return self.embedded_points
-
-
-
-
