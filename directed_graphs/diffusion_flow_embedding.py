@@ -104,6 +104,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.sigma_graph = sigma_graph
 		self.nnodes = X.shape[0]
 		self.data_dimension = X.shape[1]
+		self.losses = []
 		self.embedding_dimension = embedding_dimension
 		# Compute P^t of the graph, the powered diffusion matrix
 		# TODO: This can be optimized using landmarks, etc. For now it's straight sparse matrix multiplication
@@ -151,7 +152,8 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		log_P_embedding_t = torch.log(self.P_embedding_t)
 		diffusion_loss = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
 		cost = diffusion_loss + reconstruction_loss
-		print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
+		# print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
+		self.losses.append([diffusion_loss,reconstruction_loss])
 		return cost
 
 	def visualize_points(self, labels):
