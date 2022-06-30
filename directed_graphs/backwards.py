@@ -53,7 +53,7 @@ from .backwards import BackwardsNode2Vec
 from torch_geometric.utils import to_networkx
 from tqdm import tqdm
 
-def plot_multiple_embeddings(data, num_clusters, backward_prob_lst, dimensions_lst, walk_length_lst, p_lst, q_lst, num_walk, num_repeat=10):
+def plot_multiple_embeddings(data, num_clusters, backward_prob_lst, dimensions_lst, walk_length_lst, p_lst, q_lst, num_walk, window, num_repeat=10):
   num_nodes = data.num_nodes
   G_nx = to_networkx(data, to_undirected=False)
   clusters = np.repeat(list(range(num_clusters)),num_nodes/num_clusters)
@@ -63,11 +63,12 @@ def plot_multiple_embeddings(data, num_clusters, backward_prob_lst, dimensions_l
 
   param_sets = set(product(backward_prob_lst, dimensions_lst, walk_length_lst, p_lst, q_lst))
   counter = 0
-  for backward_prob, dimensions, walk_length, p, q in tqdm(param_sets):
+  for backward_prob, dimensions, walk_length, p, q in param_sets:
     axes[counter,0].set_ylabel(f"B={backward_prob},D={dimensions},L={walk_length},p={p},q={q}")
+    node2vec2_model = BackwardsNode2Vec(G_nx, backward_prob=backward_prob, p=p, q=q, dimensions=dimensions, walk_length=walk_length, num_walks=num_walk, workers=4, quiet=True)
     for i in range(num_repeat):
-      node2vec2_model = BackwardsNode2Vec(G_nx, backward_prob=backward_prob, p=p, q=q, dimensions=dimensions, walk_length=walk_length, num_walks=num_walk, workers=4, quiet=True)
-      emb = node2vec2_model.get_embeddings(window=1)
+      print(i)
+      emb = node2vec2_model.get_embeddings(window=window)
       if emb.shape[1] > 2:
         pca = PCA(n_components=2)
         emb= pca.fit_transform(emb)
