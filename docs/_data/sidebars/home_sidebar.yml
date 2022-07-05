@@ -13,95 +13,92 @@ entries:
       title: module name here
       url: core.html
     - output: web,pdf
-      title: Porting Diffusion Curvature to Directed Graphs
-      url: Diffusion Curvature of Directed Graphs.html
-    - output: web,pdf
       title: 'Graph Utilities: kernels, normalizations, and building diffusion matrices'
-      url: graph_building.html
+      url: 01a Graph Utils.html
     - output: web,pdf
       title: Directed Graph Utils
-      url: Directed_graph_utils.html
-    - output: web,pdf
-      title: Title
-      url: rna_velocity_analysis.html
-    - output: web,pdf
-      title: Testing node2vec on Directed Graphs
-      url: testing node2vec on directed graphs.html
-    - output: web,pdf
-      title: DeepWalk with Backwards Connections Directed Graphs
-      url: DeepWalk_with_Backwards_Connections.html
-    - output: web,pdf
-      title: Node2Vec with Backwards Connection
-      url: Node2Vec_with_Backwards_Connection.html
-    - output: web,pdf
-      title: node2vec with Backwards Walk
-      url: Backwards_Node2Vec.html
-    - output: web,pdf
-      title: 'Differentiable Diffusion Curvature '
-      url: differentiable_diffusion_curvature.html
-    - output: web,pdf
-      title: Stanford Large Network Datasets with Ground-truth Communities
-      url: Communities_Datasets.html
-    - output: web,pdf
-      title: Small Random Toy Directed Graphs
-      url: Small_Random_Directed_Graphs.html
-    - output: web,pdf
-      title: Directed Stochastic Block Model
-      url: Directed Stochastic Block Model.html
-    - output: web,pdf
-      title: Test Example
-      url: Test_node2vec_on_DirectedGraphs.html
-    - output: web,pdf
-      title: Model Embedding Spaces
-      url: model_spaces.html
-    - output: web,pdf
-      title: Testing the Flow Embedder
-      url: testing Flow Embedder.html
-    - output: web,pdf
-      title: Flow Embedding with Implicit Vectors
-      url: Flow_Embedding_with_Implicit_Vectors.html
+      url: 01b01 Directed Graph Utils.html
     - output: web,pdf
       title: Visualizations for our Presentation
-      url: visualizations_for_presentations.html
+      url: 01c Visualizations.html
     - output: web,pdf
-      title: Perrault-Jonas2011's Directed Graph Embeddings
-      url: UW_Manifold_Based_Directed_Embedding.html
+      title: Title
+      url: 05b02 Flow-Artist_Upgrade.html
     - output: web,pdf
-      title: Node2Vec Graph Reversal
-      url: node2vec_graph_reversal_walk.html
+      title: Stanford Large Network Datasets with Ground-truth Communities
+      url: 02a01 Communities Datasets.html
     - output: web,pdf
-      title: node2vec on Rooted Tree
-      url: Node2Vec_on_RootedTree.html
+      title: Small Random Toy Directed Graphs
+      url: 02a02 Small Random Directed Graphs.html
     - output: web,pdf
-      title: '`Node2Vec` on MultiTree'
-      url: Node2Vec_on_MultiTree.html
-    - output: web,pdf
-      title: '`Node2Vec` on PolyTree'
-      url: Node2Vec_on_PolyTree.html
-    - output: web,pdf
-      title: Graph 1
-      url: Node2Vec_on_Cyclic_Graphs.html
+      title: Directed Stochastic Block Model
+      url: 02b Directed Stochastic Block Model.html
     - output: web,pdf
       title: Create sink
-      url: Sink.html
+      url: 02b01 Sink Graph with SBM.html
     - output: web,pdf
       title: Create source
-      url: Source.html
-    - output: web,pdf
-      title: Comparing regular and backward node2vec on trees
-      url: Trees.html
-    - output: web,pdf
-      title: Flow Embedding with Diffusion
-      url: flow_embedding_with_diffusion.html
-    - output: web,pdf
-      title: Testing the Diffusion Flow Embedder
-      url: testing_diffusion_flow_embedder.html
+      url: 02b02 SBM Source Graph.html
     - output: web,pdf
       title: Manifold With Flow Datasets
-      url: Directed_SBM_On_Manifold.html
+      url: 02b03 Directed_SBM_On_Manifold.html
+    - output: web,pdf
+      title: Comparing regular and backward node2vec on trees
+      url: 02c Trees.html
+    - output: web,pdf
+      title: Testing node2vec on Directed Graphs
+      url: 03b01 Testing Backwards Node2vec on DirectedGraphs.html
+    - output: web,pdf
+      title: Node2Vec with Backwards Connection
+      url: 03a Node2Vec_with_Backwards_Connection.html
+    - output: web,pdf
+      title: DeepWalk with Backwards Connections Directed Graphs
+      url: 03a01 DeepWalk_with_Backwards_Connections.html
+    - output: web,pdf
+      title: node2vec with Backwards Walk
+      url: 03b Backwards Node2Vec.html
+    - output: web,pdf
+      title: Node2Vec Graph Reversal
+      url: 03c node2vec graph reversal walk.html
+    - output: web,pdf
+      title: node2vec on Rooted Tree
+      url: 03c01 Node2Vec_on_RootedTree.html
+    - output: web,pdf
+      title: '`Node2Vec` on MultiTree'
+      url: 03c01a Node2Vec_on_MultiTree.html
+    - output: web,pdf
+      title: '`Node2Vec` on PolyTree'
+      url: 03c01b Node2Vec_on_PolyTree.html
+    - output: web,pdf
+      title: Graph 1
+      url: 03c01c Node2Vec_on_Cyclic_Graphs.html
+    - output: web,pdf
+      title: Perrault-Jonas2011's Directed Graph Embeddings
+      url: 04 UW_Manifold_Based_Directed_Embedding.html
+    - output: web,pdf
+      title: Testing the Flow Embedder
+      url: 05a Testing Distance-based Flow Embedder.html
+    - output: web,pdf
+      title: Flow Embedding with Implicit Vectors
+      url: 05a01 Flow_Embedding_with_Implicit_Vectors.html
+    - output: web,pdf
+      title: Model Embedding Spaces
+      url: 05a02 Model Spaces for Flow Embeddings.html
+    - output: web,pdf
+      title: Flow Embedding with Diffusion
+      url: 05b Flow Embedding with Diffusion.html
+    - output: web,pdf
+      title: Testing the Diffusion Flow Embedder
+      url: 05b01 Testing diffusion flow embedder.html
     - output: web,pdf
       title: Flow Embedder Test with Pancreas RNA Velocity Dataset
-      url: Pancreas_RNA_Velocity.html
+      url: 05b01a Diffusion Flow Embedding on Pancreas_RNA_Velocity.html
+    - output: web,pdf
+      title: RNA Velocity Visualization with PHATE and DFE
+      url: 05b01a02 rna-velo_viz_phate.html
+    - output: web,pdf
+      title: More RNA Velocity Datasets with DFE
+      url: 05b01a03 More_RNA_Velocity_Datasets.html
     - output: web,pdf
       title: PHATE
       url: playground.html
