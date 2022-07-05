@@ -23,7 +23,7 @@ entries:
       url: Directed_graph_utils.html
     - output: web,pdf
       title: Title
-      url: Toy_Graph_Datasets.html
+      url: rna_velocity_analysis.html
     - output: web,pdf
       title: Testing node2vec on Directed Graphs
       url: testing node2vec on directed graphs.html
@@ -88,6 +88,9 @@ entries:
       title: Create source
       url: Source.html
     - output: web,pdf
+      title: Comparing regular and backward node2vec on trees
+      url: Trees.html
+    - output: web,pdf
       title: Flow Embedding with Diffusion
       url: flow_embedding_with_diffusion.html
     - output: web,pdf
@@ -96,6 +99,9 @@ entries:
     - output: web,pdf
       title: Manifold With Flow Datasets
       url: Directed_SBM_On_Manifold.html
+    - output: web,pdf
+      title: Flow Embedder Test with Pancreas RNA Velocity Dataset
+      url: Pancreas_RNA_Velocity.html
     - output: web,pdf
       title: PHATE
       url: playground.html
