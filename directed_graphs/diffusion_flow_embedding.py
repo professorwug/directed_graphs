@@ -112,11 +112,11 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph)
 		self.P_graph_t = torch.matrix_power(self.P_graph,self.t)
 		# Flow field
-		self.FlowArtist = nn.Sequential(nn.Linear(2, 10),
+		self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, 10),
 		                       nn.Tanh(),
 		                       nn.Linear(10, 10),
 		                       nn.Tanh(),
-		                       nn.Linear(10, 2))
+		                       nn.Linear(10, self.embedding_dimension))
 		# Autoencoder to embed the points into a low dimension
 		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, 100),
 															nn.ReLU(),
@@ -150,7 +150,10 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		reconstruction_loss = self.MSE(X_reconstructed, self.X)
 		# take KL divergence between it and actual P
 		log_P_embedding_t = torch.log(self.P_embedding_t)
-		diffusion_loss = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
+		if log_P_embedding_t.is_sparse:
+			diffusion_loss = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
+		else:
+			diffusion_loss = self.KLD(log_P_embedding_t,self.P_graph_t)
 		cost = diffusion_loss + reconstruction_loss
 		# print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
 		self.losses.append([diffusion_loss,reconstruction_loss])
@@ -159,13 +162,13 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 	def visualize_points(self, labels):
 		# controls the x and y axes of the plot
 		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
-		minx = min(self.embedded_points[:,0].detach().numpy())-1
-		maxx = max(self.embedded_points[:,0].detach().numpy())+1
-		miny = min(self.embedded_points[:,1].detach().numpy())-1
-		maxy = max(self.embedded_points[:,1].detach().numpy())+1
+		minx = min(self.embedded_points[:,0].detach().cpu().numpy())-1
+		maxx = max(self.embedded_points[:,0].detach().cpu().numpy())+1
+		miny = min(self.embedded_points[:,1].detach().cpu().numpy())-1
+		maxy = max(self.embedded_points[:,1].detach().cpu().numpy())+1
 		x, y = np.meshgrid(np.linspace(minx,maxx,20),np.linspace(miny,maxy,20))
-		x = torch.tensor(x,dtype=float)
-		y = torch.tensor(y,dtype=float)
+		x = torch.tensor(x,dtype=float).cpu()
+		y = torch.tensor(y,dtype=float).cpu()
 		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
 		uv = self.FlowArtist(xy_t).detach()
 		u = uv[:,:,0]

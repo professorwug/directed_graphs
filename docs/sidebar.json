@@ -5,7 +5,7 @@
     "Porting Diffusion Curvature to Directed Graphs": "Diffusion Curvature of Directed Graphs.html",
     "Graph Utilities: kernels, normalizations, and building diffusion matrices": "graph_building.html",
     "Directed Graph Utils": "Directed_graph_utils.html",
-    "Title": "Toy_Graph_Datasets.html",
+    "Title": "rna_velocity_analysis.html",
     "Testing node2vec on Directed Graphs": "testing node2vec on directed graphs.html",
     "DeepWalk with Backwards Connections Directed Graphs": "DeepWalk_with_Backwards_Connections.html",
     "Node2Vec with Backwards Connection": "Node2Vec_with_Backwards_Connection.html",
@@ -27,9 +27,11 @@
     "Graph 1": "Node2Vec_on_Cyclic_Graphs.html",
     "Create sink": "Sink.html",
     "Create source": "Source.html",
+    "Comparing regular and backward node2vec on trees": "Trees.html",
     "Flow Embedding with Diffusion": "flow_embedding_with_diffusion.html",
     "Testing the Diffusion Flow Embedder": "testing_diffusion_flow_embedder.html",
     "Manifold With Flow Datasets": "Directed_SBM_On_Manifold.html",
+    "Flow Embedder Test with Pancreas RNA Velocity Dataset": "Pancreas_RNA_Velocity.html",
     "PHATE": "playground.html"
   }
 }
