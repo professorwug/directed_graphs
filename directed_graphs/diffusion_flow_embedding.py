@@ -92,7 +92,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class DiffusionFlowEmbedder(torch.nn.Module):
-	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2, device=torch.device('cpu')):
+	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2, device=torch.device('cpu'), autoencoder_shape = [100,10], flow_artist_shape = [10,20,10]):
 		"""Flow Embedding with diffusion
 
 		Parameters
@@ -126,24 +126,24 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph)
 		self.P_graph_t = torch.matrix_power(self.P_graph,self.t)
 		# Flow field
-		self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, 10),
+		self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, flow_artist_shape[0]),
 		                       nn.Tanh(),
-		                       nn.Linear(10, 20),
+		                       nn.Linear(flow_artist_shape[0], flow_artist_shape[1]),
 		                       nn.Tanh(),
-													 nn.Linear(20, 10),
+													 nn.Linear(flow_artist_shape[1], flow_artist_shape[2]),
 													 nn.Tanh(),
-		                       nn.Linear(10, self.embedding_dimension))
+		                       nn.Linear(flow_artist_shape[2], self.embedding_dimension))
 		# Autoencoder to embed the points into a low dimension
-		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, 100),
+		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, autoencoder_shape[0]),
 															nn.ReLU(),
-															nn.Linear(100, 10),
+															nn.Linear(autoencoder_shape[0], autoencoder_shape[1]),
 															nn.ReLU(),
-															nn.Linear(10, self.embedding_dimension))
-		self.decoder = nn.Sequential(nn.Linear(self.embedding_dimension, 10),
+															nn.Linear(autoencoder_shape[1], self.embedding_dimension))
+		self.decoder = nn.Sequential(nn.Linear(self.embedding_dimension, autoencoder_shape[1]),
 															nn.ReLU(),
-															nn.Linear(10, 100),
+															nn.Linear(autoencoder_shape[1], autoencoder_shape[0]),
 															nn.ReLU(),
-															nn.Linear(100, self.data_dimension))
+															nn.Linear(autoencoder_shape[0], self.data_dimension))
 		# training ops
 		self.KLD = nn.KLDivLoss(reduction='batchmean',log_target=False)
 		self.MSE = nn.MSELoss()
