@@ -201,8 +201,8 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		# 	quiver([X, Y], U, V, [C], **kw);
 		# 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
 		
-		plt.quiver(x,y,u,v)
 		sc = plt.scatter(self.embedded_points[:,0].detach().cpu(),self.embedded_points[:,1].detach().cpu(), c=labels)
+		plt.quiver(x,y,u,v)
 		plt.legend()
 		# Display all open figures.
 		plt.show()
