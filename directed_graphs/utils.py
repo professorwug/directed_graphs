@@ -2,7 +2,7 @@
 
 __all__ = ['make_sparse_safe', 'distance_matrix', 'anisotropic_kernel', 'adaptive_anisotropic_kernel',
            'diffusion_matrix', 'diffusion_matrix_from_points', 'diffusion_coordinates', 'diffusion_map_from_points',
-           'diffusion_matrix_from_graph']
+           'plot_3d', 'diffusion_matrix_from_graph']
 
 # Cell
 from scipy.sparse import bsr_array, csr_array
@@ -151,6 +151,38 @@ def diffusion_map_from_points(X, t = 1, kernel_type = "anisotropic", alpha = 0.5
   diff_map = diff_map[:,::-1]
   diff_map = diff_map.T
   return diff_map
+
+# Cell
+# For plotting 2D and 3D graphs
+import plotly
+import plotly.graph_objs as go
+import plotly.express as px
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+
+def plot_3d(X,distribution=None, title="",lim=None,use_plotly=False,colorbar = False, cmap="plasma"):
+    if distribution is None:
+        distribution = np.zeros(len(X))
+    if lim is None:
+        lim = np.max(np.linalg.norm(X,axis=1))
+    if use_plotly:
+        d = {'x':X[:,0],'y':X[:,1],'z':X[:,2],'colors':distribution}
+        df = pd.DataFrame(data=d)
+        fig = px.scatter_3d(df, x='x',y='y',z='z',color='colors', title=title, range_x=[-lim,lim], range_y=[-lim,lim],range_z=[-lim,lim])
+        fig.show()
+    else:
+        fig = plt.figure(figsize=(10,10))
+        ax = fig.add_subplot(111,projection='3d')
+        ax.axes.set_xlim3d(left=-lim, right=lim)
+        ax.axes.set_ylim3d(bottom=-lim, top=lim)
+        ax.axes.set_zlim3d(bottom=-lim, top=lim)
+        im = ax.scatter(X[:,0],X[:,1],X[:,2],c=distribution,cmap=cmap)
+        ax.set_title(title)
+        if colorbar: fig.colorbar(im, ax=ax)
+        plt.show()
+
 
 # Cell
 import torch

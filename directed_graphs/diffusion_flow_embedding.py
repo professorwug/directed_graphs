@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 
 # Cell
-def affinity_from_flow(flows, directions_array, sigma=1):
+def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   """Compute probabilities of transition in the given directions based on the flow.
 
   Parameters
@@ -24,14 +24,23 @@ def affinity_from_flow(flows, directions_array, sigma=1):
   assert len(flows.shape) == 2 # flows should only have one dimension
   assert len(directions_array.shape) > 1 and len(directions_array.shape) < 4
   n_directions = directions_array.shape[0]
-  # TODO: Normalize directions
-  # directions_array /= torch.linalg.norm(directions_array,dim=-1)
+  # Normalize directions
+  length_of_directions = torch.linalg.norm(directions_array,dim=-1)
+  normed_directions = directions_array / length_of_directions[:,:,None]
+  # and normalize flows # TODO: Perhaps reconsider
+  flows = flows / torch.linalg.norm(flows,dim=1)[:,None]
+
   if len(directions_array) == 1: # convert to 2d array if necessary
     directions_array = directions_array[:,None]
   # compute dot products as matrix multiplication
-  dot_products = (directions_array * flows).sum(-1)
+  dot_products = (normed_directions * flows).sum(-1)
   # take distance between flow projected onto direction and the direction
   distance_from_flow = (torch.linalg.norm(flows,dim=1)**2).repeat(n_directions,1) - dot_products
+  # take absolute value
+  distance_from_flow = torch.abs(distance_from_flow)
+  # print('shape of dff',distance_from_flow.shape)
+  # add to this the length of each direction
+  distance_from_flow = flow_strength*distance_from_flow + length_of_directions
   # put the points on rows, directions in columns
   distance_from_flow = distance_from_flow.T
   # take kernel of distances
@@ -117,8 +126,10 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		# Flow field
 		self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, 10),
 		                       nn.Tanh(),
-		                       nn.Linear(10, 10),
+		                       nn.Linear(10, 20),
 		                       nn.Tanh(),
+													 nn.Linear(20, 10),
+													 nn.Tanh(),
 		                       nn.Linear(10, self.embedding_dimension))
 		# Autoencoder to embed the points into a low dimension
 		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, 100),

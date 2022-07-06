@@ -13,6 +13,7 @@
     "Create source": "02b02 SBM Source Graph.html",
     "Manifold With Flow Datasets": "02b03 Directed_SBM_On_Manifold.html",
     "Comparing regular and backward node2vec on trees": "02c Trees.html",
+    "Manifold with Flow Datasets, Part 3: The Sphere, The Torus, and the Paraboloid": "02d03 Spheres and Donuts with Flow (datasets).html",
     "Testing node2vec on Directed Graphs": "03b01 Testing Backwards Node2vec on DirectedGraphs.html",
     "Node2Vec with Backwards Connection": "03a Node2Vec_with_Backwards_Connection.html",
     "DeepWalk with Backwards Connections Directed Graphs": "03a01 DeepWalk_with_Backwards_Connections.html",
