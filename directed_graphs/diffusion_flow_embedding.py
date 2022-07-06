@@ -38,7 +38,7 @@ def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   distance_from_flow = (torch.linalg.norm(flows,dim=1)**2).repeat(n_directions,1) - dot_products
   # take absolute value
   distance_from_flow = torch.abs(distance_from_flow)
-  print('shape of dff',distance_from_flow.shape)
+  # print('shape of dff',distance_from_flow.shape)
   # add to this the length of each direction
   distance_from_flow = flow_strength*distance_from_flow + length_of_directions
   # put the points on rows, directions in columns
