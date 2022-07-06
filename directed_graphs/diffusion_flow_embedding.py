@@ -174,8 +174,8 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		y = torch.tensor(y,dtype=float).cpu()
 		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to(self.device)
 		uv = self.FlowArtist(xy_t).detach()
-		u = uv[:,:,0]
-		v = uv[:,:,1]
+		u = uv[:,:,0].cpu()
+		v = uv[:,:,1].cpu()
 		
 		# quiver
 		# 	plots a 2D field of arrows
@@ -183,7 +183,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		# 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
 		
 		plt.quiver(x,y,u,v)
-		sc = plt.scatter(self.embedded_points[:,0].detach(),self.embedded_points[:,1].detach(), c=labels)
+		sc = plt.scatter(self.embedded_points[:,0].detach().cpu(),self.embedded_points[:,1].detach().cpu(), c=labels)
 		plt.legend()
 		# Display all open figures.
 		plt.show()
