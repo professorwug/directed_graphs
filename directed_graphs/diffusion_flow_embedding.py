@@ -172,8 +172,8 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		x, y = np.meshgrid(np.linspace(minx,maxx,20),np.linspace(miny,maxy,20))
 		x = torch.tensor(x,dtype=float).cpu()
 		y = torch.tensor(y,dtype=float).cpu()
-		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to('cuda') # TODO: cuda/cpu issue
-		uv = self.FlowArtist(xy_t).detach()
+		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to(self.device)
+		uv = self.FlowArtist(xy_t).detach().cpu()
 		u = uv[:,:,0].cpu()
 		v = uv[:,:,1].cpu()
 		
