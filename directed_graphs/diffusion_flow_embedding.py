@@ -53,7 +53,7 @@ def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
 
 
 # Cell
-def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flows,n_neighbors=None,sigma=0.5):
+def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flows,n_neighbors=None,sigma=0.5, flow_strength=1):
   """Compute affinity matrix between the points of pointset1 and pointset2, using the provided flow.
 
   Parameters
@@ -77,7 +77,7 @@ def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flows,n_neig
   P3 = (P2 - P1)
   P3 = P3.transpose(1,2)
   # compute affinities from flows and directions
-  affinities = affinity_from_flow(flows,P3,sigma=sigma)
+  affinities = affinity_from_flow(flows,P3,sigma=sigma,flow_strength=flow_strength)
   return affinities
 
 
@@ -92,7 +92,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class DiffusionFlowEmbedder(torch.nn.Module):
-	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2, device=torch.device('cpu'), autoencoder_shape = [100,10], flow_artist_shape = [10,20,10]):
+	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2, device=torch.device('cpu'), autoencoder_shape = [100,10], flow_artist_shape = [10,20,10], flow_strength=1):
 		"""Flow Embedding with diffusion
 
 		Parameters
@@ -117,6 +117,11 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.data_dimension = X.shape[1]
 		self.losses = []
 		self.eps = 0.001
+		if flow_strength == "learnable":
+			self.flow_strength = nn.Parameter(torch.tensor(1.0))
+		else:
+			self.flow_strength = flow_strength	
+
 		self.embedding_dimension = embedding_dimension
 		# set device (used for shuffling points around during visualization)
 		self.device = device
@@ -151,7 +156,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 									
 
 	def compute_embedding_P(self):
-		A = affinity_matrix_from_pointset_to_pointset(self.embedded_points,self.embedded_points,flows = self.FlowArtist(self.embedded_points), sigma = self.sigma_embedding)
+		A = affinity_matrix_from_pointset_to_pointset(self.embedded_points,self.embedded_points,flows = self.FlowArtist(self.embedded_points), sigma = self.sigma_embedding, flow_strength=self.flow_strength)
 		# print("affinities ",A)
 		# flow
 		self.P_embedding = torch.diag(1/A.sum(axis=1)) @ A
@@ -219,6 +224,10 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			# compute gradient and step backwards
 			loss.backward()
 			self.optim.step()
+			if step % 100 == 0:
+				print(f"EPOCH {step}. Loss {loss}. Flow strength {self.flow_strength}. Heatmap of P embedding is ")
+				plt.imshow(self.P_embedding.detach().numpy())
+				plt.show()
 			# TODO: Criteria to automatically end training
 		print("Exiting training with loss ",loss)
 		return self.embedded_points
