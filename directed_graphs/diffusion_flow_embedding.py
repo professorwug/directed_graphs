@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 
 # Cell
+import torch.nn.functional as F
 def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   """Compute probabilities of transition in the given directions based on the flow.
 
@@ -26,9 +27,9 @@ def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   n_directions = directions_array.shape[0]
   # Normalize directions
   length_of_directions = torch.linalg.norm(directions_array,dim=-1)
-  normed_directions = directions_array / length_of_directions[:,:,None]
+  normed_directions = F.normalize(directions_array,dim=-1)
   # and normalize flows # TODO: Perhaps reconsider
-  flows = flows / torch.linalg.norm(flows,dim=1)[:,None]
+  flows = F.normalize(flows,dim=-1)
 
   if len(directions_array) == 1: # convert to 2d array if necessary
     directions_array = directions_array[:,None]
@@ -115,7 +116,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.nnodes = X.shape[0]
 		self.data_dimension = X.shape[1]
 		self.losses = []
-		self.eps = 0.0000000001
+		self.eps = 0.001
 		self.embedding_dimension = embedding_dimension
 		# set device (used for shuffling points around during visualization)
 		self.device = device
@@ -151,6 +152,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 
 	def compute_embedding_P(self):
 		A = affinity_matrix_from_pointset_to_pointset(self.embedded_points,self.embedded_points,flows = self.FlowArtist(self.embedded_points), sigma = self.sigma_embedding)
+		# print("affinities ",A)
 		# flow
 		self.P_embedding = torch.diag(1/A.sum(axis=1)) @ A
 		# power it
@@ -158,17 +160,22 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 
 	def loss(self):
 		self.embedded_points = self.encoder(self.X)
+		# print(self.embedded_points)
 		# compute embedding diffusion matrix
 		self.compute_embedding_P()
 		# compute autoencoder loss
 		X_reconstructed = self.decoder(self.embedded_points)
 		reconstruction_loss = self.MSE(X_reconstructed, self.X)
+		# print("recon loss",reconstruction_loss)
 		# take KL divergence between it and actual P
-		log_P_embedding_t = torch.log(self.P_embedding_t + self.eps)
+		# print("embedding p",self.P_embedding_t)
+		log_P_embedding_t = torch.log(self.P_embedding_t)
+		# print(log_P_embedding_t)
 		if log_P_embedding_t.is_sparse:
 			diffusion_loss = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
 		else:
 			diffusion_loss = self.KLD(log_P_embedding_t,self.P_graph_t)
+		# print("diffusion loss is",diffusion_loss)
 		cost = diffusion_loss + reconstruction_loss
 		# print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
 		self.losses.append([diffusion_loss,reconstruction_loss])
@@ -184,7 +191,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		x, y = np.meshgrid(np.linspace(minx,maxx,20),np.linspace(miny,maxy,20))
 		x = torch.tensor(x,dtype=float).cpu()
 		y = torch.tensor(y,dtype=float).cpu()
-		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to('cuda') # TODO: cuda/cpu issue
+		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to(self.device) # TODO: cuda/cpu issue
 		uv = self.FlowArtist(xy_t).detach()
 		u = uv[:,:,0].cpu()
 		v = uv[:,:,1].cpu()
