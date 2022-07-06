@@ -115,6 +115,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.nnodes = X.shape[0]
 		self.data_dimension = X.shape[1]
 		self.losses = []
+		self.eps = 0.0000000001
 		self.embedding_dimension = embedding_dimension
 		# set device (used for shuffling points around during visualization)
 		self.device = device
@@ -163,7 +164,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		X_reconstructed = self.decoder(self.embedded_points)
 		reconstruction_loss = self.MSE(X_reconstructed, self.X)
 		# take KL divergence between it and actual P
-		log_P_embedding_t = torch.log(self.P_embedding_t)
+		log_P_embedding_t = torch.log(self.P_embedding_t + self.eps)
 		if log_P_embedding_t.is_sparse:
 			diffusion_loss = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
 		else:
