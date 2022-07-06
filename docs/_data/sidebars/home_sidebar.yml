@@ -46,6 +46,10 @@ entries:
       title: Comparing regular and backward node2vec on trees
       url: 02c Trees.html
     - output: web,pdf
+      title: 'Manifold with Flow Datasets, Part 3: The Sphere, The Torus, and the
+        Paraboloid'
+      url: 02d03 Spheres and Donuts with Flow (datasets).html
+    - output: web,pdf
       title: Testing node2vec on Directed Graphs
       url: 03b01 Testing Backwards Node2vec on DirectedGraphs.html
     - output: web,pdf

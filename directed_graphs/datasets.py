@@ -3,8 +3,9 @@
 __all__ = ['EmailEuNetwork', 'visualize_heatmap', 'SourceSink', 'SmallRandom', 'visualize_graph',
            'DirectedStochasticBlockModel', 'source_graph', 'sink_graph', 'ChainGraph', 'ChainGraph2', 'ChainGraph3',
            'CycleGraph', 'HalfCycleGraph', 'directed_circle', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d',
-           'directed_prism', 'directed_cylinder', 'directed_spiral', 'directed_swiss_roll', 'plot_embeddings',
-           'DirectedStochasticBlockModelHelper', 'visualize_edge_index']
+           'directed_prism', 'directed_cylinder', 'directed_spiral', 'directed_swiss_roll', 'angle_x', 'whirlpool',
+           'rejection_sample_for_torus', 'torus_with_flow', 'plot_embeddings', 'DirectedStochasticBlockModelHelper',
+           'visualize_edge_index']
 
 # Cell
 import os
@@ -519,6 +520,91 @@ def directed_swiss_roll(num_nodes=1000, num_spirals=2.5, radius=1, height=10, xt
   X, flow, labels = directed_spiral(num_nodes, num_spirals, radius, xtilt, ytilt)
   X, flow, labels = directed_prism(X, flow, labels, height)
   return X, flow, labels
+
+# Cell
+def angle_x(X):
+  """Returns angle in [0, 2pi] corresponding to each point X"""
+  X_complex = X[:,0] + np.array([1j])*X[:,1]
+  return np.angle(X_complex)
+
+# Cell
+def whirlpool(X):
+  """Generates a whirlpool for flow assignment. Works in both 2d and 3d space.
+
+  Parameters
+  ----------
+  X : ndarray
+      input data, 2d or 3d
+  """
+  # convert X into angles theta, where 0,0 is 0, and 0,1 is pi/2
+  X_angles = angle_x(X)
+  # create flows
+  flow_x = np.sin(2*np.pi - X_angles)
+  flow_y = np.cos(2*np.pi - X_angles)
+  output = np.column_stack([flow_x,flow_y])
+  if X.shape[1] == 3:
+    # data is 3d
+    flow_z = np.zeros(X.shape[0])
+    output = np.column_stack([output,flow_z])
+  return output
+
+
+# Cell
+def rejection_sample_for_torus(n, r, R):
+    # Rejection sampling torus method [Sampling from a torus (Revolutions)](https://blog.revolutionanalytics.com/2014/02/sampling-from-a-torus.html)
+    xvec = np.random.random(n) * 2 * np.pi
+    yvec = np.random.random(n) * (1/np.pi)
+    fx = (1 + (r/R)*np.cos(xvec)) / (2*np.pi)
+    return xvec[yvec < fx]
+
+def torus_with_flow(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=None, use_guide_points = False):
+    """
+    Sample `n` data points on a torus. Modified from [tadasets.shapes — TaDAsets 0.1.0 documentation](https://tadasets.scikit-tda.org/en/latest/_modules/tadasets/shapes.html#torus)
+    Uses rejection sampling.
+
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    n : int
+        Number of data points in shape.
+    c : float
+        Distance from center to center of tube.
+    a : float
+        Radius of tube.
+    flow_type, in ['whirlpool']
+
+    ambient : int, default=None
+        Embed the torus into a space with ambient dimension equal to `ambient`. The torus is randomly rotated in this high dimensional space.
+    seed : int, default=None
+        Seed for random state.
+    """
+
+    assert a <= c, "That's not a torus"
+
+    np.random.seed(seed)
+    theta = rejection_sample_for_torus(n-2, a, c)
+    phi = np.random.random((len(theta))) * 2.0 * np.pi
+
+    data = np.zeros((len(theta), 3))
+    data[:, 0] = (c + a * np.cos(theta)) * np.cos(phi)
+    data[:, 1] = (c + a * np.cos(theta)) * np.sin(phi)
+    data[:, 2] = a * np.sin(theta)
+
+    if use_guide_points:
+        data = np.vstack([[[0,-c-a,0],[0,c-a,0],[0,c,a]],data])
+
+    if noise:
+        data += noise * np.random.randn(*data.shape)
+
+    if flow_type == 'whirlpool':
+        flows = whirlpool(data)
+    else:
+        raise NotImplementedError
+    # compute curvature of sampled torus
+    ks = 8*np.cos(theta)/(5 + np.cos(theta))
+
+    return data, flows
 
 # Comes from 03a Node2Vec_with_Backwards_Connection.ipynb, cell
 import numpy as np
