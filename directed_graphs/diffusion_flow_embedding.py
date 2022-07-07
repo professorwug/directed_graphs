@@ -92,7 +92,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class DiffusionFlowEmbedder(torch.nn.Module):
-	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2, device=torch.device('cpu'), autoencoder_shape = [100,10], flow_artist_shape = [10,20,10], flow_strength=1):
+	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2, device=torch.device('cpu'), autoencoder_shape = [100,10], flow_artist_shape = [10,20,10], flow_strength_graph=5, flow_strength_embedding=5, learnable_flow_strength=True):
 		"""Flow Embedding with diffusion
 
 		Parameters
@@ -117,10 +117,11 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.data_dimension = X.shape[1]
 		self.losses = []
 		self.eps = 0.001
-		if flow_strength == "learnable":
-			self.flow_strength = nn.Parameter(torch.tensor(1.0))
+
+		if learnable_flow_strength:
+			self.flow_strength = nn.Parameter(torch.tensor(flow_strength_embedding).float())
 		else:
-			self.flow_strength = flow_strength	
+			self.flow_strength = flow_strength_embedding
 
 		self.embedding_dimension = embedding_dimension
 		# set device (used for shuffling points around during visualization)
@@ -128,7 +129,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		# Compute P^t of the graph, the powered diffusion matrix
 		# TODO: This can be optimized using landmarks, etc. For now it's straight sparse matrix multiplication
 		# TODO: Migrate to a specialized function for dataset affinity calculation, with automatic kernel bandwidth selection, and the like
-		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph)
+		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph,flow_strength=flow_strength_graph)
 		self.P_graph_t = torch.matrix_power(self.P_graph,self.t)
 		# Flow field
 		self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, flow_artist_shape[0]),
@@ -211,7 +212,13 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		plt.legend()
 		# Display all open figures.
 		plt.show()
-
+	def visualize_diffusion_matrices(self):
+		fig, axs = plt.subplots(1,2)
+		axs[0].set_title(f"Ambient $P^{self.t}$")
+		axs[0].imshow(self.P_graph_t.detach().numpy())
+		axs[1].set_title(f"Embedding $P^{self.t}$")
+		axs[1].imshow(self.P_embedding_t.detach().numpy())
+		plt.show()
 
 	def fit(self,n_steps = 1000):
 		# train Flow Embedder on the provided graph
@@ -226,8 +233,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			self.optim.step()
 			if step % 100 == 0:
 				print(f"EPOCH {step}. Loss {loss}. Flow strength {self.flow_strength}. Heatmap of P embedding is ")
-				plt.imshow(self.P_embedding.detach().numpy())
-				plt.show()
+				self.visualize_diffusion_matrices()
 			# TODO: Criteria to automatically end training
 		print("Exiting training with loss ",loss)
 		return self.embedded_points
