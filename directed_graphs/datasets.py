@@ -416,6 +416,7 @@ import numpy as np
 def directed_circle(num_nodes=100, radius=1, xtilt=0, ytilt=0):
   # sample random angles between 0 and 2pi
   thetas = np.random.uniform(0, 2*np.pi, num_nodes)
+  thetas = np.sort(thetas)
   labels = thetas
   # calculate x and y coordinates
   x = np.cos(thetas) * radius
@@ -489,6 +490,7 @@ def directed_cylinder(num_nodes=1000, radius=1, height=10, xtilt=0, ytilt=0):
 def directed_spiral(num_nodes=100, num_spirals=2.5, radius=1, xtilt=0, ytilt=0):
   # sample random angles between 0 and num_spirals * 2pi
   thetas = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
+  thetas = np.sort(thetas)
   labels = thetas
   # calculate x and y coordinates
   x = np.cos(thetas) * thetas * radius
