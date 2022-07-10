@@ -51,6 +51,7 @@ index = {"make_sparse_safe": "01a Graph Utils.ipynb",
          "GeneralFlowEmbedder": "05a01 Flow_Embedding_with_Implicit_Vectors.ipynb",
          "affinity_from_flow": "05b Flow Embedding with Diffusion.ipynb",
          "affinity_matrix_from_pointset_to_pointset": "05b Flow Embedding with Diffusion.ipynb",
+         "GaussianVectorField": "05b Flow Embedding with Diffusion.ipynb",
          "DiffusionFlowEmbedder": "05b Flow Embedding with Diffusion.ipynb"}
 
 modules = ["utils.py",
