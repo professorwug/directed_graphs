@@ -196,6 +196,9 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 							weight_of_flow = 0.5,
 							learning_rate = 1e-5,
 							smoothness = 1,
+							embedding_bounds = 4,
+							num_gaussians = 25,
+							labels = None,
 							):
 		"""Flow Embedding with diffusion
 
@@ -223,8 +226,8 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.eps = 0.001
 		self.weight_of_flow = weight_of_flow
 		self.smoothness = smoothness
-		self.embedding_bounds = 4 # will constrain embedding to live in -n, n in each dimension
-
+		self.embedding_bounds = embedding_bounds # will constrain embedding to live in -n, n in each dimension
+		self.labels = labels
 
 		if learnable_flow_strength:
 			self.flow_strength = nn.Parameter(torch.tensor(flow_strength_embedding).float())
@@ -248,7 +251,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			
 		# Flow field
 		# Gaussian model
-		self.FlowArtist = GaussianVectorField(embedding_dimension,25, device=device).to(device)
+		self.FlowArtist = GaussianVectorField(embedding_dimension,num_gaussians, device=device).to(device)
 		
 
 		# self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, flow_artist_shape[0]),
@@ -288,8 +291,10 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 
 	def loss(self):
 		self.embedded_points = self.encoder(self.X)
-		# normalize embedded points
-		self.embedded_points /= torch.linalg.norm(self.embedded_points, dim=1)
+		# normalize embedded points to lie within -self.embedding_bounds, self.embedding_bounds
+		# if any are trying to escape, constrain them to lie on the edges
+		self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])
+		self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])
 		# print(self.embedded_points)
 		# compute embedding diffusion matrix
 		self.compute_embedding_P()
@@ -335,9 +340,11 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.losses.append([diffusion_loss,reconstruction_loss,])
 		return cost
 
-	def visualize_points(self, labels=None):
+	def visualize_points(self, labels = None):
 		# controls the x and y axes of the plot
 		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
+		if labels is None:
+			labels = self.labels
 		minx = min(self.embedded_points[:,0].detach().cpu().numpy())-1
 		maxx = max(self.embedded_points[:,0].detach().cpu().numpy())+1
 		miny = min(self.embedded_points[:,1].detach().cpu().numpy())-1
