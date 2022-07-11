@@ -732,6 +732,7 @@ def visualize_edge_index(data, num_clusters=7, pos=None):
 
 # Cell
 import matplotlib.pyplot as plt
+from .diffusion_flow_embedding import affinity_matrix_from_pointset_to_pointset
 def affinity_grid_search(X,flow,sigmas, flow_strengths):
   fig, axs = plt.subplots(len(sigmas),len(flow_strengths), figsize=(len(flow_strengths*6),len(sigmas)*6))
   X = torch.tensor(X)
