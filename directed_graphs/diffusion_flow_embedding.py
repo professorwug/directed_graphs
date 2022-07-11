@@ -86,16 +86,16 @@ def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flows,n_neig
 
 # Cell
 class GaussianVectorField(nn.Module):
-  def __init__(self,n_dims, n_gaussians):
+  def __init__(self,n_dims, n_gaussians, device):
     super(GaussianVectorField, self).__init__()
     self.n_dims = n_dims
     # each gaussian has a mean and a variance, which are initialized randomly, but
     # are afterwards tuned by the network
-    self.means = torch.nn.Parameter(torch.rand(n_gaussians,n_dims)*8 - 4)
+    self.means = torch.nn.Parameter(torch.rand(n_gaussians,n_dims)*8 - 4).to(device)
     vecs = torch.randn(n_gaussians,n_dims)
 
     vecs = vecs / torch.linalg.norm(vecs, dim=1)[:,None]
-    self.vectors = torch.nn.Parameter(vecs)
+    self.vectors = torch.nn.Parameter(vecs).to(device)
   def forward(self,points):
     # evaluates the vector field at each point
     # First, take distances between the points and the means
@@ -139,7 +139,7 @@ def anisotropic_kernel(D, sigma=0.7, alpha = 1):
   return W
 
 # Cell
-def smoothness_of_vector_field(embedded_points, vector_field_function, grid_width = 20):
+def smoothness_of_vector_field(embedded_points, vector_field_function, device, grid_width = 20):
   # find support of points
   minx = (min(embedded_points[:,0])-1).detach()
   maxx = (max(embedded_points[:,0])+1).detach()
@@ -148,7 +148,7 @@ def smoothness_of_vector_field(embedded_points, vector_field_function, grid_widt
   # form grid around points
   x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
   xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
-  xy_t = xy_t.reshape(grid_width**2,2)
+  xy_t = xy_t.reshape(grid_width**2,2).to(device)
   # Compute distances between points
   # TODO: Can compute A analytically for grid graph, don't need to run kernel
   Dists = torch.cdist(xy_t,xy_t)
@@ -247,7 +247,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			
 		# Flow field
 		# Gaussian model
-		self.FlowArtist = GaussianVectorField(embedding_dimension,25)
+		self.FlowArtist = GaussianVectorField(embedding_dimension,25, device=device).to(device)
 		
 
 		# self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, flow_artist_shape[0]),
@@ -303,7 +303,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		else:
 			diffusion_loss = self.KLD(log_P_embedding_t,self.P_graph_t)
 		# print("diffusion loss is",diffusion_loss)
-		smoothness_loss = self.smoothness*smoothness_of_vector_field(self.embedded_points,self.FlowArtist,grid_width=20)
+		smoothness_loss = self.smoothness*smoothness_of_vector_field(self.embedded_points,self.FlowArtist,device=self.device,grid_width=20)
 		cost = self.weight_of_flow*diffusion_loss + (1 - self.weight_of_flow)*reconstruction_loss + smoothness_loss
 		# print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
 		self.losses.append([diffusion_loss,reconstruction_loss, smoothness_loss])
