@@ -2,8 +2,9 @@
 
 __all__ = ['EmailEuNetwork', 'visualize_heatmap', 'SourceSink', 'SmallRandom', 'visualize_graph',
            'DirectedStochasticBlockModel', 'source_graph', 'sink_graph', 'ChainGraph', 'ChainGraph2', 'ChainGraph3',
-           'CycleGraph', 'HalfCycleGraph', 'directed_circle', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d',
-           'directed_prism', 'directed_cylinder', 'directed_spiral', 'directed_swiss_roll', 'angle_x', 'whirlpool',
+           'CycleGraph', 'HalfCycleGraph', 'xy_tilt', 'directed_circle', 'plot_directed_2d', 'plot_origin_3d',
+           'plot_directed_3d', 'directed_prism', 'directed_cylinder', 'directed_spiral', 'directed_swiss_roll',
+           'directed_spiral_uniform', 'directed_swiss_roll_uniform', 'angle_x', 'whirlpool',
            'rejection_sample_for_torus', 'torus_with_flow', 'plot_embeddings', 'DirectedStochasticBlockModelHelper',
            'visualize_edge_index']
 
@@ -411,8 +412,20 @@ class HalfCycleGraph(InMemoryDataset):
     self.data, self.slices = self.collate([data])
 
 # Cell
-import numpy as np
+def xy_tilt(X, flow, labels, xtilt=0, ytilt=0):
+  xrotate = np.array([[1,              0,             0],
+                      [0,  np.cos(xtilt), np.sin(xtilt)],
+                      [0, -np.sin(xtilt), np.cos(xtilt)]])
+  X = X @ xrotate
+  flow = flow @ xrotate
+  yrotate = np.array([[np.cos(ytilt), 0, -np.sin(ytilt)],
+                      [            0, 1,              0],
+                      [np.sin(ytilt), 0,  np.cos(ytilt)]])
+  X = X @ yrotate
+  flow = flow @ yrotate
+  return X, flow, labels
 
+# Cell
 def directed_circle(num_nodes=100, radius=1, xtilt=0, ytilt=0):
   # sample random angles between 0 and 2pi
   thetas = np.random.uniform(0, 2*np.pi, num_nodes)
@@ -431,16 +444,7 @@ def directed_circle(num_nodes=100, radius=1, xtilt=0, ytilt=0):
   w = np.zeros(num_nodes)
   flow = np.column_stack((u, v, w))
   # tilt
-  xrotate = np.array([[1,              0,             0],
-                      [0,  np.cos(xtilt), np.sin(xtilt)],
-                      [0, -np.sin(xtilt), np.cos(xtilt)]])
-  X = X @ xrotate
-  flow = flow @ xrotate
-  yrotate = np.array([[np.cos(ytilt), 0, -np.sin(ytilt)],
-                      [            0, 1,              0],
-                      [np.sin(ytilt), 0,  np.cos(ytilt)]])
-  X = X @ yrotate
-  flow = flow @ yrotate
+  X, flow, labels = xy_tilt(X, flow, labels, xtilt=0, ytilt=0)
   return X, flow, labels
 
 # Cell
@@ -505,21 +509,42 @@ def directed_spiral(num_nodes=100, num_spirals=2.5, radius=1, xtilt=0, ytilt=0):
   w = np.zeros(num_nodes)
   flow = np.column_stack((u, v, w))
   # tilt
-  xrotate = np.array([[1,              0,             0],
-                      [0,  np.cos(xtilt), np.sin(xtilt)],
-                      [0, -np.sin(xtilt), np.cos(xtilt)]])
-  X = X @ xrotate
-  flow = flow @ xrotate
-  yrotate = np.array([[np.cos(ytilt), 0, -np.sin(ytilt)],
-                      [            0, 1,              0],
-                      [np.sin(ytilt), 0,  np.cos(ytilt)]])
-  X = X @ yrotate
-  flow = flow @ yrotate
+  X, flow, labels = xy_tilt(X, flow, labels, xtilt, ytilt)
   return X, flow, labels
 
 # Cell
 def directed_swiss_roll(num_nodes=1000, num_spirals=2.5, radius=1, height=10, xtilt=0, ytilt=0):
   X, flow, labels = directed_spiral(num_nodes, num_spirals, radius, xtilt, ytilt)
+  X, flow, labels = directed_prism(X, flow, labels, height)
+  return X, flow, labels
+
+# Cell
+def directed_spiral_uniform(num_nodes=100, num_spirals=2.5, radius=1, xtilt=0, ytilt=0):
+  # sample random angles between 0 and num_spirals * 2pi
+  t1 = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
+  t2 = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
+  thetas = np.maximum(t1, t2)
+  thetas = np.sort(thetas)
+  labels = thetas
+  # calculate x and y coordinates
+  x = np.cos(thetas) * thetas * radius
+  y = np.sin(thetas) * thetas * radius
+  z = np.zeros(num_nodes)
+  X = np.column_stack((x, y, z))
+  # calculate the angle of the tangent
+  alphas = thetas + np.pi/2
+  # calculate the coordinates of the tangent
+  u = np.cos(alphas)
+  v = np.sin(alphas)
+  w = np.zeros(num_nodes)
+  flow = np.column_stack((u, v, w))
+  # tilt
+  X, flow, labels = xy_tilt(X, flow, labels, xtilt, ytilt)
+  return X, flow, labels
+
+# Cell
+def directed_swiss_roll_uniform(num_nodes=1000, num_spirals=2.5, radius=1, height=10, xtilt=0, ytilt=0):
+  X, flow, labels = directed_spiral_uniform(num_nodes, num_spirals, radius, xtilt, ytilt)
   X, flow, labels = directed_prism(X, flow, labels, height)
   return X, flow, labels
 
