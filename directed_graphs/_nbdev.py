@@ -4,7 +4,7 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"make_sparse_safe": "01a Graph Utils.ipynb",
          "distance_matrix": "01a Graph Utils.ipynb",
-         "anisotropic_kernel": "01a Graph Utils.ipynb",
+         "anisotropic_kernel": "05b Flow Embedding with Diffusion.ipynb",
          "adaptive_anisotropic_kernel": "01a Graph Utils.ipynb",
          "diffusion_matrix": "01a Graph Utils.ipynb",
          "diffusion_matrix_from_points": "01a Graph Utils.ipynb",
@@ -55,7 +55,9 @@ index = {"make_sparse_safe": "01a Graph Utils.ipynb",
          "affinity_from_flow": "05b Flow Embedding with Diffusion.ipynb",
          "affinity_matrix_from_pointset_to_pointset": "05b Flow Embedding with Diffusion.ipynb",
          "GaussianVectorField": "05b Flow Embedding with Diffusion.ipynb",
-         "DiffusionFlowEmbedder": "05b Flow Embedding with Diffusion.ipynb"}
+         "smoothness_of_vector_field": "05b Flow Embedding with Diffusion.ipynb",
+         "DiffusionFlowEmbedder": "05b Flow Embedding with Diffusion.ipynb",
+         "affinity_grid_search": "05b03 Testing the Flow-Affinity Matrix.ipynb"}
 
 modules = ["utils.py",
            "datasets.py",

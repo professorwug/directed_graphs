@@ -14,6 +14,7 @@ def make_sparse_safe(A):
   return A
 
 # Cell
+from sklearn.metrics import pairwise_distances
 def distance_matrix(X, metric = "euclidean"):
   X = make_sparse_safe(X) # converts to csr_array
   D = pairwise_distances(X, metric = metric, n_jobs = -1) # use all of the available cores
