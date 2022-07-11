@@ -223,6 +223,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.eps = 0.001
 		self.weight_of_flow = weight_of_flow
 		self.smoothness = smoothness
+		self.embedding_bounds = 4 # will constrain embedding to live in -n, n in each dimension
 
 
 		if learnable_flow_strength:
@@ -287,6 +288,8 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 
 	def loss(self):
 		self.embedded_points = self.encoder(self.X)
+		# normalize embedded points
+		self.embedded_points /= torch.linalg.norm(self.embedded_points, dim=1)
 		# print(self.embedded_points)
 		# compute embedding diffusion matrix
 		self.compute_embedding_P()
