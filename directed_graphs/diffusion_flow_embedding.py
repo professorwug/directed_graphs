@@ -32,15 +32,14 @@ def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   # and normalize flows # TODO: Perhaps reconsider
   # Calculate flow lengths, used to scale directions to flow
   flow_lengths = torch.linalg.norm(flows,dim=-1)
-
   if len(directions_array) == 1: # convert to 2d array if necessary
     directions_array = directions_array[:,None]
   # scale directions to have same norm as flow
-  scaled_directions = normed_directions * flow_lengths[:,None].repeat(directions_array.shape[0],1,directions_array.shape[2])
+  # scaled_directions = normed_directions * flow_lengths[:,None].repeat(directions_array.shape[0],1,directions_array.shape[2])
   # compute dot products as matrix multiplication
   dot_products = (normed_directions * flows).sum(-1)
   # take distance between flow projected onto direction and the direction
-  distance_from_flow = (torch.linalg.norm(flows,dim=1)**2).repeat(n_directions,1) - dot_products
+  distance_from_flow = (torch.linalg.norm(flows,dim=1)).repeat(n_directions,1) - dot_products
   # take absolute value
   distance_from_flow = torch.abs(distance_from_flow)
   # print('shape of dff',distance_from_flow.shape)
@@ -134,7 +133,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 	def __init__(self,
 							X,
 							flows,
-							t = 4,
+							t = 1,
 							sigma_graph = 0.5,
 							sigma_embedding=0.5,
 							embedding_dimension=2,
@@ -221,7 +220,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.KLD = nn.KLDivLoss(reduction='batchmean',log_target=False)
 		self.MSE = nn.MSELoss()
 		# testing
-		# self.KLD = nn.MSELoss()
+		# self.KLD = nn.NLLLoss()
 		self.optim = torch.optim.Adam(self.parameters(), lr = learning_rate, )
 									
 
