@@ -57,7 +57,14 @@ index = {"make_sparse_safe": "01a Graph Utils.ipynb",
          "GaussianVectorField": "05b Flow Embedding with Diffusion.ipynb",
          "smoothness_of_vector_field": "05b Flow Embedding with Diffusion.ipynb",
          "DiffusionFlowEmbedder": "05b Flow Embedding with Diffusion.ipynb",
-         "affinity_grid_search": "05b03 Testing the Flow-Affinity Matrix.ipynb"}
+         "affinity_grid_search": "05b03 Testing the Flow-Affinity Matrix.ipynb",
+         "compute_grid": "05c Multiscale Diffusion Flow Embedding.ipynb",
+         "diffusion_matrix_with_grid_points": "05c Multiscale Diffusion Flow Embedding.ipynb",
+         "MultiscaleDiffusionFlowEmbedder": "05c Multiscale Diffusion Flow Embedding.ipynb",
+         "kl_divergence_loss": "05c01 Loss functions.ipynb",
+         "kld_symmetric_loss": "05c01 Loss functions.ipynb",
+         "diffusion_map_loss": "05c01 Loss functions.ipynb",
+         "flow_cosine_loss": "05c01 Loss functions.ipynb"}
 
 modules = ["utils.py",
            "datasets.py",
@@ -65,7 +72,8 @@ modules = ["utils.py",
            "embeddings.py",
            "backwards.py",
            "directed_diffusion_maps.py",
-           "diffusion_flow_embedding.py"]
+           "diffusion_flow_embedding.py",
+           "multiscale_flow_embedder.py"]
 
 doc_url = "https://professorwug.github.io/directed_graphs/"
 
