@@ -188,6 +188,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 							embedding_dimension=2,
 							device=torch.device('cpu'),
 							autoencoder_shape = [10,10],
+							flow_artist = "gaussian",
 							flow_artist_shape = [30,20,10],
 							flow_strength_graph=5,
 							flow_strength_embedding=5,
@@ -199,6 +200,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 							embedding_bounds = 4,
 							num_gaussians = 25,
 							labels = None,
+
 							):
 		"""Flow Embedding with diffusion
 
@@ -251,17 +253,17 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			
 		# Flow field
 		# Gaussian model
-		self.FlowArtist = GaussianVectorField(embedding_dimension,num_gaussians, device=device).to(device)
-		
-
-		# self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, flow_artist_shape[0]),
-		#                        nn.LeakyReLU(),
-		#                        nn.Linear(flow_artist_shape[0], flow_artist_shape[1]),
-		#                        nn.LeakyReLU(),
-		# 											 nn.Linear(flow_artist_shape[1], flow_artist_shape[2]),
-		#                        nn.LeakyReLU(),
-		#                        nn.Linear(flow_artist_shape[2], self.embedding_dimension)
-		# 											 )
+		if flow_artist == "gaussian":
+			self.FlowArtist = GaussianVectorField(embedding_dimension,num_gaussians, device=device).to(device)
+		else:
+			self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, flow_artist_shape[0]),
+														nn.LeakyReLU(),
+														nn.Linear(flow_artist_shape[0], flow_artist_shape[1]),
+														nn.LeakyReLU(),
+														nn.Linear(flow_artist_shape[1], flow_artist_shape[2]),
+														nn.LeakyReLU(),
+														nn.Linear(flow_artist_shape[2], self.embedding_dimension)
+														)
 		# Autoencoder to embed the points into a low dimension
 		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, autoencoder_shape[0]),
 															nn.LeakyReLU(),
@@ -293,8 +295,8 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 		self.embedded_points = self.encoder(self.X)
 		# normalize embedded points to lie within -self.embedding_bounds, self.embedding_bounds
 		# if any are trying to escape, constrain them to lie on the edges
-		self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])
-		self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])
+		# self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])
+		# self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])
 		# print(self.embedded_points)
 		# compute embedding diffusion matrix
 		self.compute_embedding_P()
@@ -368,6 +370,7 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			plt.legend()
 		else:
 			sc = plt.scatter(self.embedded_points[:,0].detach().cpu(),self.embedded_points[:,1].detach().cpu())
+		plt.suptitle("Flow Embedding")
 		plt.quiver(x,y,u,v)
 		# Display all open figures.
 		plt.show()
