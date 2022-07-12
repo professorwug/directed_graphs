@@ -23,7 +23,7 @@ entries:
       url: 01c Visualizations.html
     - output: web,pdf
       title: Title
-      url: 05b02 Flow-Artist_Upgrade.html
+      url: 05b05 Test Swiss Roll with New Kernel (7-11).html
     - output: web,pdf
       title: Stanford Large Network Datasets with Ground-truth Communities
       url: 02a01 Communities Datasets.html
@@ -45,6 +45,12 @@ entries:
     - output: web,pdf
       title: Comparing regular and backward node2vec on trees
       url: 02c Trees.html
+    - output: web,pdf
+      title: 'FlowEmbedder: Snake Test Case'
+      url: 02d01_Snake_TestCase.html
+    - output: web,pdf
+      title: Testing Diffusion Flow Embedder on Circle and Swiss Roll
+      url: 02d02a Testing Diffusion Flow Embedder on Circle and Swiss Roll.html
     - output: web,pdf
       title: 'Manifold with Flow Datasets, Part 3: The Sphere, The Torus, and the
         Paraboloid'
@@ -104,8 +110,26 @@ entries:
       title: More RNA Velocity Datasets with DFE
       url: 05b01a03 More_RNA_Velocity_Datasets.html
     - output: web,pdf
+      title: Testing the Flow Affinity Matrix
+      url: 05b03 Testing the Flow-Affinity Matrix.html
+    - output: web,pdf
+      title: Spiral
+      url: 05b04 Diffusion Flow Embedder on Toy Data.html
+    - output: web,pdf
+      title: Can smoothness alone unroll the swiss roll?
+      url: 05b05a DFE on the Swiss Roll with Smoothness.html
+    - output: web,pdf
+      title: 05c Multiscale Flow Embeddings with a Grid
+      url: 05c Multiscale Diffusion Flow Embedding.html
+    - output: web,pdf
+      title: A collection of Loss functions for Flow Embedder
+      url: 05c01 Loss functions.html
+    - output: web,pdf
       title: PHATE
       url: playground.html
+    - output: web,pdf
+      title: Teseting
+      url: Playground2.html
     output: web
     title: directed_graphs
   output: web
