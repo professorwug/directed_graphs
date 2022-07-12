@@ -5,8 +5,8 @@ __all__ = ['EmailEuNetwork', 'visualize_heatmap', 'SourceSink', 'SmallRandom', '
            'CycleGraph', 'HalfCycleGraph', 'xy_tilt', 'directed_circle', 'plot_directed_2d', 'plot_origin_3d',
            'plot_directed_3d', 'directed_prism', 'directed_cylinder', 'directed_spiral', 'directed_swiss_roll',
            'directed_spiral_uniform', 'directed_swiss_roll_uniform', 'angle_x', 'whirlpool',
-           'rejection_sample_for_torus', 'torus_with_flow', 'plot_embeddings', 'DirectedStochasticBlockModelHelper',
-           'visualize_edge_index', 'affinity_grid_search']
+           'rejection_sample_for_torus', 'torus_with_flow', 'directed_sin_branch', 'static_clusters', 'plot_embeddings',
+           'DirectedStochasticBlockModelHelper', 'visualize_edge_index', 'affinity_grid_search']
 
 # Cell
 import os
@@ -454,9 +454,9 @@ def plot_directed_2d(X, flow, labels, mask_prob=0.5):
   num_nodes = X.shape[0]
   fig = plt.figure()
   ax = fig.add_subplot()
-  ax.scatter(X[:,0], X[:,1], marker=".", color="k")
+  ax.scatter(X[:,0], X[:,1], marker=".", c=labels)
   mask = np.random.rand(num_nodes) > mask_prob
-  ax.quiver(X[mask,0], X[mask,1], flow[mask,0], flow[mask,1], labels[mask])
+  ax.quiver(X[mask,0], X[mask,1], flow[mask,0], flow[mask,1], alpha=0.1)
   ax.set_aspect("equal")
   plt.show()
 
@@ -632,6 +632,48 @@ def torus_with_flow(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=
     ks = 8*np.cos(theta)/(5 + np.cos(theta))
 
     return data, flows
+
+# Cell
+def directed_sin_branch(num_nodes=1000, xscale=1, yscale=1, sigma=0.25):
+  num_nodes_per_branch = num_nodes//3
+  # root
+  x_root = np.random.uniform(-xscale*np.pi*0.84, 0, num_nodes - 2*num_nodes_per_branch)
+  x_root = np.sort(x_root)
+  y_root = np.sinh(x_root / xscale) * yscale
+  v_root = np.cosh(x_root / xscale) / xscale * yscale
+  # branch 1
+  x_branch1 = np.random.uniform(0, xscale*np.pi*0.84, num_nodes_per_branch)
+  x_branch1 = np.sort(x_branch1)
+  y_branch1 = np.sinh(x_branch1 / xscale) * yscale
+  v_branch1 = np.cosh(x_branch1 / xscale) / xscale * yscale
+  # branch 2
+  x_branch2 = np.random.uniform(0, xscale*2*np.pi, num_nodes_per_branch)
+  x_branch2 = np.sort(x_branch2)
+  y_branch2 = np.sin(x_branch2 / xscale) * yscale
+  v_branch2 = np.cos(x_branch2 / xscale) / xscale * yscale
+  # stack
+  x = np.concatenate((x_branch1, x_branch2, x_root))
+  y = np.concatenate((y_branch1, y_branch2, y_root)) + np.random.normal(loc=0, scale=sigma, size=num_nodes)
+  v = np.concatenate((v_branch1, v_branch2, v_root))
+  z = np.zeros(num_nodes)
+  X = np.column_stack((x, y, z))
+  u = np.ones(num_nodes)
+  w = np.zeros(num_nodes)
+  flow = np.column_stack((u, v, w))
+  # labels
+  labels = np.concatenate((x_branch1 - np.pi*3, x_branch2, x_root + np.pi*3))
+  return X, flow, labels
+
+
+# Cell
+def static_clusters(num_nodes=250, num_clusters=5, radius=1, sigma=0.2):
+  thetas = np.repeat([2*np.pi*i/num_clusters for i in range(num_clusters)], num_nodes//num_clusters)
+  x = np.cos(thetas) * radius + np.random.normal(loc=0, scale=sigma, size=num_nodes)
+  y = np.sin(thetas) * radius + np.random.normal(loc=0, scale=sigma, size=num_nodes)
+  z = np.zeros(num_nodes)
+  X = np.column_stack((x, y, z))
+  flow = np.zeros(X.shape)
+  return X, flow, thetas
 
 # Comes from 03a Node2Vec_with_Backwards_Connection.ipynb, cell
 import numpy as np
