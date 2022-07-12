@@ -253,17 +253,10 @@ class DiffusionFlowEmbedder(torch.nn.Module):
 			
 		# Flow field
 		# Gaussian model
-		if flow_artist == "gaussian":
-			self.FlowArtist = GaussianVectorField(embedding_dimension,num_gaussians, device=device).to(device)
-		else:
-			self.FlowArtist = nn.Sequential(nn.Linear(self.embedding_dimension, flow_artist_shape[0]),
-														nn.LeakyReLU(),
-														nn.Linear(flow_artist_shape[0], flow_artist_shape[1]),
-														nn.LeakyReLU(),
-														nn.Linear(flow_artist_shape[1], flow_artist_shape[2]),
-														nn.LeakyReLU(),
-														nn.Linear(flow_artist_shape[2], self.embedding_dimension)
-														)
+		self.FlowArtist = FlowArtist(FA_type = flow_artist,
+                                     dim = self.embedding_dimension,
+                                     num_gauss=num_gaussians,
+                                     device=device)
 		# Autoencoder to embed the points into a low dimension
 		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, autoencoder_shape[0]),
 															nn.LeakyReLU(),
