@@ -92,7 +92,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 								"diffusion":1,
 								"smoothness":0,
 								"reconstruction":0,
-								"MSE":0,
+								"diffusion map regularization":0,
+								"flow cosine loss": 0,
 							},
 							device=torch.device('cpu'),
 							):
@@ -109,7 +110,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		self.eps = 0.001
 		self.loss_weights = loss_weights
 		self.labels = labels
-		self.flow_strength = nn.Parameter(torch.tensor(flow_strength_embedding).float())
+		self.flow_strength = torch.tensor(flow_strength_embedding).float()
 		self.embedding_dimension = embedding_dimension
 		# set device (used for shuffling points around during visualization)
 		self.device = device
@@ -119,7 +120,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			self.losses[k] = []
 		
 		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph,flow_strength=flow_strength_graph)
-		self.P_graph = F.normalize(P_graph, p=1, dim=1)
+		self.P_graph = F.normalize(self.P_graph, p=1, dim=1)
 		# torch.diag(1/self.P_graph.sum(axis=1)) @ self.P_graph
 		# compute matrix powers
 		# TODO: Could reuse previous powers to speed this up
