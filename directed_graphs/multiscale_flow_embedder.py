@@ -110,7 +110,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		self.eps = 0.001
 		self.loss_weights = loss_weights
 		self.labels = labels
-		self.flow_strength = nn.Parameter(torch.tensor(flow_strength_embedding).float())
+		self.flow_strength = torch.tensor(flow_strength_embedding).float()
 		self.embedding_dimension = embedding_dimension
 		# set device (used for shuffling points around during visualization)
 		self.device = device
