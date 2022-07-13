@@ -23,3 +23,13 @@ parser.add_argument('--out_file', type=str, default='out.pth',
 args = parser.parse_args()
 if __name__ == '__main__':
     train_model(args,args.out_file)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
