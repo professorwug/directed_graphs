@@ -11,10 +11,10 @@ def compute_grid(X,grid_width=20):
   Returns tensor of shape grid_width^2 x 2"""
   # TODO: This currently only supports
   # find support of points
-  minx = (torch.min(X[:,0])-1) # TODO: use torch.min, try without detach
-  maxx = (torch.max(X[:,0])+1)
-  miny = (torch.min(X[:,1])-1)
-  maxy = (torch.max(X[:,1])+1)
+  minx = float(torch.min(X[:,0])-1) # TODO: use torch.min, try without detach
+  maxx = float(torch.max(X[:,0])+1)
+  miny = float(torch.min(X[:,1])-1)
+  maxy = float(torch.max(X[:,1])+1)
   # form grid around points
   x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
   xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
@@ -75,7 +75,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 	def __init__(self,
 							X,
 							flows,
-							ts = [1,2,4,8],
+							ts = (1,2,4,8),
 							sigma_graph = 0.5,
 							sigma_embedding=0.5,
 							flow_strength_graph=5,
@@ -83,10 +83,10 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 							embedding_dimension=2,
 							learning_rate = 1e-3,
 							flow_artist = "ReLU",
-							flow_artist_shape = [2,4,8,4,2],
+							flow_artist_shape = (2,4,8,4,2),
 							num_flow_gaussians = 25,
-							embedder = FeedForwardReLU(shape=[3,4,8,4,2]),
-							decoder = FeedForwardReLU(shape=[2,4,8,4,3]),
+							embedder = FeedForwardReLU(shape=(3,4,8,4,2)),
+							decoder = FeedForwardReLU(shape=(2,4,8,4,3)),
 							labels = None,
 							loss_weights = {
 								"diffusion":1,
@@ -173,7 +173,10 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		# embed points
 		self.embedded_points = self.embedder(self.X)
 		# compute diffusion loss on embedded points
-		diffusion_loss = self.diffusion_loss()
+		if self.diffusion_loss != 0:
+			diffusion_loss = self.diffusion_loss()
+		else:
+			diffusion_loss = 0
 		# compute autoencoder loss
 		if self.decoder is not None:
 			X_reconstructed = self.decoder(self.embedded_points)
@@ -200,12 +203,11 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		else:
 			flow_loss = 0
 
-		cost = (self.loss_weights['diffusion']*diffusion_loss
+		cost = self.loss_weights['diffusion']*diffusion_loss
 		+ self.loss_weights['reconstruction']*reconstruction_loss
 		+ self.loss_weights['smoothness']*smoothness_loss
 		+ self.loss_weights['diffusion map regularization']*diffmap_loss
 		+ self.loss_weights['flow cosine loss']*flow_loss
-		)
 		return cost
 
 	def visualize_points(self, labels = None):
@@ -291,6 +293,9 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			self.optim.zero_grad()
 			# compute loss
 			loss = self.loss()
+			if loss.isnan():
+				print("Final loss was nan")
+				raise NotImplementedError
 			# print("loss is ",loss)
 			# compute gradient and step backwards
 			loss.backward()
