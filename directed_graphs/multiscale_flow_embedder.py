@@ -11,14 +11,14 @@ def compute_grid(X,grid_width=20):
   Returns tensor of shape grid_width^2 x 2"""
   # TODO: This currently only supports
   # find support of points
-  minx = (min(X[:,0])-1).detach()
-  maxx = (max(X[:,0])+1).detach()
-  miny = (min(X[:,1])-1).detach()
-  maxy = (max(X[:,1])+1).detach()
+  minx = (torch.min(X[:,0])-1) # TODO: use torch.min, try without detach
+  maxx = (torch.max(X[:,0])+1)
+  miny = (torch.min(X[:,1])-1)
+  maxy = (torch.max(X[:,1])+1)
   # form grid around points
   x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
   xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
-  xy_t = xy_t.reshape(grid_width**2,2)
+  xy_t = xy_t.reshape(grid_width**2,2).detach()
   return xy_t
 
 # Cell
@@ -163,7 +163,10 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			else:
 				diffusion_loss_for_t = self.KLD(log_P_embedding_t,self.P_graph_ts[i])
 			diffusion_loss += (2**(-i))*diffusion_loss_for_t
+			print(f"Diffusion loss {i} is {diffusion_loss}")
 		self.losses['diffusion'].append(diffusion_loss.detach().cpu().float())
+		if diffusion_loss.isnan():
+			raise NotImplementedError
 		return diffusion_loss
 
 	def loss(self):
