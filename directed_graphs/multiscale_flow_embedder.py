@@ -211,6 +211,34 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		# Display all open figures.
 		plt.show()
 		
+		
+	def visualize_loss(self, loss_type = "total"):
+		# diffusion_loss,reconstruction_loss, smoothness_loss
+		x = []
+		losses = {}
+		losses["total"] = []
+		losses["diffusion"] = []
+		losses["reconstruction"] = []
+		losses["smoothness"] = []
+		for i in range(len(self.losses)):
+			x.append(i)
+			losses["diffusion"].append(dfe.losses[i][0].detach().cpu().numpy())
+			losses["reconstruction"].append(dfe.losses[i][1].detach().cpu().numpy())
+			losses["smoothness"].append(dfe.losses[i][2].detach().cpu().numpy())
+			losses["total"].append(losses["diffusion"][i] + losses["reconstruction"][i] + losses["smoothness"][i])
+		
+		if loss_type == "all":
+			plt.plot(x, losses["total"])
+			plt.plot(x, losses["diffusion"])
+			plt.plot(x, losses["reconstruction"])
+			plt.plot(x, losses["smoothness"])
+			plt.legend(('total', 'diffusion', 'reconstruction', 'smoothness'), loc='upper right')
+			plt.title("loss")
+		else:
+			plt.plot(x, losses[loss_type])
+			plt.title(loss_type)
+				
+				
 	def visualize_diffusion_matrices(self):
 		fig, axs = plt.subplots(3,2, figsize=(10,15))
 		axs[0][0].set_title(f"Ambient $P^{self.ts[0]}$")
