@@ -690,9 +690,9 @@ def directed_sinh_branch(num_nodes=1000, xscale=1, yscale=1, sigma=0.25, xtilt=0
     sigma=sigma
   )
   # concatenate
-  X = np.concatenate((X_branch1, X_branch2, X_root))
-  flow = np.concatenate((flow_branch1, flow_branch2, flow_root))
-  labels = np.concatenate((labels_branch1 - np.pi*3, labels_branch2, labels_root + np.pi*3))
+  X = np.concatenate((X_root, X_branch1, X_branch2))
+  flow = np.concatenate((flow_root, flow_branch1, flow_branch2))
+  labels = np.concatenate((labels_root - np.pi*3, labels_branch1, labels_branch2 + np.pi*3))
   # tilt
   X, flow, labels = xy_tilt(X, flow, labels, xtilt=xtilt, ytilt=ytilt)
   return X, flow, labels
