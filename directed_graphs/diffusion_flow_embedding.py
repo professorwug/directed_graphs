@@ -28,11 +28,11 @@ def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   assert len(directions_array.shape) > 1 and len(directions_array.shape) < 4
   n_directions = directions_array.shape[0]
   # Normalize directions
-  length_of_directions = torch.linalg.norm(directions_array,dim=-1)
+  # length_of_directions = torch.linalg.norm(directions_array,dim=-1)
   normed_directions = F.normalize(directions_array,dim=-1)
   # and normalize flows # TODO: Perhaps reconsider
   # Calculate flow lengths, used to scale directions to flow
-  flow_lengths = torch.linalg.norm(flows,dim=-1)
+  # flow_lengths = torch.linalg.norm(flows,dim=-1)
   if len(directions_array) == 1: # convert to 2d array if necessary
     directions_array = directions_array[:,None]
   # scale directions to have same norm as flow
@@ -50,8 +50,6 @@ def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   distance_from_flow = distance_from_flow.T
   # take kernel of distances
   kernel =  torch.exp(-distance_from_flow/sigma)
-  # normalize kernel
-  # kernel /= torch.sum(kernel,axis=1)
   return kernel
 
 
