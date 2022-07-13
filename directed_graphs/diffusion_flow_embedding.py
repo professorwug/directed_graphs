@@ -28,7 +28,7 @@ def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
   assert len(directions_array.shape) > 1 and len(directions_array.shape) < 4
   n_directions = directions_array.shape[0]
   # Normalize directions
-  # length_of_directions = torch.linalg.norm(directions_array,dim=-1)
+  length_of_directions = torch.linalg.norm(directions_array,dim=-1)
   normed_directions = F.normalize(directions_array,dim=-1)
   # and normalize flows # TODO: Perhaps reconsider
   # Calculate flow lengths, used to scale directions to flow
