@@ -427,7 +427,7 @@ def xy_tilt(X, flow, labels, xtilt=0, ytilt=0):
   return X, flow, labels
 
 # Cell
-def directed_circle(num_nodes=100, radius=1, xtilt=0, ytilt=0):
+def directed_circle(num_nodes=100, radius=1, xtilt=0, ytilt=0, twodim=False):
   # sample random angles between 0 and 2pi
   thetas = np.random.uniform(0, 2*np.pi, num_nodes)
   thetas = np.sort(thetas)
@@ -445,7 +445,10 @@ def directed_circle(num_nodes=100, radius=1, xtilt=0, ytilt=0):
   w = np.zeros(num_nodes)
   flow = np.column_stack((u, v, w))
   # tilt
-  X, flow, labels = xy_tilt(X, flow, labels, xtilt=0, ytilt=0)
+  X, flow, labels = xy_tilt(X, flow, labels, xtilt=xtilt, ytilt=ytilt)
+  if twodim:
+    X = X[:,:2]
+    flow = flow[:,:2]
   return X, flow, labels
 
 # Cell
@@ -687,9 +690,9 @@ def directed_sinh_branch(num_nodes=1000, xscale=1, yscale=1, sigma=0.25, xtilt=0
     sigma=sigma
   )
   # concatenate
-  X = np.concatenate((X_branch1, X_branch2, X_root))
-  flow = np.concatenate((flow_branch1, flow_branch2, flow_root))
-  labels = np.concatenate((labels_branch1 - np.pi*3, labels_branch2, labels_root + np.pi*3))
+  X = np.concatenate((X_root, X_branch1, X_branch2))
+  flow = np.concatenate((flow_root, flow_branch1, flow_branch2))
+  labels = np.concatenate((labels_root - np.pi*3, labels_branch1, labels_branch2 + np.pi*3))
   # tilt
   X, flow, labels = xy_tilt(X, flow, labels, xtilt=xtilt, ytilt=ytilt)
   return X, flow, labels
