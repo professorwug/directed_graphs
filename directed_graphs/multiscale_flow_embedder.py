@@ -245,9 +245,9 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		losses["smoothness"] = []
 		for i in range(len(self.losses)):
 			x.append(i)
-			losses["diffusion"].append(dfe.losses[i][0].detach().cpu().numpy())
-			losses["reconstruction"].append(dfe.losses[i][1].detach().cpu().numpy())
-			losses["smoothness"].append(dfe.losses[i][2].detach().cpu().numpy())
+			losses["diffusion"].append(self.losses[i][0].detach().cpu().numpy())
+			losses["reconstruction"].append(self.losses[i][1].detach().cpu().numpy())
+			losses["smoothness"].append(self.losses[i][2].detach().cpu().numpy())
 			losses["total"].append(losses["diffusion"][i] + losses["reconstruction"][i] + losses["smoothness"][i])
 		
 		if loss_type == "all":
