@@ -38,7 +38,8 @@ def diffusion_matrix_with_grid_points(X, grid, flow_function, t, sigma,flow_stre
   Pt = torch.matrix_power(P,t)
   # Recover the transition probabilities between the points, and renormalize them
   Pt_points = Pt[:n_points,:n_points]
-  Pt_points = torch.diag(1/Pt_points.sum(1)) @ Pt_points
+  # Pt_points = torch.diag(1/Pt_points.sum(1)) @ Pt_points
+  Pt_points = F.normalize(Pt_points, p=1, dim=1)
   # return diffusion probs between points
   return Pt_points
 
@@ -69,7 +70,7 @@ from tqdm import trange
 import numpy as np
 import matplotlib.pyplot as plt
 from .diffusion_flow_embedding import GaussianVectorField, smoothness_of_vector_field, FlowArtist
-
+from .diffusion_flow_embedding import diffusion_map_loss, flow_cosine_loss
 class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 	def __init__(self,
 							X,
@@ -91,7 +92,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 								"diffusion":1,
 								"smoothness":0,
 								"reconstruction":0,
-								"MSE":0,
+								"diffusion map regularization":0,
+								"flow cosine loss": 0,
 							},
 							device=torch.device('cpu'),
 							):
@@ -108,7 +110,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		self.eps = 0.001
 		self.loss_weights = loss_weights
 		self.labels = labels
-		self.flow_strength = nn.Parameter(torch.tensor(flow_strength_embedding).float())
+		self.flow_strength = torch.tensor(flow_strength_embedding).float()
 		self.embedding_dimension = embedding_dimension
 		# set device (used for shuffling points around during visualization)
 		self.device = device
@@ -118,7 +120,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			self.losses[k] = []
 		
 		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph,flow_strength=flow_strength_graph)
-		self.P_graph = torch.diag(1/self.P_graph.sum(axis=1)) @ self.P_graph
+		self.P_graph = F.normalize(self.P_graph, p=1, dim=1)
+		# torch.diag(1/self.P_graph.sum(axis=1)) @ self.P_graph
 		# compute matrix powers
 		# TODO: Could reuse previous powers to speed this up
 		self.P_graph_ts = [torch.matrix_power(self.P_graph,t) for t in self.ts]
@@ -172,19 +175,33 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		if self.decoder is not None:
 			X_reconstructed = self.decoder(self.embedded_points)
 			reconstruction_loss = self.MSE(X_reconstructed, self.X)
-			self.losses['reconstruction'].append(reconstruction_loss.detach().cpu().float())
+			# self.losses['reconstruction'].append(reconstruction_loss.detach().cpu().float())
 		else:
 			reconstruction_loss = 0
 		# regularizations
 		if self.loss_weights['smoothness'] != 0:
 			smoothness_loss = smoothness_of_vector_field(self.embedded_points,self.FlowArtist,device=self.device,grid_width=20)
-			self.losses['smoothness'].append(smoothness_loss.detach().cpu().float())
+			# self.losses['smoothness'].append(smoothness_loss.detach().cpu().float())
 		else:
 			smoothness_loss = 0
+
+		if self.loss_weights['diffusion map regularization'] != 0:
+			diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
+			# self.losses['diffusion map regularization'].append(diffmap_loss.detach().cpu().float())
+		else:
+			diffmap_loss = 0
+		
+		if self.loss_weights['flow cosine loss'] != 0:
+			flow_loss = flow_cosine_loss(self.embedded_points, self.ground_truth_flows, self.FlowArtist(self.embedded_points))
+			# self.losses['flow cosine loss'].append(smoothness_loss.detach().cpu().float())
+		else:
+			flow_loss = 0
 
 		cost = (self.loss_weights['diffusion']*diffusion_loss
 		+ self.loss_weights['reconstruction']*reconstruction_loss
 		+ self.loss_weights['smoothness']*smoothness_loss
+		+ self.loss_weights['diffusion map regularization']*diffmap_loss
+		+ self.loss_weights['flow cosine loss']*flow_loss
 		)
 		return cost
 
