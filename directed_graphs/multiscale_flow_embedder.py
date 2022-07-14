@@ -12,10 +12,10 @@ def compute_grid(X,grid_width=20):
   Returns tensor of shape grid_width^2 x 2"""
   # TODO: This currently only supports
   # find support of points
-  minx = float(torch.min(X[:,0])-1) # TODO: use torch.min, try without detach
-  maxx = float(torch.max(X[:,0])+1)
-  miny = float(torch.min(X[:,1])-1)
-  maxy = float(torch.max(X[:,1])+1)
+  minx = float(torch.min(X[:,0])-0.1) # TODO: use torch.min, try without detach
+  maxx = float(torch.max(X[:,0])+0.1)
+  miny = float(torch.min(X[:,1])-0.1)
+  maxy = float(torch.max(X[:,1])+0.1)
   # form grid around points
   x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
   xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
@@ -249,27 +249,14 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		for key in self.losses.keys():
 			losses[key] = []
 			k = key
+		losses["total"] = []
 		for i in range(len(self.losses["diffusion"])):
 			x.append(i)
-<<<<<<< HEAD
 			for key in self.losses.keys():
 				try:
 					losses[key].append(self.losses[key][i].detach().cpu().numpy())
 				except:
-					do_nothing = 0
-=======
-<<<<<<< HEAD
-			losses["diffusion"].append(self.losses[i].detach().cpu().numpy())
-			losses["reconstruction"].append(self.losses[i].detach().cpu().numpy())
-			losses["smoothness"].append(self.losses[i].detach().cpu().numpy())
-=======
-			losses["diffusion"].append(self.losses[i][0].detach().cpu().numpy())
-			losses["reconstruction"].append(self.losses[i][1].detach().cpu().numpy())
-			losses["smoothness"].append(self.losses[i][2].detach().cpu().numpy())
->>>>>>> 116216d (Fixed error in smoothness regularization)
-			losses["total"].append(losses["diffusion"][i] + losses["reconstruction"][i] + losses["smoothness"][i])
-		
->>>>>>> 65cac3c8c3ffa3aafff8e4505e0c44e6abc2579c
+					losses[key].append(0)
 		if loss_type == "all":
 			for key in self.losses.keys():
 				plt.plot(x, losses[key])
