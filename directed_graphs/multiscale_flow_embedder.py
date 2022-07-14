@@ -94,7 +94,6 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 							):
 		# generate default parameters
 		embedder = FeedForwardReLU(shape=(3,4,8,4,2)) if embedder is None else embedder
-		decoder = FeedForwardReLU(shape=(2,4,8,4,3)) if decoder is None else decoder
 		loss_weights = {
 			"diffusion":1,
 			"smoothness":0,
@@ -181,7 +180,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		# embed points
 		self.embedded_points = self.embedder(self.X)
 		# compute diffusion loss on embedded points
-		if self.diffusion_loss != 0:
+		if self.loss_weights['diffusion'] != 0:
 			diffusion_loss = self.diffusion_loss()
 		else:
 			diffusion_loss = 0
@@ -207,7 +206,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		
 		if self.loss_weights['flow cosine loss'] != 0:
 			flow_loss = flow_cosine_loss(self.embedded_points, self.ground_truth_flows, self.FlowArtist(self.embedded_points))
-			self.losses['flow cosine loss'].append(smoothness_loss)
+			self.losses['flow cosine loss'].append(flow_loss)
 		else:
 			flow_loss = 0
 
@@ -269,21 +268,28 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			plt.title(loss_type)
 				
 	def visualize_diffusion_matrices(self):
-		fig, axs = plt.subplots(3,2, figsize=(10,15))
-		axs[0][0].set_title(f"Ambient $P^{self.ts[0]}$")
-		axs[0][0].imshow(self.P_graph_ts[0].detach().cpu().numpy())
-		axs[0][1].set_title(f"Embedding $P^{self.ts[0]}$")
-		axs[0][1].imshow(self.P_embedding_ts[0].detach().cpu().numpy())
-		
-		axs[1][0].set_title(f"Ambient $P^{self.ts[1]}$")
-		axs[1][0].imshow(self.P_graph_ts[1].detach().cpu().numpy())
-		axs[1][1].set_title(f"Embedding $P^{self.ts[1]}$")
-		axs[1][1].imshow(self.P_embedding_ts[1].detach().cpu().numpy())
+		if len(self.ts) >= 4:
+			fig, axs = plt.subplots(3,2, figsize=(10,15))
+			axs[0][0].set_title(f"Ambient $P^{self.ts[0]}$")
+			axs[0][0].imshow(self.P_graph_ts[0].detach().cpu().numpy())
+			axs[0][1].set_title(f"Embedding $P^{self.ts[0]}$")
+			axs[0][1].imshow(self.P_embedding_ts[0].detach().cpu().numpy())
+			
+			axs[1][0].set_title(f"Ambient $P^{self.ts[1]}$")
+			axs[1][0].imshow(self.P_graph_ts[1].detach().cpu().numpy())
+			axs[1][1].set_title(f"Embedding $P^{self.ts[1]}$")
+			axs[1][1].imshow(self.P_embedding_ts[1].detach().cpu().numpy())
 
-		axs[2][0].set_title(f"Ambient $P^{self.ts[2]}$")
-		axs[2][0].imshow(self.P_graph_ts[2].detach().cpu().numpy())
-		axs[2][1].set_title(f"Embedding $P^{self.ts[2]}$")
-		axs[2][1].imshow(self.P_embedding_ts[2].detach().cpu().numpy())
+			axs[2][0].set_title(f"Ambient $P^{self.ts[2]}$")
+			axs[2][0].imshow(self.P_graph_ts[2].detach().cpu().numpy())
+			axs[2][1].set_title(f"Embedding $P^{self.ts[2]}$")
+			axs[2][1].imshow(self.P_embedding_ts[2].detach().cpu().numpy())
+		else:
+			fig, axs = plt.subplots(1,2, figsize=(10,5))
+			axs[0].set_title(f"Ambient $P^{self.ts[0]}$")
+			axs[0].imshow(self.P_graph_ts[0].detach().cpu().numpy())
+			axs[1].set_title(f"Embedding $P^{self.ts[0]}$")
+			axs[1].imshow(self.P_embedding_ts[0].detach().cpu().numpy())
 
 		plt.show()
 
