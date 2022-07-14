@@ -216,7 +216,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from tqdm import trange
-from .utils import diffusion_matrix_from_graph
 import numpy as np
 import matplotlib.pyplot as plt
 
