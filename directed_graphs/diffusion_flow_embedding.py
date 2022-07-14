@@ -215,7 +215,6 @@ def smoothness_of_vector_field(embedded_points, vector_field_function, device, u
 import torch
 from torch import nn
 import torch.nn.functional as F
-import torch_geometric
 from tqdm import trange
 from .utils import diffusion_matrix_from_graph
 import numpy as np
