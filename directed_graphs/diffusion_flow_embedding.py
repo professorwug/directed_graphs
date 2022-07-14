@@ -85,14 +85,16 @@ def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flows,n_neig
 
 # Cell
 class GaussianVectorField(nn.Module):
-  def __init__(self,n_dims, n_gaussians, device):
+  def __init__(self,n_dims, n_gaussians, device, random_initalization = True):
     super(GaussianVectorField, self).__init__()
     self.n_dims = n_dims
     # each gaussian has a mean and a variance, which are initialized randomly, but
     # are afterwards tuned by the network
     self.means = torch.nn.Parameter(torch.rand(n_gaussians,n_dims)*8 - 4).to(device)
-    vecs = torch.randn(n_gaussians,n_dims)
-
+    if random_initalization:
+      vecs = torch.randn(n_gaussians,n_dims)
+    else:
+      vecs = torch.ones(n_gaussians,n_dims)
     vecs = vecs / torch.linalg.norm(vecs, dim=1)[:,None]
     self.vectors = torch.nn.Parameter(vecs).to(device)
   def forward(self,points):
@@ -175,32 +177,37 @@ def FlowArtist(FA_type,dim = 2, num_gauss = 0, shape = [2,4,8,4,2], device = tor
     return FA
 
 # Cell
-def smoothness_of_vector_field(embedded_points, vector_field_function, device, grid_width = 20):
-  # find support of points
-  minx = (min(embedded_points[:,0])-1).detach()
-  maxx = (max(embedded_points[:,0])+1).detach()
-  miny = (min(embedded_points[:,1])-1).detach()
-  maxy = (max(embedded_points[:,1])+1).detach()
-  # form grid around points
-  x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
-  xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
-  xy_t = xy_t.reshape(grid_width**2,2).to(device)
+def smoothness_of_vector_field(embedded_points, vector_field_function, device, use_grid = True, grid_width = 20):
+  if use_grid:
+    # find support of points
+    minx = (min(embedded_points[:,0])-1).detach()
+    maxx = (max(embedded_points[:,0])+1).detach()
+    miny = (min(embedded_points[:,1])-1).detach()
+    maxy = (max(embedded_points[:,1])+1).detach()
+    # form grid around points
+    x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
+    xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
+    xy_t = xy_t.reshape(grid_width**2,2).to(device)
+    points_to_test = xy_t
+  else:
+    points_to_test = embedded_points
   # Compute distances between points
   # TODO: Can compute A analytically for grid graph, don't need to run kernel
-  Dists = torch.cdist(xy_t,xy_t)
+  Dists = torch.cdist(points_to_test,points_to_test)
   A = anisotropic_kernel(Dists)
-  # comment this out in production
-  # plt.imshow(A)
   # Get degree matrix and build graph laplacian
   D = A.sum(axis=1)
-  L = D - A
+  L = torch.diag(D) - A
+  # comment this out in production
+  # plt.imshow(L)
+  # print(L)
   # compute vector field at each grid point
-  vecs = vector_field_function(xy_t)
+  vecs = vector_field_function(points_to_test)
   x_vecs = vecs[:,0]
   y_vecs = vecs[:,1]
   # compute smoothness of each x and y and add them # TODO: There are other ways this could be done
-  x_smoothness = (x_vecs.T @ L @ x_vecs) #/ torch.linalg.norm(x_vecs)**2
-  y_smoothness = (y_vecs.T @ L @ y_vecs) #/ torch.linalg.norm(y_vecs)**2
+  x_smoothness = (x_vecs.T @ L @ x_vecs) / torch.max(torch.linalg.norm(x_vecs)**2, torch.tensor(1e-5))
+  y_smoothness = (y_vecs.T @ L @ y_vecs) / torch.max(torch.linalg.norm(y_vecs)**2, torch.tensor(1e-5))
   total_smoothness = x_smoothness + y_smoothness
   return total_smoothness
 
