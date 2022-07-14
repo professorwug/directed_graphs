@@ -312,10 +312,10 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			# compute gradient and step backwards
 			loss.backward()
 			self.optim.step()
-			if step % 500 == 0:
-				print(f"EPOCH {step}. Loss {loss}. Flow strength {self.flow_strength}. Heatmap of P embedding is ")
-				self.visualize_diffusion_matrices()
-				self.visualize_points()
+			# if step % 500 == 0:
+			# 	print(f"EPOCH {step}. Loss {loss}. Flow strength {self.flow_strength}. Heatmap of P embedding is ")
+			# 	self.visualize_diffusion_matrices()
+			# 	self.visualize_points()
 			# TODO: Criteria to automatically end training
 		print("Exiting training with loss ",loss)
 		return self.embedded_points
