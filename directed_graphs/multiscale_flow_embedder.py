@@ -11,10 +11,10 @@ def compute_grid(X,grid_width=20):
   Returns tensor of shape grid_width^2 x 2"""
   # TODO: This currently only supports
   # find support of points
-  minx = float(torch.min(X[:,0])-1) # TODO: use torch.min, try without detach
-  maxx = float(torch.max(X[:,0])+1)
-  miny = float(torch.min(X[:,1])-1)
-  maxy = float(torch.max(X[:,1])+1)
+  minx = float(torch.min(X[:,0])-0.1) # TODO: use torch.min, try without detach
+  maxx = float(torch.max(X[:,0])+0.1)
+  miny = float(torch.min(X[:,1])-0.1)
+  maxy = float(torch.max(X[:,1])+0.1)
   # form grid around points
   x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
   xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
@@ -89,8 +89,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 							embedder = None,
 							decoder = None,
 							labels = None,
-							loss_weights = default_weights,
-							smoothness_grid = False,
+							loss_weights = None,
 							device=torch.device('cpu'),
 							):
 		# generate default parameters
@@ -113,7 +112,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		self.sigma_graph = sigma_graph
 		self.nnodes = X.shape[0]
 		self.data_dimension = X.shape[1]
-		self.smoothness_grid = smoothness_grid
+		
 		self.eps = 0.001
 		self.loss_weights = loss_weights
 		self.labels = labels
@@ -195,8 +194,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			reconstruction_loss = 0
 		# regularizations
 		if self.loss_weights['smoothness'] != 0:
-			smoothness_loss = smoothness_of_vector_field(self.embedded_points,self.FlowArtist,device=self.device,grid_width=20, use_grid=self.smoothness_grid)
-			# self.losses['smoothness'].append(smoothness_loss.detach().cpu().float())
+			smoothness_loss = smoothness_of_vector_field(self.embedded_points,self.FlowArtist,device=self.device,grid_width=20)
+			self.losses['smoothness'].append(smoothness_loss)
 		else:
 			smoothness_loss = 0
 
@@ -252,13 +251,14 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		for key in self.losses.keys():
 			losses[key] = []
 			k = key
+		losses["total"] = []
 		for i in range(len(self.losses["diffusion"])):
 			x.append(i)
 			for key in self.losses.keys():
 				try:
 					losses[key].append(self.losses[key][i].detach().cpu().numpy())
 				except:
-					do_nothing = 0
+					losses[key].append(0)
 		if loss_type == "all":
 			for key in self.losses.keys():
 				plt.plot(x, losses[key])
