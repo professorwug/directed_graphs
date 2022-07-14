@@ -441,9 +441,10 @@ def kld_symmetric_loss(KLD, P_graph, P_embedding):
 
 # Cell
 def diffusion_map_loss(P_graph, embedded_points):
+  num_nodes = P_graph.shape[0]
   D_graph = torch.cdist(P_graph, P_graph)
   D_embedding = torch.cdist(embedded_points, embedded_points)
-  loss = torch.norm(D_graph - D_embedding)**2
+  loss = torch.norm(D_graph - D_embedding)**2 / (num_nodes**2)
   return loss
 
 # Cell
@@ -451,5 +452,5 @@ def flow_cosine_loss(X, ground_truth_flows, embedded_flows):
   cosine_graph = ground_truth_flows @ ground_truth_flows.T
   cosine_embedding = embedded_flows @ embedded_flows.T
   W = torch.exp(-torch.cdist(X, X))
-  loss = torch.sum((cosine_graph - cosine_embedding) * W)
+  loss = torch.sum((cosine_graph - cosine_embedding)**2 * W) / torch.sum(W)
   return loss

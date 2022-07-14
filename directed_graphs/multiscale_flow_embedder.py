@@ -205,16 +205,16 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			diffmap_loss = 0
 		
 		if self.loss_weights['flow cosine loss'] != 0:
-			flow_loss = flow_cosine_loss(self.embedded_points, self.ground_truth_flows, self.FlowArtist(self.embedded_points))
+			flow_loss = flow_cosine_loss(self.X, self.ground_truth_flows, self.FlowArtist(self.embedded_points))
 			self.losses['flow cosine loss'].append(flow_loss)
 		else:
 			flow_loss = 0
 
-		cost = self.loss_weights['diffusion']*diffusion_loss
+		cost = (self.loss_weights['diffusion']*diffusion_loss
 		+ self.loss_weights['reconstruction']*reconstruction_loss
 		+ self.loss_weights['smoothness']*smoothness_loss
 		+ self.loss_weights['diffusion map regularization']*diffmap_loss
-		+ self.loss_weights['flow cosine loss']*flow_loss
+		+ self.loss_weights['flow cosine loss']*flow_loss)
 		return cost
 
 	def visualize_points(self, labels = None):
