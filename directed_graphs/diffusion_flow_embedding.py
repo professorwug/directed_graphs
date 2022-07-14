@@ -451,5 +451,5 @@ def flow_cosine_loss(X, ground_truth_flows, embedded_flows):
   cosine_graph = ground_truth_flows @ ground_truth_flows.T
   cosine_embedding = embedded_flows @ embedded_flows.T
   W = torch.exp(-torch.cdist(X, X))
-  loss = torch.sum((cosine_graph - cosine_embedding) * W)
+  loss = torch.sum((cosine_graph - cosine_embedding)**2 * W)
   return loss
