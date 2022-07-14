@@ -164,7 +164,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 				diffusion_loss_for_t = self.KLD(log_P_embedding_t,self.P_graph_ts[i])
 			diffusion_loss += (2**(-i))*diffusion_loss_for_t
 			print(f"Diffusion loss {i} is {diffusion_loss}")
-		self.losses['diffusion'].append(diffusion_loss.detach().cpu().float())
+		self.losses['diffusion'].append(diffusion_loss)
 		if diffusion_loss.isnan():
 			raise NotImplementedError
 		return diffusion_loss
@@ -181,25 +181,25 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		if self.decoder is not None:
 			X_reconstructed = self.decoder(self.embedded_points)
 			reconstruction_loss = self.MSE(X_reconstructed, self.X)
-			# self.losses['reconstruction'].append(reconstruction_loss.detach().cpu().float())
+			self.losses['reconstruction'].append(reconstruction_loss)
 		else:
 			reconstruction_loss = 0
 		# regularizations
 		if self.loss_weights['smoothness'] != 0:
 			smoothness_loss = smoothness_of_vector_field(self.embedded_points,self.FlowArtist,device=self.device,grid_width=20)
-			# self.losses['smoothness'].append(smoothness_loss.detach().cpu().float())
+			self.losses['smoothness'].append(smoothness_loss)
 		else:
 			smoothness_loss = 0
 
 		if self.loss_weights['diffusion map regularization'] != 0:
 			diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
-			# self.losses['diffusion map regularization'].append(diffmap_loss.detach().cpu().float())
+			self.losses['diffusion map regularization'].append(diffmap_loss)
 		else:
 			diffmap_loss = 0
 		
 		if self.loss_weights['flow cosine loss'] != 0:
 			flow_loss = flow_cosine_loss(self.embedded_points, self.ground_truth_flows, self.FlowArtist(self.embedded_points))
-			# self.losses['flow cosine loss'].append(smoothness_loss.detach().cpu().float())
+			self.losses['flow cosine loss'].append(smoothness_loss)
 		else:
 			flow_loss = 0
 
@@ -238,29 +238,26 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 	def visualize_loss(self, loss_type = "total"):
 		# diffusion_loss,reconstruction_loss, smoothness_loss
 		x = []
+		k = ""
 		losses = {}
-		losses["total"] = []
-		losses["diffusion"] = []
-		losses["reconstruction"] = []
-		losses["smoothness"] = []
-		for i in range(len(self.losses)):
+		for key in self.losses.keys():
+			losses[key] = []
+			k = key
+		for i in range(len(self.losses["diffusion"])):
 			x.append(i)
-			losses["diffusion"].append(self.losses[i].detach().cpu().numpy())
-			losses["reconstruction"].append(self.losses[i].detach().cpu().numpy())
-			losses["smoothness"].append(self.losses[i].detach().cpu().numpy())
-			losses["total"].append(losses["diffusion"][i] + losses["reconstruction"][i] + losses["smoothness"][i])
-		
+			for key in self.losses.keys():
+				try:
+					losses[key].append(self.losses[key][i].detach().cpu().numpy())
+				except:
+					do_nothing = 0
 		if loss_type == "all":
-			plt.plot(x, losses["total"])
-			plt.plot(x, losses["diffusion"])
-			plt.plot(x, losses["reconstruction"])
-			plt.plot(x, losses["smoothness"])
-			plt.legend(('total', 'diffusion', 'reconstruction', 'smoothness'), loc='upper right')
+			for key in self.losses.keys():
+				plt.plot(x, losses[key])
+			plt.legend(self.losses.keys(), loc='upper right')
 			plt.title("loss")
 		else:
 			plt.plot(x, losses[loss_type])
 			plt.title(loss_type)
-				
 				
 	def visualize_diffusion_matrices(self):
 		fig, axs = plt.subplots(3,2, figsize=(10,15))
