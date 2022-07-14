@@ -30,7 +30,6 @@ def parset(t_string):
     t_ints = []
     for t in ts:
         t_ints.append(int(t))
-    
     return t_ints
 
 def parselossweights(loss_string):
