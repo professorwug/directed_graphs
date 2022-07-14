@@ -3,9 +3,15 @@
     "build" : {
       "enabled" : true,
       "script" : "\/Users\/adjourner\/models\/Literate\/bin\/lit $FILE"
+    },
+    "run" : {
+      "enabled" : true,
+      "script" : "\/Users\/adjourner\/miniforge3\/envs\/pyg_from_source\/bin\/python \/Users\/adjourner\/Projects\/directed_graphs\/directed_graphs\/flow_embed.py"
     }
   },
+  "buildBeforeRunning" : true,
   "environment" : {
     "FILE" : "${File}"
-  }
+  },
+  "openLogOnRun" : "fail"
 }
