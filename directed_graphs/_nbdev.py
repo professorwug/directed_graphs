@@ -4,7 +4,6 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
          "sample_ribbon": "02d01_Snake_TestCase.ipynb",
-         "plot_ribbon_samples": "02d01_Snake_TestCase.ipynb",
          "sample_ribbon_2D": "02d01_Snake_TestCase.ipynb",
          "plot_ribbon_samples_2D": "02d01_Snake_TestCase.ipynb",
          "xy_tilt": "02d02 Circles and Swiss roll Datasets.ipynb",
