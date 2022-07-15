@@ -46,13 +46,15 @@ index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
          "device": "05c01a Training Utils for Flow Embedding.ipynb",
          "save_embedding_visualization": "05c01a Training Utils for Flow Embedding.ipynb",
          "collate_loss": "05c01a Training Utils for Flow Embedding.ipynb",
-         "FETrainer": "05c01a Training Utils for Flow Embedding.ipynb"}
+         "FETrainer": "05c01a Training Utils for Flow Embedding.ipynb",
+         "DiffusionDistanceFlowEmbedder": "05c05 Diffusion Distance based Loss - Tests and Visualizations.ipynb"}
 
 modules = ["datasets.py",
            "embeddings.py",
            "diffusion_flow_embedding.py",
            "multiscale_flow_embedder.py",
-           "flow_embedding_training_utils.py"]
+           "flow_embedding_training_utils.py",
+           "diffusion_distance_flow_embedder.py"]
 
 doc_url = "https://professorwug.github.io/directed_graphs/"
 
