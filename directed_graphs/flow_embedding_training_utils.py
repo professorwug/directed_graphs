@@ -72,9 +72,10 @@ from PIL import Image
 import os
 import ipywidgets as widgets
 import base64
+import matplotlib.pyplot as plt
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class FETrainer():
+class FETrainer(object):
   def __init__(self, X, flows, labels, device = device):
     #super(FETrainer, self).__init__()
     self.vizfiz = [
@@ -87,6 +88,7 @@ class FETrainer():
       sigma_graph = 0.5,
       flow_strength_graph = 5,
       device = device,
+      use_embedding_grid = False,
     ).to(device)
     self.losses = None
     self.labels = labels
@@ -111,7 +113,7 @@ class FETrainer():
 
   def visualize(self, embedded_points, flow_artist, losses, title):
     for viz_f in self.vizfiz:
-      viz_f(embedded_points= embedded_points, flow_artist = flow_artist, losses = losses, title = title, labels = labels)
+      viz_f(embedded_points= embedded_points, flow_artist = flow_artist, losses = losses, title = title, labels = self.labels)
 
   def training_gif(self):
     frames = [Image.open(image) for image in glob.glob(f"visualizations/{self.timestamp}/*.jpg")]
