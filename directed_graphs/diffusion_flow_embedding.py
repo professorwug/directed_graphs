@@ -78,6 +78,9 @@ def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flows,n_neig
   P1 = pointset1.T.repeat(n2,1,1)
   P3 = (P2 - P1)
   P3 = P3.transpose(1,2)
+  # dimension 1 represents directions to point i
+  # dimension 2 represents direction from point j
+  # dimension 3 represents direction in each dimension (R^n)
   # compute affinities from flows and directions
   affinities = affinity_from_flow(flows,P3,sigma=sigma,flow_strength=flow_strength)
   return affinities
