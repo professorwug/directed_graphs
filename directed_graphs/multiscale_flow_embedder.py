@@ -16,7 +16,7 @@ def compute_grid(X,grid_width=20):
   miny = float(torch.min(X[:,1])-0.1)
   maxy = float(torch.max(X[:,1])+0.1)
   # form grid around points
-  x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width))
+  x, y = torch.meshgrid(torch.linspace(minx,maxx,steps=grid_width),torch.linspace(miny,maxy,steps=grid_width), indexing='ij')
   xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float()
   xy_t = xy_t.reshape(grid_width**2,2).detach()
   return xy_t
@@ -91,6 +91,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 							decoder = None,
 							labels = None,
 							loss_weights = None,
+							use_embedding_grid = False,
 							device=torch.device('cpu'),
 							):
 		# initialize parameters
@@ -112,6 +113,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		self.sigma_graph = sigma_graph
 		self.nnodes = X.shape[0]
 		self.data_dimension = X.shape[1]
+		self.use_embedding_grid = use_embedding_grid
 		
 		self.eps = 0.001
 		self.loss_weights = loss_weights
@@ -151,7 +153,12 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 									
 	def diffusion_loss(self):
 		# compute grid around points
-		self.grid = compute_grid(self.embedded_points).to(self.device)
+		if self.use_embedding_grid:
+			self.grid = compute_grid(self.embedded_points).to(self.device)
+		else:
+			# take a convex combination of points # TODO: can be much improved
+			self.grid = (self.embedded_points + torch.flip(self.embedded_points, dims=[0]))/2
+			self.grid = self.grid.detach() #don't want gradients flowing back through this
 		# normalize embedded points to lie within -self.embedding_bounds, self.embedding_bounds
 		# if any are trying to escape, constrain them to lie on the edges
 		# self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])
@@ -302,7 +309,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		for k in self.loss_weights.keys():
 			self.losses[k] = []
 		# self.weight_of_flow = 0
-		for step in trange(n_steps):
+		for step in range(n_steps):
 			# if step == 100:
 			# 	self.weight_of_flow = 1
 			# if step == 200:
@@ -323,4 +330,4 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			# 	self.visualize_points()
 			# TODO: Criteria to automatically end training
 		# print("Exiting training with loss ",loss)
-		return self.embedded_points, self.FlowArtist.cpu(), self.losses
+		return self.embedded_points, self.FlowArtist, self.losses
