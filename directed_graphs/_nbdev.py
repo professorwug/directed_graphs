@@ -2,7 +2,12 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"xy_tilt": "02d02 Circles and Swiss roll Datasets.ipynb",
+index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
+         "sample_ribbon": "02d01_Snake_TestCase.ipynb",
+         "plot_ribbon_samples": "02d01_Snake_TestCase.ipynb",
+         "sample_ribbon_2D": "02d01_Snake_TestCase.ipynb",
+         "plot_ribbon_samples_2D": "02d01_Snake_TestCase.ipynb",
+         "xy_tilt": "02d02 Circles and Swiss roll Datasets.ipynb",
          "directed_circle": "02d02 Circles and Swiss roll Datasets.ipynb",
          "plot_directed_2d": "02d02 Circles and Swiss roll Datasets.ipynb",
          "plot_origin_3d": "02d02 Circles and Swiss roll Datasets.ipynb",
@@ -36,12 +41,18 @@ index = {"xy_tilt": "02d02 Circles and Swiss roll Datasets.ipynb",
          "kl_divergence_loss": "05c01 Loss functions.ipynb",
          "kld_symmetric_loss": "05c01 Loss functions.ipynb",
          "diffusion_map_loss": "05c01 Loss functions.ipynb",
-         "flow_cosine_loss": "05c01 Loss functions.ipynb"}
+         "flow_cosine_loss": "05c01 Loss functions.ipynb",
+         "visualize_points": "05c01a Training Utils for Flow Embedding.ipynb",
+         "device": "05c01a Training Utils for Flow Embedding.ipynb",
+         "save_embedding_visualization": "05c01a Training Utils for Flow Embedding.ipynb",
+         "collate_loss": "05c01a Training Utils for Flow Embedding.ipynb",
+         "FETrainer": "05c01a Training Utils for Flow Embedding.ipynb"}
 
 modules = ["datasets.py",
            "embeddings.py",
            "diffusion_flow_embedding.py",
-           "multiscale_flow_embedder.py"]
+           "multiscale_flow_embedder.py",
+           "flow_embedding_training_utils.py"]
 
 doc_url = "https://professorwug.github.io/directed_graphs/"
 

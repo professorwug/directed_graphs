@@ -1,0 +1,16 @@
+{
+	"run name": "MSE and Cosine Loss Embeddings",
+	"datasets": [
+		"swiss roll",
+		"spiral",
+		"branch"
+	],
+	"weights of losses": [
+		"diffusion": "1",
+		"smoothness": "0",
+		"reconstruction": "0",
+		"diffusion map regularization": "0",
+		"flow cosine loss": "0"
+	],
+	"embedder_shape":"3 6 12 6 2"
+}

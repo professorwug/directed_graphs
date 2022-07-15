@@ -12,6 +12,8 @@ _tmp*
 tmp*
 tags
 
+visualizations/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
