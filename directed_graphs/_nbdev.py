@@ -44,6 +44,8 @@ index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
          "flow_cosine_loss": "05c01 Loss functions.ipynb",
          "visualize_points": "05c01a Training Utils for Flow Embedding.ipynb",
          "device": "05c01a Training Utils for Flow Embedding.ipynb",
+         "save_embedding_visualization": "05c01a Training Utils for Flow Embedding.ipynb",
+         "collate_loss": "05c01a Training Utils for Flow Embedding.ipynb",
          "FETrainer": "05c01a Training Utils for Flow Embedding.ipynb"}
 
 modules = ["datasets.py",

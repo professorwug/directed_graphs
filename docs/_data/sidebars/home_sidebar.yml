@@ -13,41 +13,17 @@ entries:
       title: module name here
       url: core.html
     - output: web,pdf
-      title: 'Graph Utilities: kernels, normalizations, and building diffusion matrices'
-      url: 01a Graph Utils.html
-    - output: web,pdf
-      title: Directed Graph Utils
-      url: 01b01 Directed Graph Utils.html
-    - output: web,pdf
-      title: Visualizations for our Presentation
-      url: 01c Visualizations.html
+      title: Batch Testing Scripts
+      url: 01d Batch Testing Scripts.html
     - output: web,pdf
       title: Title
-      url: 05b05 Test Swiss Roll with New Kernel (7-11).html
-    - output: web,pdf
-      title: Stanford Large Network Datasets with Ground-truth Communities
-      url: 02a01 Communities Datasets.html
-    - output: web,pdf
-      title: Small Random Toy Directed Graphs
-      url: 02a02 Small Random Directed Graphs.html
-    - output: web,pdf
-      title: Directed Stochastic Block Model
-      url: 02b Directed Stochastic Block Model.html
-    - output: web,pdf
-      title: Create sink
-      url: 02b01 Sink Graph with SBM.html
-    - output: web,pdf
-      title: Create source
-      url: 02b02 SBM Source Graph.html
-    - output: web,pdf
-      title: Manifold With Flow Datasets
-      url: 02b03 Directed_SBM_On_Manifold.html
+      url: Untitled.html
     - output: web,pdf
       title: Comparing regular and backward node2vec on trees
       url: 02c Trees.html
     - output: web,pdf
       title: 'FlowEmbedder: Snake Test Case'
-      url: 02d01_Snake_TestCase.html
+      url: 02d01a_Snake_With5b.html
     - output: web,pdf
       title: Testing Diffusion Flow Embedder on Circle and Swiss Roll
       url: 02d02a Testing Diffusion Flow Embedder on Circle and Swiss Roll.html
@@ -55,36 +31,6 @@ entries:
       title: 'Manifold with Flow Datasets, Part 3: The Sphere, The Torus, and the
         Paraboloid'
       url: 02d03 Spheres and Donuts with Flow (datasets).html
-    - output: web,pdf
-      title: Testing node2vec on Directed Graphs
-      url: 03b01 Testing Backwards Node2vec on DirectedGraphs.html
-    - output: web,pdf
-      title: Node2Vec with Backwards Connection
-      url: 03a Node2Vec_with_Backwards_Connection.html
-    - output: web,pdf
-      title: DeepWalk with Backwards Connections Directed Graphs
-      url: 03a01 DeepWalk_with_Backwards_Connections.html
-    - output: web,pdf
-      title: node2vec with Backwards Walk
-      url: 03b Backwards Node2Vec.html
-    - output: web,pdf
-      title: Node2Vec Graph Reversal
-      url: 03c node2vec graph reversal walk.html
-    - output: web,pdf
-      title: node2vec on Rooted Tree
-      url: 03c01 Node2Vec_on_RootedTree.html
-    - output: web,pdf
-      title: '`Node2Vec` on MultiTree'
-      url: 03c01a Node2Vec_on_MultiTree.html
-    - output: web,pdf
-      title: '`Node2Vec` on PolyTree'
-      url: 03c01b Node2Vec_on_PolyTree.html
-    - output: web,pdf
-      title: Graph 1
-      url: 03c01c Node2Vec_on_Cyclic_Graphs.html
-    - output: web,pdf
-      title: Perrault-Jonas2011's Directed Graph Embeddings
-      url: 04 UW_Manifold_Based_Directed_Embedding.html
     - output: web,pdf
       title: Testing the Flow Embedder
       url: 05a Testing Distance-based Flow Embedder.html
@@ -125,11 +71,8 @@ entries:
       title: A collection of Loss functions for Flow Embedder
       url: 05c01 Loss functions.html
     - output: web,pdf
-      title: PHATE
-      url: playground.html
-    - output: web,pdf
-      title: Teseting
-      url: Playground2.html
+      title: Visualization Utils for the Flow Embedder
+      url: 05c01a Training Utils for Flow Embedding.html
     output: web
     title: directed_graphs
   output: web

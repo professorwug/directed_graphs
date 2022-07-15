@@ -168,6 +168,7 @@ def plot_ribbon_samples_2D(points_mat, flow_mat):
 
 
 # Cell
+import torch
 def xy_tilt(X, flow, labels, xtilt=0, ytilt=0):
   xrotate = np.array([[1,              0,             0],
                       [0,  np.cos(xtilt), np.sin(xtilt)],

@@ -22,6 +22,7 @@ def compute_grid(X,grid_width=20):
   return xy_t
 
 # Cell
+import torch
 from .diffusion_flow_embedding import affinity_matrix_from_pointset_to_pointset, GaussianVectorField
 import torch.nn.functional as F
 def diffusion_matrix_with_grid_points(X, grid, flow_function, t, sigma,flow_strength):
@@ -92,6 +93,9 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 							loss_weights = None,
 							device=torch.device('cpu'),
 							):
+		# initialize parameters
+		super(MultiscaleDiffusionFlowEmbedder, self).__init__()
+		
 		# generate default parameters
 		embedder = FeedForwardReLU(shape=(3,4,8,4,2)) if embedder is None else embedder
 		loss_weights = {
@@ -101,9 +105,6 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			"diffusion map regularization":0,
 			"flow cosine loss": 0,
 		} if loss_weights is None else loss_weights
-
-		# initialize parameters
-		super(MultiscaleDiffusionFlowEmbedder, self).__init__()
 		self.X = X
 		self.ground_truth_flows = flows
 		self.ts = ts
@@ -170,7 +171,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			else:
 				diffusion_loss_for_t = self.KLD(log_P_embedding_t,self.P_graph_ts[i])
 			diffusion_loss += (2**(-i))*diffusion_loss_for_t
-			print(f"Diffusion loss {i} is {diffusion_loss}")
+			# print(f"Diffusion loss {i} is {diffusion_loss}")
 		self.losses['diffusion'].append(diffusion_loss)
 		if diffusion_loss.isnan():
 			raise NotImplementedError
@@ -296,6 +297,10 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 	def fit(self,n_steps = 1000):
 		# train Flow Embedder on the provided graph
 		self.train()
+		# reset losses
+		self.losses = {}
+		for k in self.loss_weights.keys():
+			self.losses[k] = []
 		# self.weight_of_flow = 0
 		for step in trange(n_steps):
 			# if step == 100:
@@ -317,5 +322,5 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			# 	self.visualize_diffusion_matrices()
 			# 	self.visualize_points()
 			# TODO: Criteria to automatically end training
-		print("Exiting training with loss ",loss)
-		return self.embedded_points
+		# print("Exiting training with loss ",loss)
+		return self.embedded_points, self.FlowArtist.cpu(), self.losses
