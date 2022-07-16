@@ -109,7 +109,6 @@ class FETrainer(object):
       self.losses = collate_loss(provided_losses=losses, prior_losses=self.losses)
     self.embedded_points = emb_X
     self.flow_artist = flow_artist
-    self.losses = losses
 
   def visualize(self, embedded_points, flow_artist, losses, title):
     for viz_f in self.vizfiz:
@@ -121,7 +120,7 @@ class FETrainer(object):
     frame_one.save(f"{self.title}.gif", format="GIF", append_images=frames,
                save_all=True, duration=10, loop=0)
     # display in jupyter notebook
-    b64 = base64.b64encode(open(f"{self.title}.gif",'rb').read()).decode('ascii')
+    b64 = base64.b64encode(open(f"visualizations/{self.title}.gif",'rb').read()).decode('ascii')
     display(widgets.HTML(f'<img src="data:image/gif;base64,{b64}" />'))
 
   def visualize_embedding(self):
