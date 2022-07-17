@@ -2,6 +2,7 @@
   "directed_graphs": {
     "Overview": "/",
     "module name here": "core.html",
+    "Graph Utilities: kernels, normalizations, and building diffusion matrices": "01a Graph Utils.html",
     "Batch Testing Scripts": "01d Batch Testing Scripts.html",
     "Title": "Untitled.html",
     "Comparing regular and backward node2vec on trees": "02c Trees.html",
@@ -21,6 +22,8 @@
     "Can smoothness alone unroll the swiss roll?": "05b05a DFE on the Swiss Roll with Smoothness.html",
     "05c Multiscale Flow Embeddings with a Grid": "05c Multiscale Diffusion Flow Embedding.html",
     "A collection of Loss functions for Flow Embedder": "05c01 Loss functions.html",
-    "Visualization Utils for the Flow Embedder": "05c01a Training Utils for Flow Embedding.html"
+    "Visualization Utils for the Flow Embedder": "05c01a Training Utils for Flow Embedding.html",
+    "Diffusion Distance Based Loss": "05c05 Diffusion Distance based Loss - Tests and Visualizations.html",
+    "Learning flow around a fixed diffusion map": "05c05b Learning flow around a fixed diffusion map.html"
   }
 }

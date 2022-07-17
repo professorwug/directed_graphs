@@ -13,6 +13,9 @@ entries:
       title: module name here
       url: core.html
     - output: web,pdf
+      title: 'Graph Utilities: kernels, normalizations, and building diffusion matrices'
+      url: 01a Graph Utils.html
+    - output: web,pdf
       title: Batch Testing Scripts
       url: 01d Batch Testing Scripts.html
     - output: web,pdf
@@ -73,6 +76,12 @@ entries:
     - output: web,pdf
       title: Visualization Utils for the Flow Embedder
       url: 05c01a Training Utils for Flow Embedding.html
+    - output: web,pdf
+      title: Diffusion Distance Based Loss
+      url: 05c05 Diffusion Distance based Loss - Tests and Visualizations.html
+    - output: web,pdf
+      title: Learning flow around a fixed diffusion map
+      url: 05c05b Learning flow around a fixed diffusion map.html
     output: web
     title: directed_graphs
   output: web

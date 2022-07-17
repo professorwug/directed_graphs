@@ -144,6 +144,7 @@ def anisotropic_kernel(D, sigma=0.7, alpha = 1):
 
 # Cell
 from collections import OrderedDict
+import torch
 def FlowArtist(FA_type,dim = 2, num_gauss = 0, shape = [2,4,8,4,2], device = torch.device('cpu')):
     # Function to create tailored flow artist
 
@@ -222,203 +223,244 @@ from tqdm import trange
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class DiffusionFlowEmbedder(torch.nn.Module):
-	def __init__(self,
-							X,
-							flows,
-							t = 1,
-							sigma_graph = 0.5,
-							sigma_embedding=0.5,
-							embedding_dimension=2,
-							device=torch.device('cpu'),
-							autoencoder_shape = [10,10],
-							flow_artist = "gaussian",
-							flow_artist_shape = [30,20,10],
-							flow_strength_graph=5,
-							flow_strength_embedding=5,
-							learnable_flow_strength=True,
-							multiscale_loss=True,
-							weight_of_flow = 0.5,
-							learning_rate = 1e-5,
-							smoothness = 1,
-							embedding_bounds = 4,
-							num_gaussians = 25,
-							labels = None,
+    def __init__(
+        self,
+        X,
+        flows,
+        t=1,
+        sigma_graph=0.5,
+        sigma_embedding=0.5,
+        embedding_dimension=2,
+        device=torch.device("cpu"),
+        autoencoder_shape=[10, 10],
+        flow_artist="gaussian",
+        flow_artist_shape=[30, 20, 10],
+        flow_strength_graph=5,
+        flow_strength_embedding=5,
+        learnable_flow_strength=True,
+        multiscale_loss=True,
+        weight_of_flow=0.5,
+        learning_rate=1e-5,
+        smoothness=1,
+        embedding_bounds=4,
+        num_gaussians=25,
+        labels=None,
+    ):
+        """Flow Embedding with diffusion
 
-							):
-		"""Flow Embedding with diffusion
+        Parameters
+        ----------
+        X : torch tensor n_points x n_dim
+                data matrix
+        flows : torch tensor n_points x n_dim
+                The flow at each point
+        t : int
+                Loss is computed with the diffusion operator powered to this number
+        sigma in [0,1]
+                Kernel bandwidth in the embedding
+        """
+        # initialize parameters
+        super(DiffusionFlowEmbedder, self).__init__()
+        self.X = X
+        self.ground_truth_flows = flows
+        self.t = t
+        self.sigma_embedding = sigma_embedding
+        self.sigma_graph = sigma_graph
+        self.nnodes = X.shape[0]
+        self.data_dimension = X.shape[1]
+        self.losses = []
+        self.eps = 0.001
+        self.weight_of_flow = weight_of_flow
+        self.smoothness = smoothness
+        self.embedding_bounds = embedding_bounds  # will constrain embedding to live in -n, n in each dimension
+        self.labels = labels
 
-		Parameters
-		----------
-		X : torch tensor n_points x n_dim
-			data matrix
-		flows : torch tensor n_points x n_dim
-			The flow at each point
-		t : int
-			Loss is computed with the diffusion operator powered to this number
-		sigma in [0,1]
-			Kernel bandwidth in the embedding
-		"""
-		# initialize parameters
-		super(DiffusionFlowEmbedder, self).__init__()
-		self.X = X
-		self.ground_truth_flows = flows
-		self.t = t
-		self.sigma_embedding = sigma_embedding
-		self.sigma_graph = sigma_graph
-		self.nnodes = X.shape[0]
-		self.data_dimension = X.shape[1]
-		self.losses = []
-		self.eps = 0.001
-		self.weight_of_flow = weight_of_flow
-		self.smoothness = smoothness
-		self.embedding_bounds = embedding_bounds # will constrain embedding to live in -n, n in each dimension
-		self.labels = labels
+        if learnable_flow_strength:
+            self.flow_strength = nn.Parameter(
+                torch.tensor(flow_strength_embedding).float()
+            )
+        else:
+            self.flow_strength = flow_strength_embedding
 
-		if learnable_flow_strength:
-			self.flow_strength = nn.Parameter(torch.tensor(flow_strength_embedding).float())
-		else:
-			self.flow_strength = flow_strength_embedding
+        self.embedding_dimension = embedding_dimension
+        # set device (used for shuffling points around during visualization)
+        self.device = device
+        # Compute P^t of the graph, the powered diffusion matrix
+        # TODO: This can be optimized using landmarks, etc. For now it's straight sparse matrix multiplication
+        # TODO: Migrate to a specialized function for dataset affinity calculation, with automatic kernel bandwidth selection, and the like
 
-		self.embedding_dimension = embedding_dimension
-		# set device (used for shuffling points around during visualization)
-		self.device = device
-		# Compute P^t of the graph, the powered diffusion matrix
-		# TODO: This can be optimized using landmarks, etc. For now it's straight sparse matrix multiplication
-		# TODO: Migrate to a specialized function for dataset affinity calculation, with automatic kernel bandwidth selection, and the like
-		
-		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph,flow_strength=flow_strength_graph)
-		# self.P_graph = torch.diag(1/self.P_graph.sum(axis=1)) @ self.P_graph
-		self.P_graph = F.normalize(self.P_graph, p=1, dim=1)
-		self.P_graph_t = torch.matrix_power(self.P_graph,self.t)
+        self.P_graph = affinity_matrix_from_pointset_to_pointset(
+            X, X, flows, sigma=sigma_graph, flow_strength=flow_strength_graph
+        )
+        # self.P_graph = torch.diag(1/self.P_graph.sum(axis=1)) @ self.P_graph
+        self.P_graph = F.normalize(self.P_graph, p=1, dim=1)
+        self.P_graph_t = torch.matrix_power(self.P_graph, self.t)
 
-		if multiscale_loss:
-			self.P_embedding_multiscale = [0,0,0,0]
-			
-		# Flow field
-		# Gaussian model
-		self.FlowArtist = FlowArtist(FA_type = flow_artist,
-                                     dim = self.embedding_dimension,
-                                     num_gauss=num_gaussians,
-                                     device=device)
-		# Autoencoder to embed the points into a low dimension
-		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, autoencoder_shape[0]),
-															nn.LeakyReLU(),
-															nn.Linear(autoencoder_shape[0], autoencoder_shape[1]),
-															nn.LeakyReLU(),
-															nn.Linear(autoencoder_shape[1], self.embedding_dimension))
-		self.decoder = nn.Sequential(nn.Linear(self.embedding_dimension, autoencoder_shape[1]),
-															nn.LeakyReLU(),
-															nn.Linear(autoencoder_shape[1], autoencoder_shape[0]),
-															nn.LeakyReLU(),
-															nn.Linear(autoencoder_shape[0], self.data_dimension))
-		# training ops
-		self.KLD = nn.KLDivLoss(reduction='batchmean',log_target=False)
-		self.MSE = nn.MSELoss()
-		# testing
-		# self.KLD = nn.NLLLoss()
-		self.optim = torch.optim.Adam(self.parameters(), lr = learning_rate, )
+        if multiscale_loss:
+            self.P_embedding_multiscale = [0, 0, 0, 0]
 
-	def compute_embedding_P(self):
-		A = affinity_matrix_from_pointset_to_pointset(self.embedded_points,self.embedded_points,flows = self.FlowArtist(self.embedded_points), sigma = self.sigma_embedding, flow_strength=self.flow_strength)
-		# print("affinities ",A)
-		# flow
-		self.P_embedding = F.normalize(A,p=1,dim=1)
-		# power it
-		self.P_embedding_t = torch.matrix_power(self.P_embedding,self.t)
+        # Flow field
+        # Gaussian model
+        self.FlowArtist = FlowArtist(
+            FA_type=flow_artist,
+            dim=self.embedding_dimension,
+            num_gauss=num_gaussians,
+            device=device,
+        )
+        # Autoencoder to embed the points into a low dimension
+        self.encoder = nn.Sequential(
+            nn.Linear(self.data_dimension, autoencoder_shape[0]),
+            nn.LeakyReLU(),
+            nn.Linear(autoencoder_shape[0], autoencoder_shape[1]),
+            nn.LeakyReLU(),
+            nn.Linear(autoencoder_shape[1], self.embedding_dimension),
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(self.embedding_dimension, autoencoder_shape[1]),
+            nn.LeakyReLU(),
+            nn.Linear(autoencoder_shape[1], autoencoder_shape[0]),
+            nn.LeakyReLU(),
+            nn.Linear(autoencoder_shape[0], self.data_dimension),
+        )
+        # training ops
+        self.KLD = nn.KLDivLoss(reduction="batchmean", log_target=False)
+        self.MSE = nn.MSELoss()
+        # testing
+        # self.KLD = nn.NLLLoss()
+        self.optim = torch.optim.Adam(
+            self.parameters(),
+            lr=learning_rate,
+        )
 
+    def compute_embedding_P(self):
+        A = affinity_matrix_from_pointset_to_pointset(
+            self.embedded_points,
+            self.embedded_points,
+            flows=self.FlowArtist(self.embedded_points),
+            sigma=self.sigma_embedding,
+            flow_strength=self.flow_strength,
+        )
+        # print("affinities ",A)
+        # flow
+        self.P_embedding = F.normalize(A, p=1, dim=1)
+        # power it
+        self.P_embedding_t = torch.matrix_power(self.P_embedding, self.t)
 
-	def loss(self):
-		self.embedded_points = self.encoder(self.X)
-		# normalize embedded points to lie within -self.embedding_bounds, self.embedding_bounds
-		# if any are trying to escape, constrain them to lie on the edges
-		# self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])
-		# self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])
-		# print(self.embedded_points)
-		# compute embedding diffusion matrix
-		self.compute_embedding_P()
-		# compute autoencoder loss
-		X_reconstructed = self.decoder(self.embedded_points)
-		reconstruction_loss = self.MSE(X_reconstructed, self.X)
-		# print("recon loss",reconstruction_loss)
-		# take KL divergence between it and actual P
-		# print("embedding p",self.P_embedding_t)
-		log_P_embedding_t = torch.log(self.P_embedding_t)
-		# print(log_P_embedding_t)
-		if log_P_embedding_t.is_sparse:
-			diffusion_loss = self.KLD(log_P_embedding_t.to_dense(),self.P_graph_t.to_dense())
-		else:
-			diffusion_loss = self.KLD(log_P_embedding_t,self.P_graph_t)
-		# print("diffusion loss is",diffusion_loss)
-		smoothness_loss = self.smoothness*smoothness_of_vector_field(self.embedded_points,self.FlowArtist,device=self.device,grid_width=20)
-		cost = self.weight_of_flow*diffusion_loss + (1 - self.weight_of_flow)*reconstruction_loss + smoothness_loss
-		# print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
-		self.losses.append([diffusion_loss,reconstruction_loss, smoothness_loss])
-		return cost
+    def loss(self):
+        self.embedded_points = self.encoder(self.X)
+        # normalize embedded points to lie within -self.embedding_bounds, self.embedding_bounds
+        # if any are trying to escape, constrain them to lie on the edges
+        # self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,0]) > self.embedding_bounds])
+        # self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds] = self.embedding_bounds * (self.embedded_points[:,1][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])/torch.abs(self.embedded_points[:,0][torch.abs(self.embedded_points[:,1]) > self.embedding_bounds])
+        # print(self.embedded_points)
+        # compute embedding diffusion matrix
+        self.compute_embedding_P()
+        # compute autoencoder loss
+        X_reconstructed = self.decoder(self.embedded_points)
+        reconstruction_loss = self.MSE(X_reconstructed, self.X)
+        # print("recon loss",reconstruction_loss)
+        # take KL divergence between it and actual P
+        # print("embedding p",self.P_embedding_t)
+        log_P_embedding_t = torch.log(self.P_embedding_t)
+        # print(log_P_embedding_t)
+        if log_P_embedding_t.is_sparse:
+            diffusion_loss = self.KLD(
+                log_P_embedding_t.to_dense(), self.P_graph_t.to_dense()
+            )
+        else:
+            diffusion_loss = self.KLD(log_P_embedding_t, self.P_graph_t)
+        # print("diffusion loss is",diffusion_loss)
+        smoothness_loss = self.smoothness * smoothness_of_vector_field(
+            self.embedded_points, self.FlowArtist, device=self.device, grid_width=20
+        )
+        cost = (
+            self.weight_of_flow * diffusion_loss
+            + (1 - self.weight_of_flow) * reconstruction_loss
+            + smoothness_loss
+        )
+        # print(f"cost is KLD {diffusion_loss} with recon {reconstruction_loss}")
+        self.losses.append([diffusion_loss, reconstruction_loss, smoothness_loss])
+        return cost
 
-	def visualize_points(self, labels = None):
-		# controls the x and y axes of the plot
-		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
-		if labels is None:
-			labels = self.labels
-		minx = min(self.embedded_points[:,0].detach().cpu().numpy())-1
-		maxx = max(self.embedded_points[:,0].detach().cpu().numpy())+1
-		miny = min(self.embedded_points[:,1].detach().cpu().numpy())-1
-		maxy = max(self.embedded_points[:,1].detach().cpu().numpy())+1
-		num_grid = 20
-		x, y = np.meshgrid(np.linspace(minx,maxx,num_grid),np.linspace(miny,maxy,num_grid))
-		x = torch.tensor(x,dtype=float).cpu()
-		y = torch.tensor(y,dtype=float).cpu()
-		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to(self.device) # TODO: cuda/cpu issue
-		xy_t = xy_t.reshape(num_grid**2,2)
-		uv = self.FlowArtist(xy_t).detach()
-		u = uv[:,0].cpu()
-		v = uv[:,1].cpu()
-		
-		# quiver
-		# 	plots a 2D field of arrows
-		# 	quiver([X, Y], U, V, [C], **kw);
-		# 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
-		if labels is not None:
-			sc = plt.scatter(self.embedded_points[:,0].detach().cpu(),self.embedded_points[:,1].detach().cpu(), c=labels)
-			plt.legend()
-		else:
-			sc = plt.scatter(self.embedded_points[:,0].detach().cpu(),self.embedded_points[:,1].detach().cpu())
-		plt.suptitle("Flow Embedding")
-		plt.quiver(x,y,u,v)
-		# Display all open figures.
-		plt.show()
-	def visualize_diffusion_matrices(self):
-		fig, axs = plt.subplots(1,2)
-		axs[0].set_title(f"Ambient $P^{self.t}$")
-		axs[0].imshow(self.P_graph_t.detach().cpu().numpy())
-		axs[1].set_title(f"Embedding $P^{self.t}$")
-		axs[1].imshow(self.P_embedding_t.detach().cpu().numpy())
-		plt.show()
+    def visualize_points(self, labels=None):
+        # controls the x and y axes of the plot
+        # linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
+        if labels is None:
+            labels = self.labels
+        minx = min(self.embedded_points[:, 0].detach().cpu().numpy()) - 1
+        maxx = max(self.embedded_points[:, 0].detach().cpu().numpy()) + 1
+        miny = min(self.embedded_points[:, 1].detach().cpu().numpy()) - 1
+        maxy = max(self.embedded_points[:, 1].detach().cpu().numpy()) + 1
+        num_grid = 20
+        x, y = np.meshgrid(
+            np.linspace(minx, maxx, num_grid), np.linspace(miny, maxy, num_grid)
+        )
+        x = torch.tensor(x, dtype=float).cpu()
+        y = torch.tensor(y, dtype=float).cpu()
+        xy_t = (
+            torch.concat([x[:, :, None], y[:, :, None]], dim=2).float().to(self.device)
+        )  # TODO: cuda/cpu issue
+        xy_t = xy_t.reshape(num_grid**2, 2)
+        uv = self.FlowArtist(xy_t).detach()
+        u = uv[:, 0].cpu()
+        v = uv[:, 1].cpu()
 
-	def fit(self,n_steps = 1000):
-		# train Flow Embedder on the provided graph
-		self.train()
-		# self.weight_of_flow = 0
-		for step in trange(n_steps):
-			# if step == 100:
-			# 	self.weight_of_flow = 1
-			# if step == 200:
-			# 	self.weight_of_flow = 0.5
-			self.optim.zero_grad()
-			# compute loss
-			loss = self.loss()
-			# print("loss is ",loss)
-			# compute gradient and step backwards
-			loss.backward()
-			self.optim.step()
-			if step % 100 == 0:
-				print(f"EPOCH {step}. Loss {loss}. Flow strength {self.flow_strength}. Weight of flow {self.weight_of_flow} Heatmap of P embedding is ")
-				self.visualize_diffusion_matrices()
-				self.visualize_points()
-			# TODO: Criteria to automatically end training
-		print("Exiting training with loss ",loss)
-		return self.embedded_points
+        # quiver
+        # 	plots a 2D field of arrows
+        # 	quiver([X, Y], U, V, [C], **kw);
+        # 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
+        if labels is not None:
+            sc = plt.scatter(
+                self.embedded_points[:, 0].detach().cpu(),
+                self.embedded_points[:, 1].detach().cpu(),
+                c=labels,
+            )
+            plt.legend()
+        else:
+            sc = plt.scatter(
+                self.embedded_points[:, 0].detach().cpu(),
+                self.embedded_points[:, 1].detach().cpu(),
+            )
+        plt.suptitle("Flow Embedding")
+        plt.quiver(x, y, u, v)
+        # Display all open figures.
+        plt.show()
+
+    def visualize_diffusion_matrices(self):
+        fig, axs = plt.subplots(1, 2)
+        axs[0].set_title(f"Ambient $P^{self.t}$")
+        axs[0].imshow(self.P_graph_t.detach().cpu().numpy())
+        axs[1].set_title(f"Embedding $P^{self.t}$")
+        axs[1].imshow(self.P_embedding_t.detach().cpu().numpy())
+        plt.show()
+
+    def fit(self, n_steps=1000):
+        # train Flow Embedder on the provided graph
+        self.train()
+        # self.weight_of_flow = 0
+        for step in trange(n_steps):
+            # if step == 100:
+            # 	self.weight_of_flow = 1
+            # if step == 200:
+            # 	self.weight_of_flow = 0.5
+            self.optim.zero_grad()
+            # compute loss
+            loss = self.loss()
+            # print("loss is ",loss)
+            # compute gradient and step backwards
+            loss.backward()
+            self.optim.step()
+            if step % 100 == 0:
+                print(
+                    f"EPOCH {step}. Loss {loss}. Flow strength {self.flow_strength}. Weight of flow {self.weight_of_flow} Heatmap of P embedding is "
+                )
+                self.visualize_diffusion_matrices()
+                self.visualize_points()
+            # TODO: Criteria to automatically end training
+        print("Exiting training with loss ", loss)
+        return self.embedded_points
 
 # Cell
 # hide
