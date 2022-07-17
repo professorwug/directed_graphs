@@ -3,8 +3,9 @@
 __all__ = ['plot_ribbon', 'sample_ribbon', 'plot_ribbon_samples', 'sample_ribbon_2D', 'plot_ribbon_samples_2D',
            'xy_tilt', 'directed_circle', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'directed_prism',
            'directed_cylinder', 'directed_spiral', 'directed_swiss_roll', 'directed_spiral_uniform',
-           'directed_swiss_roll_uniform', 'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'torus_with_flow',
-           'directed_one_variable_function', 'directed_sinh_branch', 'static_clusters', 'affinity_grid_search']
+           'directed_swiss_roll_uniform', 'directed_swiss_roll_sklearn', 'angle_x', 'whirlpool',
+           'rejection_sample_for_torus', 'torus_with_flow', 'directed_one_variable_function', 'directed_sinh_branch',
+           'static_clusters', 'affinity_grid_search']
 
 # Cell
 def plot_ribbon(start=-5, end=5.1, increment=0.2, num_points=1000, dim=3):
@@ -309,6 +310,30 @@ def directed_swiss_roll_uniform(num_nodes=1000, num_spirals=2.5, radius=1, heigh
   X, flow, labels = directed_spiral_uniform(num_nodes, num_spirals, radius, xtilt, ytilt)
   X, flow, labels = directed_prism(X, flow, labels, height)
   return X, flow, labels
+
+# Cell
+import numpy as np
+import matplotlib.pyplot as plt
+def directed_swiss_roll_sklearn(num_nodes = 1000, num_spirals = 1.5, radius = 1, height = 21, noise = 0, xtilt = 0, ytilt = 0):
+  t = num_spirals * np.pi * (1 + 2*np.random.rand(num_nodes))
+  t = np.sort(t)
+  z = height * np.random.rand(num_nodes)
+  x = t * np.cos(t) * radius
+  y = t * np.sin(t) * radius
+  X = np.vstack((x,y,z))
+  X += noise * np.random.randn(3,num_nodes)
+  X = X.T
+  t = np.squeeze(t)
+  # generate vector field on roll
+  # calculate the angle of the tangent
+  alphas = t + np.pi/2
+  u = np.cos(alphas) * t
+  v = np.sin(alphas) * t
+  w = np.zeros(num_nodes)
+  flows = np.column_stack((u,v,w))
+  # tilt
+  X, flows, labels = xy_tilt(X, flows, t, xtilt, ytilt)
+  return X, flows, labels
 
 # Cell
 def angle_x(X):
