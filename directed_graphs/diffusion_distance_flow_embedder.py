@@ -106,7 +106,7 @@ from .flow_embedding_training_utils import FETrainer, visualize_points, save_emb
 from .diffusion_flow_embedding import affinity_matrix_from_pointset_to_pointset
 import torch.nn.functional as F
 class FlowEmbedderAroundDiffusionMap(FETrainer):
-    def __init__(self, X, flows, labels, device = device, sigma_graph = 1, flow_strength_graph = 1):
+    def __init__(self, X, flows, labels, device = device, sigma_graph = 2.13, flow_strength_graph = 1):
         super().__init__(X, flows, labels, device = device)
         self.vizfiz = [
             save_embedding_visualization,
@@ -124,6 +124,7 @@ class FlowEmbedderAroundDiffusionMap(FETrainer):
         self.FE = MultiscaleDiffusionFlowEmbedder(
             X = X,
             flows = flows,
+            ts = [1]
             sigma_graph = sigma_graph,
             flow_strength_graph = flow_strength_graph,
             device = device,

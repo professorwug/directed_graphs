@@ -115,7 +115,7 @@ def diffusion_coordinates(P_symmetric, D, t = 1):
   # diff_map = eig_psi_components @ np.diag(eig_vals**t)
   diff_map = eig_vals**t * eig_psi_components
   diff_map = diff_map[:,::-1]
-  diff_map = diff_map.T
+  diff_map = diff_map
   return diff_map
 
 # Cell
