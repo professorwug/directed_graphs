@@ -72,29 +72,19 @@ class FixedDiffusionMapEmbedding(nn.Module):
     When false, dynamically computes diffusion map on passed points.
     (False is not yet implemented.)
     """
-    def __init__(self, P_graph_torch, t, precompute = True, embedding_dimension=2, device=torch.device('cpu'), **kwargs):
+    def __init__(self, X, t=1, k=8, precompute = True, embedding_dimension=2, device=torch.device('cpu'), **kwargs):
         super().__init__()
         self.t = t
         self.device = device
-        # convert P_graph to numpy (nothing we do past here needs to be differentiable)
-        P_graph = copy.copy(P_graph_torch).detach().cpu().numpy()
-        # make sparse array
-        P_graph = make_sparse_safe(P_graph)
-        # turn into P_symmetric, by multiplying
-        # D^{1/2} D^{-1} P D^{-1/2}
-        D = P_graph.sum(axis = 0)
-        D_negative_one_half = diags(D ** (-0.5))
-        D_positive_one_half = diags(D ** (0.5))
-        P_symmetric = D_positive_one_half @ P_graph @ D_negative_one_half
-        # pass to diffusion map function
-        diff_map = diffusion_coordinates(P_symmetric, D, t=t)
-        print("diff map is", diff_map)
-        self.diff_coords = diff_map[:embedding_dimension]
-        self.diff_coords = self.diff_coords.T
+        # create diffusion map (building off of numpy array of points; this doesn't have to be differentiable)
+        X = X.clone().cpu().numpy()
+        diff_map = diffusion_map_from_points(X,k=k, t= t)
+        self.diff_coords = diff_map[:,:embedding_dimension]
         self.diff_coords = self.diff_coords.real
+        # scale to be between 0 and 1
+        self.diff_coords = 2*(self.diff_coords / np.max(self.diff_coords))
         self.diff_coords = torch.tensor(self.diff_coords.copy())
         self.diff_coords = self.diff_coords.to(device)
-        print(self.diff_coords.shape)
     def forward(self, X, **kwargs):
         return self.diff_coords
 
@@ -124,11 +114,13 @@ class FlowEmbedderAroundDiffusionMap(FETrainer):
         self.FE = MultiscaleDiffusionFlowEmbedder(
             X = X,
             flows = flows,
-            ts = [1]
+            ts = [1],
             sigma_graph = sigma_graph,
             flow_strength_graph = flow_strength_graph,
             device = device,
             use_embedding_grid = False,
-            embedder = FixedDiffusionMapEmbedding(P_graph, t=1, device=device)
+            embedder = FixedDiffusionMapEmbedding(X, t=1, k=18, device=device)
         ).to(device)
         self.title = "Diffusion Distance FE"
+        self.epochs_between_visualization = 1
+        self.total_epochs = 1000
