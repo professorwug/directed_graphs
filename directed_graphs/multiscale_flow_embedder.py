@@ -150,6 +150,9 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 		# self.KLD = homemade_KLD # when running on mac
 		self.epsilon = 1e-6 # set zeros to eps
 		self.optim = torch.optim.Adam(self.parameters(), lr = learning_rate)
+
+		# split input data into batches
+		
 									
 	def diffusion_loss(self):
 		# compute grid around points
@@ -276,7 +279,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 			plt.title(loss_type)
 				
 	def visualize_diffusion_matrices(self):
-		if len(self.ts) >= 4:
+		if len(self.ts) >= 3:
 			fig, axs = plt.subplots(3,2, figsize=(10,15))
 			axs[0][0].set_title(f"Ambient $P^{self.ts[0]}$")
 			axs[0][0].imshow(self.P_graph_ts[0].detach().cpu().numpy())
