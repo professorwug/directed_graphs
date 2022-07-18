@@ -36,161 +36,160 @@ nb_path: "05b01a03 More_RNA_Velocity_Datasets.ipynb"
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
-<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
-<span class="kn">import</span> <span class="nn">torch_geometric</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
-<span class="kn">from</span> <span class="nn">directed_graphs.utils</span> <span class="kn">import</span> <span class="n">diffusion_matrix_from_graph</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">directed_graphs.diffusion_flow_embedding</span> <span class="kn">import</span> <span class="n">affinity_matrix_from_pointset_to_pointset</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># from torch import nn</span>
+<span class="c1"># import torch.nn.functional as F</span>
+<span class="c1"># # import torch_geometric</span>
+<span class="c1"># from tqdm import trange</span>
+<span class="c1"># # from directed_graphs.utils import diffusion_matrix_from_graph</span>
+<span class="c1"># import numpy as np</span>
+<span class="c1"># import matplotlib.pyplot as plt</span>
+<span class="c1"># from directed_graphs.diffusion_flow_embedding import affinity_matrix_from_pointset_to_pointset</span>
 
-<span class="k">class</span> <span class="nc">DiffusionFlowEmbedder</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">sigma_graph</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">sigma_embedding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">embedding_dimension</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Flow Embedding with diffusion</span>
+<span class="c1"># class DiffusionFlowEmbedder(torch.nn.Module):</span>
+<span class="c1"># 	def __init__(self, X, flows, t = 4, sigma_graph = 0.5, sigma_embedding=0.5, embedding_dimension=2):</span>
+<span class="c1"># 		&quot;&quot;&quot;Flow Embedding with diffusion</span>
 
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		X : torch tensor n_points x n_dim</span>
-<span class="sd">			data matrix</span>
-<span class="sd">		flows : torch tensor n_points x n_dim</span>
-<span class="sd">			The flow at each point</span>
-<span class="sd">		t : int</span>
-<span class="sd">			Loss is computed with the diffusion operator powered to this number</span>
-<span class="sd">		sigma in [0,1]</span>
-<span class="sd">			Kernel bandwidth in the embedding</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="c1"># initialize parameters</span>
-		<span class="nb">super</span><span class="p">(</span><span class="n">DiffusionFlowEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_flows</span> <span class="o">=</span> <span class="n">flows</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">sigma_embedding</span> <span class="o">=</span> <span class="n">sigma_embedding</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">sigma_graph</span> <span class="o">=</span> <span class="n">sigma_graph</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">nnodes</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">data_dimension</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">embedding_dimension</span> <span class="o">=</span> <span class="n">embedding_dimension</span>
-		<span class="c1"># Compute P^t of the graph, the powered diffusion matrix</span>
-		<span class="c1"># TODO: This can be optimized using landmarks, etc. For now it&#39;s straight sparse matrix multiplication</span>
-		<span class="c1"># TODO: Migrate to a specialized function for dataset affinity calculation, with automatic kernel bandwidth selection, and the like</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">P_graph</span> <span class="o">=</span> <span class="n">affinity_matrix_from_pointset_to_pointset</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">flows</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span><span class="n">sigma_graph</span><span class="p">)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">P_graph_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P_graph</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-		<span class="c1"># Flow field</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">FlowArtist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
-		                       <span class="n">nn</span><span class="o">.</span><span class="n">Tanh</span><span class="p">(),</span>
-		                       <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
-		                       <span class="n">nn</span><span class="o">.</span><span class="n">Tanh</span><span class="p">(),</span>
-		                       <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-		<span class="c1"># Autoencoder to embed the points into a low dimension</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dimension</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dimension</span><span class="p">))</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_dimension</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
-															<span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dimension</span><span class="p">))</span>
-		<span class="c1"># training ops</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">KLD</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">KLDivLoss</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s1">&#39;batchmean&#39;</span><span class="p">,</span><span class="n">log_target</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">MSE</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+<span class="c1"># 		Parameters</span>
+<span class="c1"># 		----------</span>
+<span class="c1"># 		X : torch tensor n_points x n_dim</span>
+<span class="c1"># 			data matrix</span>
+<span class="c1"># 		flows : torch tensor n_points x n_dim</span>
+<span class="c1"># 			The flow at each point</span>
+<span class="c1"># 		t : int</span>
+<span class="c1"># 			Loss is computed with the diffusion operator powered to this number</span>
+<span class="c1"># 		sigma in [0,1]</span>
+<span class="c1"># 			Kernel bandwidth in the embedding</span>
+<span class="c1"># 		&quot;&quot;&quot;</span>
+<span class="c1"># 		# initialize parameters</span>
+<span class="c1"># 		super(DiffusionFlowEmbedder, self).__init__()</span>
+<span class="c1"># 		self.X = X</span>
+<span class="c1"># 		self.ground_truth_flows = flows</span>
+<span class="c1"># 		self.t = t</span>
+<span class="c1"># 		self.sigma_embedding = sigma_embedding</span>
+<span class="c1"># 		self.sigma_graph = sigma_graph</span>
+<span class="c1"># 		self.nnodes = X.shape[0]</span>
+<span class="c1"># 		self.data_dimension = X.shape[1]</span>
+<span class="c1"># 		self.losses = []</span>
+<span class="c1"># 		self.embedding_dimension = embedding_dimension</span>
+<span class="c1"># 		# Compute P^t of the graph, the powered diffusion matrix</span>
+<span class="c1"># 		# TODO: This can be optimized using landmarks, etc. For now it&#39;s straight sparse matrix multiplication</span>
+<span class="c1"># 		# TODO: Migrate to a specialized function for dataset affinity calculation, with automatic kernel bandwidth selection, and the like</span>
+<span class="c1"># 		self.P_graph = affinity_matrix_from_pointset_to_pointset(X,X,flows,sigma=sigma_graph)</span>
+<span class="c1"># 		self.P_graph_t = torch.matrix_power(self.P_graph,self.t)</span>
+<span class="c1"># 		# Flow field</span>
+<span class="c1"># 		self.FlowArtist = nn.Sequential(nn.Linear(2, 10),</span>
+<span class="c1"># 		                       nn.Tanh(),</span>
+<span class="c1"># 		                       nn.Linear(10, 10),</span>
+<span class="c1"># 		                       nn.Tanh(),</span>
+<span class="c1"># 		                       nn.Linear(10, 2))</span>
+<span class="c1"># 		# Autoencoder to embed the points into a low dimension</span>
+<span class="c1"># 		self.encoder = nn.Sequential(nn.Linear(self.data_dimension, 100),</span>
+<span class="c1"># 															nn.ReLU(),</span>
+<span class="c1"># 															nn.Linear(100, 10),</span>
+<span class="c1"># 															nn.ReLU(),</span>
+<span class="c1"># 															nn.Linear(10, self.embedding_dimension))</span>
+<span class="c1"># 		self.decoder = nn.Sequential(nn.Linear(self.embedding_dimension, 10),</span>
+<span class="c1"># 															nn.ReLU(),</span>
+<span class="c1"># 															nn.Linear(10, 100),</span>
+<span class="c1"># 															nn.ReLU(),</span>
+<span class="c1"># 															nn.Linear(100, self.data_dimension))</span>
+<span class="c1"># 		# training ops</span>
+<span class="c1"># 		self.KLD = nn.KLDivLoss(reduction=&#39;batchmean&#39;,log_target=False)</span>
+<span class="c1"># 		self.MSE = nn.MSELoss()</span>
+<span class="c1"># 		self.optim = torch.optim.Adam(self.parameters())</span>
 									
 
-	<span class="k">def</span> <span class="nf">compute_embedding_P</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="n">A</span> <span class="o">=</span> <span class="n">affinity_matrix_from_pointset_to_pointset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">,</span><span class="n">flows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FlowArtist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">),</span> <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_embedding</span><span class="p">)</span>
-		<span class="c1"># flow</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">P_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">A</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">@</span> <span class="n">A</span>
-		<span class="c1"># power it</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">P_embedding_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P_embedding</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+<span class="c1"># 	def compute_embedding_P(self):</span>
+<span class="c1"># 		A = affinity_matrix_from_pointset_to_pointset(self.embedded_points,self.embedded_points,flows = self.FlowArtist(self.embedded_points), sigma = self.sigma_embedding)</span>
+<span class="c1"># 		# flow</span>
+<span class="c1"># 		self.P_embedding = torch.diag(1/A.sum(axis=1)) @ A</span>
+<span class="c1"># 		# power it</span>
+<span class="c1"># 		self.P_embedding_t = torch.matrix_power(self.P_embedding,self.t)</span>
 
-	<span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
-		<span class="c1"># compute embedding diffusion matrix</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">compute_embedding_P</span><span class="p">()</span>
-		<span class="c1"># compute autoencoder loss</span>
-		<span class="n">X_reconstructed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">)</span>
-		<span class="n">reconstruction_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSE</span><span class="p">(</span><span class="n">X_reconstructed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
-		<span class="c1"># take KL divergence between it and actual P</span>
-		<span class="n">log_P_embedding_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P_embedding_t</span><span class="p">)</span>
-		<span class="n">diffusion_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">KLD</span><span class="p">(</span><span class="n">log_P_embedding_t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">P_graph_t</span><span class="p">)</span>
-		<span class="n">cost</span> <span class="o">=</span> <span class="n">diffusion_loss</span> <span class="o">+</span> <span class="n">reconstruction_loss</span>
-		<span class="c1"># print(f&quot;cost is KLD {diffusion_loss} with recon {reconstruction_loss}&quot;)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">diffusion_loss</span><span class="p">,</span><span class="n">reconstruction_loss</span><span class="p">])</span>
-		<span class="k">return</span> <span class="n">cost</span>
+<span class="c1"># 	def loss(self):</span>
+<span class="c1"># 		self.embedded_points = self.encoder(self.X)</span>
+<span class="c1"># 		# compute embedding diffusion matrix</span>
+<span class="c1"># 		self.compute_embedding_P()</span>
+<span class="c1"># 		# compute autoencoder loss</span>
+<span class="c1"># 		X_reconstructed = self.decoder(self.embedded_points)</span>
+<span class="c1"># 		reconstruction_loss = self.MSE(X_reconstructed, self.X)</span>
+<span class="c1"># 		# take KL divergence between it and actual P</span>
+<span class="c1"># 		log_P_embedding_t = torch.log(self.P_embedding_t)</span>
+<span class="c1"># 		diffusion_loss = self.KLD(log_P_embedding_t,self.P_graph_t)</span>
+<span class="c1"># 		cost = diffusion_loss + reconstruction_loss</span>
+<span class="c1"># 		# print(f&quot;cost is KLD {diffusion_loss} with recon {reconstruction_loss}&quot;)</span>
+<span class="c1"># 		self.losses.append([diffusion_loss,reconstruction_loss])</span>
+<span class="c1"># 		return cost</span>
 
-	<span class="k">def</span> <span class="nf">visualize_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">clusers</span> <span class="o">=</span> <span class="n">clusters</span><span class="p">):</span>
-		<span class="c1"># controls the x and y axes of the plot</span>
-		<span class="c1"># linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)</span>
-		<span class="n">minx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span>
-		<span class="n">maxx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">+</span><span class="mi">1</span>
-		<span class="n">miny</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span>
-		<span class="n">maxy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">+</span><span class="mi">1</span>
-		<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">minx</span><span class="p">,</span><span class="n">maxx</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">miny</span><span class="p">,</span><span class="n">maxy</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
-		<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-		<span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-		<span class="n">xy_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">x</span><span class="p">[:,:,</span><span class="kc">None</span><span class="p">],</span><span class="n">y</span><span class="p">[:,:,</span><span class="kc">None</span><span class="p">]],</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
-		<span class="n">uv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FlowArtist</span><span class="p">(</span><span class="n">xy_t</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
-		<span class="n">u</span> <span class="o">=</span> <span class="n">uv</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-		<span class="n">v</span> <span class="o">=</span> <span class="n">uv</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+<span class="c1"># 	def visualize_points(self, labels, clusters):</span>
+<span class="c1"># 		# controls the x and y axes of the plot</span>
+<span class="c1"># 		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)</span>
+<span class="c1"># 		minx = min(self.embedded_points[:,0].detach().cpu().numpy())-1</span>
+<span class="c1"># 		maxx = max(self.embedded_points[:,0].detach().cpu().numpy())+1</span>
+<span class="c1"># 		miny = min(self.embedded_points[:,1].detach().cpu().numpy())-1</span>
+<span class="c1"># 		maxy = max(self.embedded_points[:,1].detach().cpu().numpy())+1</span>
+<span class="c1"># 		x, y = np.meshgrid(np.linspace(minx,maxx,20),np.linspace(miny,maxy,20))</span>
+<span class="c1"># 		x = torch.tensor(x,dtype=float).cpu()</span>
+<span class="c1"># 		y = torch.tensor(y,dtype=float).cpu()</span>
+<span class="c1"># 		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to(&#39;cuda&#39;)</span>
+<span class="c1"># 		uv = self.FlowArtist(xy_t).detach()</span>
+<span class="c1"># 		u = uv[:,:,0].cpu()</span>
+<span class="c1"># 		v = uv[:,:,1].cpu()</span>
 		
 
-		<span class="c1"># quiver </span>
-		<span class="c1"># 	plots a 2D field of arrows</span>
-		<span class="c1"># 	quiver([X, Y], U, V, [C], **kw); </span>
-		<span class="c1"># 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.</span>
+<span class="c1"># 		# quiver </span>
+<span class="c1"># 		# 	plots a 2D field of arrows</span>
+<span class="c1"># 		# 	quiver([X, Y], U, V, [C], **kw); </span>
+<span class="c1"># 		# 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.</span>
 		
-		<span class="n">sc</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span> <span class="n">c</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">clusters</span><span class="p">)</span>
-		<span class="c1"># Display all open figures.</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># 		sc = plt.scatter(self.embedded_points[:,0].detach().cpu(),self.embedded_points[:,1].detach().cpu(), c=labels)</span>
+<span class="c1"># 		plt.quiver(x,y,u,v)</span>
+<span class="c1"># 		plt.legend(handles = labels, labels = clusters)</span>
+<span class="c1"># 		# Display all open figures.</span>
+<span class="c1"># 		plt.show()</span>
 
 
-	<span class="k">def</span> <span class="nf">visualize_points2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-		<span class="c1"># controls the x and y axes of the plot</span>
-		<span class="c1"># linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)</span>
-		<span class="n">minx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span>
-		<span class="n">maxx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">+</span><span class="mi">1</span>
-		<span class="n">miny</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span>
-		<span class="n">maxy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">+</span><span class="mi">1</span>
-		<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">minx</span><span class="p">,</span><span class="n">maxx</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">miny</span><span class="p">,</span><span class="n">maxy</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
-		<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-		<span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-		<span class="n">xy_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">x</span><span class="p">[:,:,</span><span class="kc">None</span><span class="p">],</span><span class="n">y</span><span class="p">[:,:,</span><span class="kc">None</span><span class="p">]],</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
-		<span class="n">uv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FlowArtist</span><span class="p">(</span><span class="n">xy_t</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
-		<span class="n">u</span> <span class="o">=</span> <span class="n">uv</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
-		<span class="n">v</span> <span class="o">=</span> <span class="n">uv</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+<span class="c1"># 	def visualize_points2(self, labels):</span>
+<span class="c1"># 		# controls the x and y axes of the plot</span>
+<span class="c1"># 		# linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)</span>
+<span class="c1"># 		minx = min(self.embedded_points[:,0].detach().cpu().numpy())-1</span>
+<span class="c1"># 		maxx = max(self.embedded_points[:,0].detach().cpu().numpy())+1</span>
+<span class="c1"># 		miny = min(self.embedded_points[:,1].detach().cpu().numpy())-1</span>
+<span class="c1"># 		maxy = max(self.embedded_points[:,1].detach().cpu().numpy())+1</span>
+<span class="c1"># 		x, y = np.meshgrid(np.linspace(minx,maxx,20),np.linspace(miny,maxy,20))</span>
+<span class="c1"># 		x = torch.tensor(x,dtype=float).cpu()</span>
+<span class="c1"># 		y = torch.tensor(y,dtype=float).cpu()</span>
+<span class="c1"># 		xy_t = torch.concat([x[:,:,None],y[:,:,None]],dim=2).float().to(&#39;cuda&#39;)</span>
+<span class="c1"># 		uv = self.FlowArtist(xy_t).detach()</span>
+<span class="c1"># 		u = uv[:,:,0].cpu()</span>
+<span class="c1"># 		v = uv[:,:,1].cpu()</span>
 		
 
-		<span class="c1"># quiver </span>
-		<span class="c1"># 	plots a 2D field of arrows</span>
-		<span class="c1"># 	quiver([X, Y], U, V, [C], **kw); </span>
-		<span class="c1"># 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.</span>
-		<span class="n">scv</span><span class="o">.</span><span class="n">set_figure_params</span><span class="p">()</span>
-		<span class="n">sc</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span><span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span> <span class="n">c</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;tab10&quot;</span><span class="p">)</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span> <span class="o">=</span> <span class="n">scatter</span><span class="o">.</span><span class="n">legend_elements</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Blobs&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">)))</span>
-		<span class="c1"># Display all open figures.</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># 		# quiver </span>
+<span class="c1"># 		# 	plots a 2D field of arrows</span>
+<span class="c1"># 		# 	quiver([X, Y], U, V, [C], **kw); </span>
+<span class="c1"># 		# 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.</span>
+<span class="c1"># 		scv.set_figure_params()</span>
+<span class="c1"># 		sc = plt.scatter(self.embedded_points[:,0].detach().cpu(),self.embedded_points[:,1].detach().cpu(), c=labels,cmap=&quot;tab10&quot;)</span>
+<span class="c1"># 		plt.quiver(x,y,u,v)</span>
+<span class="c1"># 		plt.legend(handles = scatter.legend_elements()[0], title=&quot;Blobs&quot;, labels=list(range(n_clusters)))</span>
+<span class="c1"># 		# Display all open figures.</span>
+<span class="c1"># 		plt.show()</span>
         
-	<span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_steps</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
-		<span class="c1"># train Flow Embedder on the provided graph</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
-		<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
-			<span class="c1"># compute loss</span>
-			<span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">()</span>
-			<span class="c1"># print(&quot;loss is &quot;,loss)</span>
-			<span class="c1"># compute gradient and step backwards</span>
-			<span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-			<span class="c1"># TODO: Criteria to automatically end training</span>
-		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exiting training with loss &quot;</span><span class="p">,</span><span class="n">loss</span><span class="p">)</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedded_points</span>
+<span class="c1"># 	def fit(self,n_steps = 1000):</span>
+<span class="c1"># 		# train Flow Embedder on the provided graph</span>
+<span class="c1"># 		self.train()</span>
+<span class="c1"># 		for step in trange(n_steps):</span>
+<span class="c1"># 			self.optim.zero_grad()</span>
+<span class="c1"># 			# compute loss</span>
+<span class="c1"># 			loss = self.loss()</span>
+<span class="c1"># 			# print(&quot;loss is &quot;,loss)</span>
+<span class="c1"># 			# compute gradient and step backwards</span>
+<span class="c1"># 			loss.backward()</span>
+<span class="c1"># 			self.optim.step()</span>
+<span class="c1"># 			# TODO: Criteria to automatically end training</span>
+<span class="c1"># 		print(&quot;Exiting training with loss &quot;,loss)</span>
+<span class="c1"># 		return self.embedded_points</span>
 </pre></div>
 
     </div>

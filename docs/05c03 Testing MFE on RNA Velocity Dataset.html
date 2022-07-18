@@ -197,7 +197,7 @@ computing moments based on connectivities
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>computing velocity embedding
-    finished (0:00:01) --&gt; added
+    finished (0:00:00) --&gt; added
     &#39;velocity_pca&#39;, embedded velocity vectors (adata.obsm)
 </pre>
 </div>
@@ -279,7 +279,7 @@ height=345
 <pre>
 <span class="ansi-red-fg">---------------------------------------------------------------------------</span>
 <span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-Input <span class="ansi-green-fg">In [8]</span>, in <span class="ansi-cyan-fg">&lt;cell line: 5&gt;</span><span class="ansi-blue-fg">()</span>
+Input <span class="ansi-green-fg">In [7]</span>, in <span class="ansi-cyan-fg">&lt;cell line: 5&gt;</span><span class="ansi-blue-fg">()</span>
 <span class="ansi-green-intense-fg ansi-bold">      3</span> X <span style="color: rgb(98,98,98)">=</span> torch<span style="color: rgb(98,98,98)">.</span>tensor(X)
 <span class="ansi-green-intense-fg ansi-bold">      4</span> flow <span style="color: rgb(98,98,98)">=</span> torch<span style="color: rgb(98,98,98)">.</span>tensor(adata<span style="color: rgb(98,98,98)">.</span>layers[<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">velocity</span><span style="color: rgb(175,0,0)">&#34;</span>])
 <span class="ansi-green-fg">----&gt; 5</span> X <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">X</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">float</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">to</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">device</span><span class="ansi-yellow-bg">)</span>
@@ -308,6 +308,23 @@ For debugging consider passing CUDA_LAUNCH_BLOCKING=1.</pre>
 <span class="n">flow</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s2">&quot;velocity_pca&quot;</span><span class="p">])</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 <span class="n">flow</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">directed_graphs.datasets</span> <span class="kn">import</span> <span class="n">affinity_grid_search</span>
 </pre></div>
 
     </div>
@@ -375,27 +392,6 @@ For debugging consider passing CUDA_LAUNCH_BLOCKING=1.</pre>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Input <span class="ansi-green-fg">In [1]</span>, in <span class="ansi-cyan-fg">&lt;cell line: 2&gt;</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> lw <span style="color: rgb(98,98,98)">=</span> {<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">diffusion</span><span style="color: rgb(175,0,0)">&#34;</span>:<span style="color: rgb(98,98,98)">1</span>,<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">smoothness</span><span style="color: rgb(175,0,0)">&#34;</span>:<span style="color: rgb(98,98,98)">0</span>,<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">reconstruction</span><span style="color: rgb(175,0,0)">&#34;</span>:<span style="color: rgb(98,98,98)">0</span>,<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">diffusion map regularization</span><span style="color: rgb(175,0,0)">&#34;</span>:<span style="color: rgb(98,98,98)">0</span>,<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">flow cosine loss</span><span style="color: rgb(175,0,0)">&#34;</span>:<span style="color: rgb(98,98,98)">0</span>}
-<span class="ansi-green-fg">----&gt; 2</span> MFE <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">MultiscaleDiffusionFlowEmbedder</span>(X<span style="color: rgb(98,98,98)">=</span>X, flows<span style="color: rgb(98,98,98)">=</span>flow, device<span style="color: rgb(98,98,98)">=</span>device, loss_weights<span style="color: rgb(98,98,98)">=</span>lw)<span style="color: rgb(98,98,98)">.</span>to(device)
-<span class="ansi-green-intense-fg ansi-bold">      3</span> MFE <span style="color: rgb(98,98,98)">=</span> MFE<span style="color: rgb(98,98,98)">.</span>to(device)
-
-<span class="ansi-red-fg">NameError</span>: name &#39;MultiscaleDiffusionFlowEmbedder&#39; is not defined</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
     {% endraw %}
 
@@ -427,40 +423,6 @@ Input <span class="ansi-green-fg">In [1]</span>, in <span class="ansi-cyan-fg">&
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Thu Jul 14 10:28:31 2022       
-+-----------------------------------------------------------------------------+
-| NVIDIA-SMI 510.47.03    Driver Version: 510.47.03    CUDA Version: 11.6     |
-|-------------------------------+----------------------+----------------------+
-| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
-|                               |                      |               MIG M. |
-|===============================+======================+======================|
-|   0  NVIDIA GeForce ...  On   | 00000000:82:00.0 Off |                  N/A |
-| 28%   18C    P8     8W / 250W |  10370MiB / 11264MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
-                                                                               
-+-----------------------------------------------------------------------------+
-| Processes:                                                                  |
-|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
-|        ID   ID                                                   Usage      |
-|=============================================================================|
-|    0   N/A  N/A     17485      C   ...onda_envs/test/bin/python     9731MiB |
-|    0   N/A  N/A     17815      C   ...onda_envs/test/bin/python      635MiB |
-+-----------------------------------------------------------------------------+
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
