@@ -510,13 +510,13 @@ def flow_cosine_loss(X, ground_truth_flows, embedded_flows):
   return loss
 
 # Cell
-def directed_neighbors(num_nodes, P_graph, k=5):
+def directed_neighbors(num_nodes, P_graph, n_neighbors=5):
   # remove self loop
   P_graph = P_graph - torch.eye(num_nodes)
   # return k nearest neighbor indices
-  neighbors = P_graph.argsort(axis=1, descending=True)[:,:k]
+  neighbors = P_graph.argsort(axis=1, descending=True)[:,:n_neighbors]
   # convert to edge_index format
-  row = torch.arange(num_nodes).repeat_interleave(k)
+  row = torch.arange(num_nodes).repeat_interleave(n_neighbors)
   col = neighbors.flatten()
   return torch.stack((row, col))
 
