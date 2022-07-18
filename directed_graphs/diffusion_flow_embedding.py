@@ -2,7 +2,8 @@
 
 __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset', 'GaussianVectorField',
            'anisotropic_kernel', 'FlowArtist', 'smoothness_of_vector_field', 'DiffusionFlowEmbedder',
-           'kl_divergence_loss', 'kld_symmetric_loss', 'diffusion_map_loss', 'flow_cosine_loss']
+           'kl_divergence_loss', 'kld_symmetric_loss', 'diffusion_map_loss', 'precomputed_distance_loss',
+           'flow_cosine_loss', 'directed_neighbors', 'flow_neighbor_loss']
 
 # Cell
 # hide
@@ -493,9 +494,36 @@ def diffusion_map_loss(P_graph, embedded_points):
   return loss
 
 # Cell
+def precomputed_distance_loss(precomputed_distances, embedded_points):
+    D_graph = precomputed_distances
+    num_nodes = embedded_points.shape[0]
+    D_embedding = torch.cdist(embedded_points, embedded_points)
+    loss = torch.norm(D_graph - D_embedding)**2 / (num_nodes**2)
+    return loss
+
+# Cell
 def flow_cosine_loss(X, ground_truth_flows, embedded_flows):
   cosine_graph = ground_truth_flows @ ground_truth_flows.T
   cosine_embedding = embedded_flows @ embedded_flows.T
   W = torch.exp(-torch.cdist(X, X))
   loss = torch.sum((cosine_graph - cosine_embedding)**2 * W) / torch.sum(W)
+  return loss
+
+# Cell
+def directed_neighbors(num_nodes, P_graph, n_neighbors=5):
+  # remove self loop
+  P_graph = P_graph - torch.eye(num_nodes)
+  # return k nearest neighbor indices
+  neighbors = P_graph.argsort(axis=1, descending=True)[:,:n_neighbors]
+  # convert to edge_index format
+  row = torch.arange(num_nodes).repeat_interleave(n_neighbors)
+  col = neighbors.flatten()
+  return torch.stack((row, col))
+
+# Cell
+def flow_neighbor_loss(neighbors, embedded_points, embedded_flows):
+  row, col = neighbors
+  directions = embedded_points[col,:] - embedded_points[row,:]
+  flows = embedded_flows[row,:]
+  loss = torch.norm(directions - flows)**2
   return loss

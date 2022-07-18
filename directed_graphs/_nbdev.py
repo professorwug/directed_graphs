@@ -49,13 +49,17 @@ index = {"make_sparse_safe": "01a Graph Utils.ipynb",
          "kl_divergence_loss": "05c01 Loss functions.ipynb",
          "kld_symmetric_loss": "05c01 Loss functions.ipynb",
          "diffusion_map_loss": "05c01 Loss functions.ipynb",
+         "precomputed_distance_loss": "05c01 Loss functions.ipynb",
          "flow_cosine_loss": "05c01 Loss functions.ipynb",
+         "directed_neighbors": "05c01 Loss functions.ipynb",
+         "flow_neighbor_loss": "05c01 Loss functions.ipynb",
          "visualize_points": "05c01a Training Utils for Flow Embedding.ipynb",
          "device": "05c01a Training Utils for Flow Embedding.ipynb",
          "save_embedding_visualization": "05c01a Training Utils for Flow Embedding.ipynb",
          "collate_loss": "05c01a Training Utils for Flow Embedding.ipynb",
          "FETrainer": "05c01a Training Utils for Flow Embedding.ipynb",
-         "DiffusionDistanceFlowEmbedder": "05c05 Diffusion Distance based Loss - Tests and Visualizations.ipynb",
+         "DiffusionDistanceFlowEmbedder": "05c05a Diffusion map embedding with an autoencoder.ipynb",
+         "compare_distance_matrices": "05c05a Diffusion map embedding with an autoencoder.ipynb",
          "FixedDiffusionMapEmbedding": "05c05b Learning flow around a fixed diffusion map.ipynb",
          "FlowEmbedderAroundDiffusionMap": "05c05b Learning flow around a fixed diffusion map.ipynb"}
 
@@ -64,7 +68,8 @@ modules = ["utils.py",
            "diffusion_flow_embedding.py",
            "multiscale_flow_embedder.py",
            "flow_embedding_training_utils.py",
-           "diffusion_distance_flow_embedder.py"]
+           "diffusion_distance_flow_embedder.py",
+           "diffusion_and_kld_embedder.py"]
 
 doc_url = "https://x.riddle.press/directed_graphs/"
 

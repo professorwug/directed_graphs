@@ -101,8 +101,11 @@ from .diffusion_flow_embedding import (
 from .diffusion_flow_embedding import (
     diffusion_map_loss,
     flow_cosine_loss,
+    directed_neighbors,
+    flow_neighbor_loss,
+    precomputed_distance_loss,
 )
-
+from .utils import diffusion_map_from_points
 
 class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
     def __init__(
@@ -114,6 +117,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         sigma_embedding=0.5,
         flow_strength_graph=5,
         flow_strength_embedding=5,
+        n_neighbors=20,
         embedding_dimension=2,
         learning_rate=1e-3,
         flow_artist="ReLU",
@@ -125,25 +129,36 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         loss_weights=None,
         use_embedding_grid=False,
         device=torch.device("cpu"),
+        k_dmap = 20,
+        t_dmap = 1,
+        dmap_coords_to_use = 2,
     ):
-        # initialize parameters
         super(MultiscaleDiffusionFlowEmbedder, self).__init__()
 
         # generate default parameters
         embedder = (
             FeedForwardReLU(shape=(3, 4, 8, 4, 2)) if embedder is None else embedder
         )
+        loss_keys = [
+            "diffusion",
+            "smoothness",
+            "reconstruction",
+            "diffusion map regularization",
+            "flow cosine loss",
+            "flow neighbor loss",
+        ]
         loss_weights = (
             {
-                "diffusion": 1,
-                "smoothness": 0,
-                "reconstruction": 0,
-                "diffusion map regularization": 0,
-                "flow cosine loss": 0,
+                "diffusion": 1
             }
             if loss_weights is None
             else loss_weights
         )
+        for key in loss_keys:
+            if key not in loss_weights.keys():
+                loss_weights[key] = 0
+
+        # initialize parameters
         self.X = X
         self.ground_truth_flows = flows
         self.ts = ts
@@ -169,6 +184,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             X, X, flows, sigma=sigma_graph, flow_strength=flow_strength_graph
         )
         self.P_graph = F.normalize(self.P_graph, p=1, dim=1)
+        self.n_neighbors = n_neighbors
+        self.neighbors = directed_neighbors(self.nnodes, self.P_graph, self.n_neighbors)
         # torch.diag(1/self.P_graph.sum(axis=1)) @ self.P_graph
         # compute matrix powers
         # TODO: Could reuse previous powers to speed this up
@@ -189,6 +206,20 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             self.decoder = decoder.to(self.device)
         else:
             self.decoder = None
+
+        # Precompute graph distances for any loss functions that regularize against a precomputed embedding
+        if self.loss_weights["diffusion map regularization"] > 0:
+            X_numpy = X.clone().cpu().numpy()
+            diff_map = diffusion_map_from_points(X_numpy, k=k_dmap, t=t_dmap, plot_evals = True)
+            self.diff_coords = diff_map[:, :dmap_coords_to_use]
+            self.diff_coords = self.diff_coords.real
+            # scale to be between 0 and 1 (by default, the diff coords are tiny, which messes up the flow embedder)
+#             self.diff_coords = 2 * (self.diff_coords / np.max(self.diff_coords))
+            self.diff_coords = torch.tensor(self.diff_coords.copy()).to(device)
+            self.precomputed_distances = torch.cdist(self.diff_coords, self.diff_coords)
+            # scale distances between 0 and 1
+            self.precomputed_distances = 2 * (self.precomputed_distances/torch.max(self.precomputed_distances))
+            self.precomputed_distances = self.precomputed_distances.detach() # no need to have gradients from this operation
 
         # training ops
         self.KLD = nn.KLDivLoss(reduction="batchmean", log_target=False)
@@ -289,7 +320,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             smoothness_loss = 0
 
         if self.loss_weights["diffusion map regularization"] != 0:
-            diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
+            diffmap_loss = precomputed_distance_loss(self.precomputed_distances, self.embedded_points)
+#           diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
             self.losses["diffusion map regularization"].append(diffmap_loss)
         else:
             diffmap_loss = 0
@@ -302,12 +334,21 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         else:
             flow_loss = 0
 
+        if self.loss_weights["flow neighbor loss"] != 0:
+            neighbor_loss = neighbor_loss(
+                self.P_graph, self.embedded_points, self.FlowArtist(self.embedded_points)
+            )
+            self.losses["flow neighbor loss"].append(neighbor_loss)
+        else:
+            neighbor_loss = 0
+
         cost = (
             self.loss_weights["diffusion"] * diffusion_loss
             + self.loss_weights["reconstruction"] * reconstruction_loss
             + self.loss_weights["smoothness"] * smoothness_loss
             + self.loss_weights["diffusion map regularization"] * diffmap_loss
             + self.loss_weights["flow cosine loss"] * flow_loss
+            + self.loss_weights["flow neighbor loss"] * neighbor_loss
         )
         return cost
 
