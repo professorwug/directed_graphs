@@ -234,6 +234,21 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             # self.P_embedding_ts[i] = self.P_embedding_ts[i] + self.epsilon
         # take KL divergence between P embedding ts and P graph ts
         diffusion_loss = 0
+        """
+        for i in range(len(self.ts)):
+            log_P_embedding_t = torch.log(self.P_embedding_ts[i])
+            log_P_graph_t = torch.log(self.P_graph_ts[i])
+            if log_P_embedding_t.is_sparse:
+                KL_emb = log_P_embedding_t.to_dense()
+                KL_graph = log_P_graph_t.to_dense()
+                diffusion_loss_for_t = 0.5*(self.KLD(KL_emb, KL_graph) + self.KLD(KL_graph, KL_emb))
+            else:
+                A = log_P_embedding_t
+                B = log_P_graph_t
+                diffusion_loss_for_t = 0.5*(self.KLD(A,B) + self.KLD(B,A))
+            diffusion_loss += (2**(-i))*diffusion_loss_for_t
+            # print(f"Diffusion loss {i} is {diffusion_loss}")
+        """
         for i in range(len(self.ts)):
             log_P_embedding_t = torch.log(self.P_embedding_ts[i])
             if log_P_embedding_t.is_sparse:
