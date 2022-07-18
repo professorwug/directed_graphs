@@ -2,7 +2,7 @@
 
 __all__ = ['make_sparse_safe', 'distance_matrix', 'anisotropic_kernel', 'adaptive_anisotropic_kernel',
            'diffusion_matrix', 'diffusion_matrix_from_points', 'diffusion_coordinates', 'diffusion_map_from_points',
-           'plot_3d']
+           'diffusion_map_from_affinities', 'plot_3d']
 
 # Cell
 from scipy.sparse import bsr_array, csr_array
@@ -156,6 +156,14 @@ def diffusion_map_from_points(X, t = 1, kernel_type = "anisotropic", alpha = 0.5
         print("using sigma = ",sigma)
     W = anisotropic_kernel(Dists, sigma=sigma, alpha = alpha)
     P_symmetric, D = diffusion_matrix(W, symmetric=True, return_degree=True)
+    diff_map = diffusion_coordinates(P_symmetric, D, t = t, plot_evals = plot_evals)
+    return diff_map
+
+# Cell
+def diffusion_map_from_affinities(A, t = 1, plot_evals = False):
+    # compute symmetric diffusion matrix
+    P_symmetric, D = diffusion_matrix(A, symmetric=True, return_degree=True)
+    # compute diffusion map
     diff_map = diffusion_coordinates(P_symmetric, D, t = t, plot_evals = plot_evals)
     return diff_map
 
