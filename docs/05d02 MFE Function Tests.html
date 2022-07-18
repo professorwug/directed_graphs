@@ -46,6 +46,26 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Kernel">Kernel<a class="anchor-link" href="#Kernel"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>affinity_from_flow() and affinity_matrix_from_pointset_to_pointset()</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -363,7 +383,7 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">flows</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">flows</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
 <span class="n">flows</span>
 </pre></div>
 
@@ -381,7 +401,7 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 <div class="output_text output_subarea output_execute_result">
 <pre>tensor([[1., 0.],
         [1., 0.],
-        [0., 1.],
+        [0., 2.],
         [1., 0.]])</pre>
 </div>
 
@@ -418,12 +438,12 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 <div class="output_text output_subarea output_execute_result">
 <pre>tensor([[[ 0.0000,  0.0000],
          [-1.0000,  0.0000],
-         [-0.0000, -0.7071],
+         [-0.0000, -1.4142],
          [-1.0000,  0.0000]],
 
         [[ 1.0000,  0.0000],
          [ 0.0000,  0.0000],
-         [ 0.0000, -0.7071],
+         [ 0.0000, -1.4142],
          [ 1.0000,  0.0000]],
 
         [[ 0.7071,  0.0000],
@@ -433,7 +453,7 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 
         [[ 1.0000,  0.0000],
          [-1.0000,  0.0000],
-         [ 0.0000, -1.0000],
+         [ 0.0000, -2.0000],
          [ 0.0000,  0.0000]]])</pre>
 </div>
 
@@ -470,10 +490,10 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>tensor([[ 0.0000, -1.0000, -0.7071, -1.0000],
-        [ 1.0000,  0.0000, -0.7071,  1.0000],
+<pre>tensor([[ 0.0000, -1.0000, -1.4142, -1.0000],
+        [ 1.0000,  0.0000, -1.4142,  1.0000],
         [ 0.7071, -0.7071,  0.0000,  0.0000],
-        [ 1.0000, -1.0000, -1.0000,  0.0000]])</pre>
+        [ 1.0000, -1.0000, -2.0000,  0.0000]])</pre>
 </div>
 
 </div>
@@ -499,6 +519,22 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>tensor([1., 1., 2., 1.])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
     {% endraw %}
 
@@ -517,9 +553,161 @@ nb_path: "05d02 MFE Function Tests.ipynb"
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>tensor([[1., 1., 2., 1.],
+        [1., 1., 2., 1.],
+        [1., 1., 2., 1.],
+        [1., 1., 2., 1.]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
     {% endraw %}
 
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cost_from_flow</span> <span class="o">=</span> <span class="n">flow_mag_directions</span> <span class="o">-</span> <span class="n">projections</span>
+<span class="n">cost_from_flow</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cost_from_flow</span><span class="p">)</span>
+<span class="n">cost_from_flow</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>tensor([[1.0000, 2.0000, 3.4142, 2.0000],
+        [0.0000, 1.0000, 3.4142, 0.0000],
+        [0.2929, 1.7071, 2.0000, 1.0000],
+        [0.0000, 2.0000, 4.0000, 1.0000]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cost_with_flow</span> <span class="o">=</span> <span class="n">cost_from_flow</span> <span class="o">+</span> <span class="n">length_of_directions</span>
+<span class="n">cost_with_flow</span> <span class="o">=</span> <span class="n">cost_with_flow</span><span class="o">.</span><span class="n">T</span>
+<span class="n">cost_with_flow</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>tensor([[1.0000, 2.0000, 1.7071, 1.0000],
+        [4.0000, 1.0000, 3.1213, 3.0000],
+        [4.8284, 4.8284, 2.0000, 5.0000],
+        [3.0000, 1.0000, 2.0000, 1.0000]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kernel</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">cost_with_flow</span><span class="p">)</span>
+<span class="n">kernel</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>tensor([[  2.7183,   7.3891,   5.5130,   2.7183],
+        [ 54.5981,   2.7183,  22.6763,  20.0855],
+        [125.0142, 125.0142,   7.3891, 148.4132],
+        [ 20.0855,   2.7183,   7.3891,   2.7183]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="MultiscaleDiffusionFlowEmbedder()-Functions">MultiscaleDiffusionFlowEmbedder() Functions<a class="anchor-link" href="#MultiscaleDiffusionFlowEmbedder()-Functions"> </a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>diffusion_loss()</p>
+
+</div>
+</div>
+</div>
 </div>
 
 

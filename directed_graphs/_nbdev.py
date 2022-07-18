@@ -68,7 +68,7 @@ modules = ["utils.py",
            "flow_embedding_training_utils.py",
            "diffusion_distance_flow_embedder.py"]
 
-doc_url = "https://professorwug.github.io/directed_graphs/"
+doc_url = "https://x.riddle.press/directed_graphs/"
 
 git_url = "https://github.com/professorwug/directed_graphs/tree/master/"
 
