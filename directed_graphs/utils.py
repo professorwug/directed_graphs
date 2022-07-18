@@ -16,43 +16,43 @@ def make_sparse_safe(A):
 # Cell
 from sklearn.metrics import pairwise_distances
 def distance_matrix(X, metric = "euclidean"):
-  X = make_sparse_safe(X) # converts to csr_array
-  D = pairwise_distances(X, metric = metric, n_jobs = -1) # use all of the available cores
-  return D
+    X = make_sparse_safe(X) # converts to csr_array
+    D = pairwise_distances(X, metric = metric, n_jobs = -1) # use all of the available cores
+    return D
 
 
 # Cell
 def anisotropic_kernel(D, sigma=0.7, alpha = 1):
-  """Computes anisotropic kernel of given distances matrix.
+    """Computes anisotropic kernel of given distances matrix.
 
-  Parameters
-  ----------
-  D : ndarray or sparse
-  sigma : float, optional
+    Parameters
+    ----------
+    D : ndarray or sparse
+    sigma : float, optional
       Kernel bandwidth, by default 0.7
-  alpha : int, optional
+    alpha : int, optional
       Degree of density normalization, from 0 to 1; by default 1
-  This is a good function.
-  """
-  W = np.exp(-D**2/(2*sigma**2))
-  # Additional normalization step for density
-  D = np.diag(1/(np.sum(W,axis=1)**alpha))
-  W = D @ W @ D
-  return W
+    This is a good function.
+    """
+    W = np.exp(-D**2/(2*sigma**2))
+    # Additional normalization step for density
+    D = np.diag(1/(np.sum(W,axis=1)**alpha))
+    W = D @ W @ D
+    return W
 
 # Cell
 def adaptive_anisotropic_kernel(D, k=10, alpha = 1):
-  # Get the distance to the kth neighbor
-  distance_to_k_neighbor = np.partition(D,k)[:,k]
-  # Populate matrices with this distance for easy division.
-  div1 = np.ones(len(D))[:,None] @ distance_to_k_neighbor[None,:]
-  div2 = div1.T
-  # compute the gaussian kernel with an adaptive bandwidth
-  W = (1/2*np.sqrt(2*np.pi))*(np.exp(-D**2/(2*div1**2))/div1 + np.exp(-D**2/(2*div2**2))/div2)
-  # Additional normalization step for density
-  D = np.diag(1/(np.sum(W,axis=1)**alpha))
-  W = D @ W @ D
-  return W
+    # Get the distance to the kth neighbor
+    distance_to_k_neighbor = np.partition(D,k)[:,k]
+    # Populate matrices with this distance for easy division.
+    div1 = np.ones(len(D))[:,None] @ distance_to_k_neighbor[None,:]
+    div2 = div1.T
+    # compute the gaussian kernel with an adaptive bandwidth
+    W = (1/2*np.sqrt(2*np.pi))*(np.exp(-D**2/(2*div1**2))/div1 + np.exp(-D**2/(2*div2**2))/div2)
+    # Additional normalization step for density
+    D = np.diag(1/(np.sum(W,axis=1)**alpha))
+    W = D @ W @ D
+    return W
 
 # Cell
 from scipy.sparse import diags
@@ -70,88 +70,94 @@ def diffusion_matrix(A,symmetric=False,return_degree=False):
     return diags(1/D) @ A
 
 # Cell
-def diffusion_matrix_from_points(X, anisotropy = 1, k = 10, sigma = None, threshold = 1e-5, metric = 'euclidean'):
-  """Computes diffusion matrix from a data matrix, with options for type of kernel used.
-  Returns a csr sparse array.
+def diffusion_matrix_from_points(X, anisotropy = 1, k = 10, sigma = None, threshold = 1e-5, metric = 'euclidean' ):
+    """Computes diffusion matrix from a data matrix, with options for type of kernel used.
+    Returns a csr sparse array.
 
-  Parameters
-  ----------
-  X : ndarray or sparse array
+    Parameters
+    ----------
+    X : ndarray or sparse array
       data matrix
-  anisotropy : float in [0,1], optional
+    anisotropy : float in [0,1], optional
       level of density correction. 1 fully renormalizes by density, by default 1
-  k : int, optional
+    k : int, optional
       number of neighbors to use when calculating adaptive kernel, by default 10
-  sigma : float, optional
+    sigma : float, optional
       kernel bandwidth; if specified, uses anisotropic instead of adaptive anisotropic kernel, by default None
-  threshold : float, optional
+    threshold : float, optional
       any values in the affinity matrix below this level are zeroed, by default 1e-5
-  metric : str, optional
+    metric : str, optional
       used in distance matrix calculations, by default 'euclidean'
-  """
-
-  D = distance_matrix(X, metric = 'euclidean')
-  if sigma is not None:
-    A = anisotropic_kernel(D, sigma = sigma, alpha = anisotropy)
-  else:
-    A = adaptive_anisotropic_kernel(D, alpha = anisotropy)
-  A = zero_negligible_thresholds(A, threshold=threshold)
+    """
+    D = distance_matrix(X, metric = 'euclidean')
+    if sigma is not None:
+        A = anisotropic_kernel(D, sigma = sigma, alpha = anisotropy)
+    else:
+        A = adaptive_anisotropic_kernel(D, alpha = anisotropy)
+    A = zero_negligible_thresholds(A, threshold=threshold)
 
 
 # Cell
 import scipy
-def diffusion_coordinates(P_symmetric, D, t = 1):
-  # given symmetric diffusion matrix and density, constructs diffusion map
-  Dnoh = diags(D**-0.5)
-  # Decompose Ms
-  eig_vals, eig_vecs = scipy.sparse.linalg.eigs(P_symmetric)
-  # Normalize the eigenvector
-  eig_psi_components = Dnoh @ eig_vecs
-  eig_psi_components = eig_psi_components @ np.diag(np.power(np.linalg.norm(eig_psi_components, axis=0), -1))
-  # Remove the trivial eigenvalue and eigenvector
-  eig_vals = eig_vals[:-1]
-  eig_psi_components = eig_psi_components[:,:-1]
-  # Construct the diffusion map
-  # diff_map = eig_psi_components @ np.diag(eig_vals**t)
-  diff_map = eig_vals**t * eig_psi_components
-  diff_map = diff_map[:,::-1]
-  diff_map = diff_map
-  return diff_map
+import matplotlib.pyplot as plt
+def diffusion_coordinates(P_symmetric, D, t = 1, plot_evals = False):
+    # given symmetric diffusion matrix and density, constructs diffusion map
+    Dnoh = diags(D**-0.5)
+    # Decompose Ms
+    eig_vals, eig_vecs = scipy.sparse.linalg.eigs(P_symmetric)
+    # Normalize the eigenvector
+    eig_psi_components = Dnoh @ eig_vecs
+    eig_psi_components = eig_psi_components @ np.diag(np.power(np.linalg.norm(eig_psi_components, axis=0), -1))
+    # Remove the trivial eigenvalue and eigenvector
+    eig_vals = eig_vals[:-1]
+    if plot_evals:
+        print(eig_vals)
+        fig, ax = plt.subplots()
+        ax.bar([str(i) for i in range(len(eig_vals))], eig_vals**t)
+        ax.set_title("Evals")
+        plt.show()
+    eig_psi_components = eig_psi_components[:,:-1]
+    # Construct the diffusion map
+    # diff_map = eig_psi_components @ np.diag(eig_vals**t)
+    diff_map = eig_vals**t * eig_psi_components
+    diff_map = diff_map[:,::-1]
+    diff_map = diff_map
+    return diff_map
 
 # Cell
 import logging
-def diffusion_map_from_points(X, t = 1, kernel_type = "anisotropic", alpha = 0.5, sigma = "automatic", k = 10):
-  """Creates diffusion map from data matrix X, using specified kernel.
+def diffusion_map_from_points(X, t = 1, kernel_type = "anisotropic", alpha = 0.5, sigma = "automatic", k = 10, plot_evals = False):
+    """Creates diffusion map from data matrix X, using specified kernel.
 
-  Parameters
-  ----------
-  X : ndarray, possibly sparse
+    Parameters
+    ----------
+    X : ndarray, possibly sparse
       data matrix
-  t : int
+    t : int
       steps of diffusion to take.
-  kernel_type : "adaptive" or "adaptive anisotropic", optional
+    kernel_type : "adaptive" or "adaptive anisotropic", optional
       Type of kernel to use, by default "anisotropic"
-  alpha : float, optional
+    alpha : float, optional
       Density normalization, between 0 and 1, by default 0.5
-  sigma : float, optional
+    sigma : float, optional
       kernel bandwidth, by default "automatic"
-  k : int, optional
+    k : int, optional
       nearest neighbor number to use when estimating kernel bandwidth, by default 10
 
-  Returns
-  -------
-  ndarray
+    Returns
+    -------
+    ndarray
       new coordinates of the data in diffusion space, as the rows of this matrix, ordered by the importance of the eigenvalue
-  """
-  Dists = distance_matrix(X)
-  if sigma == "automatic":
-    # Heuristic for sigma: median of the distance to the kth nearest neighbor
-    sigma = np.median(np.partition(Dists,k)[:,k])
-    print("using sigma = ",sigma)
-  W = anisotropic_kernel(Dists, sigma=sigma, alpha = alpha)
-  P_symmetric, D = diffusion_matrix(W, symmetric=True, return_degree=True)
-  diff_map = diffusion_coordinates(P_symmetric, D, t = t)
-  return diff_map
+    """
+    Dists = distance_matrix(X)
+    if sigma == "automatic":
+        # Heuristic for sigma: median of the distance to the kth nearest neighbor
+        sigma = np.median(np.partition(Dists,k)[:,k])
+        print("using sigma = ",sigma)
+    W = anisotropic_kernel(Dists, sigma=sigma, alpha = alpha)
+    P_symmetric, D = diffusion_matrix(W, symmetric=True, return_degree=True)
+    diff_map = diffusion_coordinates(P_symmetric, D, t = t, plot_evals = plot_evals)
+    return diff_map
 
 # Cell
 # For plotting 2D and 3D graphs

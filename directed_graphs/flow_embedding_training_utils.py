@@ -168,6 +168,7 @@ class FETrainer(object):
                 losses=losses,
                 title=title,
                 labels=self.labels,
+                FE = self.FE
             )
 
     def training_gif(self, duration=10):
