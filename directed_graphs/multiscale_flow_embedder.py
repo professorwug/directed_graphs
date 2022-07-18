@@ -101,6 +101,8 @@ from .diffusion_flow_embedding import (
 from .diffusion_flow_embedding import (
     diffusion_map_loss,
     flow_cosine_loss,
+    directed_neighbors,
+    flow_neighbor_loss
 )
 
 
@@ -114,6 +116,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         sigma_embedding=0.5,
         flow_strength_graph=5,
         flow_strength_embedding=5,
+        n_neighbors=20,
         embedding_dimension=2,
         learning_rate=1e-3,
         flow_artist="ReLU",
@@ -140,6 +143,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
                 "reconstruction": 0,
                 "diffusion map regularization": 0,
                 "flow cosine loss": 0,
+                "flow neighbor loss": 0,
             }
             if loss_weights is None
             else loss_weights
@@ -169,6 +173,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             X, X, flows, sigma=sigma_graph, flow_strength=flow_strength_graph
         )
         self.P_graph = F.normalize(self.P_graph, p=1, dim=1)
+        self.n_neighbors = n_neighbors
+        self.neighbors = directed_neighbors(self.nnodes, self.P_graph, self.n_neighbors)
         # torch.diag(1/self.P_graph.sum(axis=1)) @ self.P_graph
         # compute matrix powers
         # TODO: Could reuse previous powers to speed this up
@@ -302,12 +308,21 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         else:
             flow_loss = 0
 
+        if self.loss_weights["flow neighbor loss"] != 0:
+            neighbor_loss = neighbor_loss(
+                self.P_graph, self.embedded_points, self.FlowArtist(self.embedded_points)
+            )
+            self.losses["flow neighbor loss"].append(neighbor_loss)
+        else:
+            neighbor_loss = 0
+
         cost = (
             self.loss_weights["diffusion"] * diffusion_loss
             + self.loss_weights["reconstruction"] * reconstruction_loss
             + self.loss_weights["smoothness"] * smoothness_loss
             + self.loss_weights["diffusion map regularization"] * diffmap_loss
             + self.loss_weights["flow cosine loss"] * flow_loss
+            + self.loss_weights["flow neighbor loss"] * neighbor_loss
         )
         return cost
 
