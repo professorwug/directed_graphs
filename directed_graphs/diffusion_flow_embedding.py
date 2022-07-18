@@ -2,7 +2,8 @@
 
 __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset', 'GaussianVectorField',
            'anisotropic_kernel', 'FlowArtist', 'smoothness_of_vector_field', 'DiffusionFlowEmbedder',
-           'kl_divergence_loss', 'kld_symmetric_loss', 'diffusion_map_loss', 'flow_cosine_loss']
+           'kl_divergence_loss', 'kld_symmetric_loss', 'diffusion_map_loss', 'precomputed_distance_loss',
+           'flow_cosine_loss']
 
 # Cell
 # hide
@@ -491,6 +492,14 @@ def diffusion_map_loss(P_graph, embedded_points):
   D_embedding = torch.cdist(embedded_points, embedded_points)
   loss = torch.norm(D_graph - D_embedding)**2 / (num_nodes**2)
   return loss
+
+# Cell
+def precomputed_distance_loss(precomputed_distances, embedded_points):
+    D_graph = precomputed_distances
+    num_nodes = embedded_points.shape[0]
+    D_embedding = torch.cdist(embedded_points, embedded_points)
+    loss = torch.norm(D_graph - D_embedding)**2 / (num_nodes**2)
+    return loss
 
 # Cell
 def flow_cosine_loss(X, ground_truth_flows, embedded_flows):
