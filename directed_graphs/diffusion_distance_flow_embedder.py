@@ -69,7 +69,7 @@ class DiffusionDistanceFlowEmbedder(FETrainer):
             device = device,
             use_embedding_grid = False,
             loss_weights = loss_weights,
-            k_dmap = 18,
+            k_dmap = 15,
             t_dmap = 50,
         ).to(device)
         # visualize diffusion map

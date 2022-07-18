@@ -20,11 +20,12 @@ class DiffusionDistanceFlowEmbedder(FETrainer):
             "diffusion":1,
             "smoothness":0,
             "reconstruction":0,
-            "diffusion map regularization":1,
+            "diffusion map regularization":20,
             "flow cosine loss": 0,
         }
         self.FE = MultiscaleDiffusionFlowEmbedder(
             X = X,
+            ts = [1],
             flows = flows,
             sigma_graph = 1,
             flow_strength_graph = 1,
@@ -33,6 +34,8 @@ class DiffusionDistanceFlowEmbedder(FETrainer):
             loss_weights = loss_weights,
             k_dmap = 18,
             t_dmap = 50,
+            dmap_coords_to_use = 2,
+
         ).to(device)
         # visualize diffusion map
         plt.scatter(self.FE.diff_coords[:,0].cpu().numpy(),self.FE.diff_coords[:,1].cpu().numpy(),c=labels)
