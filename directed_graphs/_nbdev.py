@@ -2,7 +2,16 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
+index = {"make_sparse_safe": "01a Graph Utils.ipynb",
+         "distance_matrix": "01a Graph Utils.ipynb",
+         "anisotropic_kernel": "05b Flow Embedding with Diffusion.ipynb",
+         "adaptive_anisotropic_kernel": "01a Graph Utils.ipynb",
+         "diffusion_matrix": "01a Graph Utils.ipynb",
+         "diffusion_matrix_from_points": "01a Graph Utils.ipynb",
+         "diffusion_coordinates": "01a Graph Utils.ipynb",
+         "diffusion_map_from_points": "01a Graph Utils.ipynb",
+         "plot_3d": "01a Graph Utils.ipynb",
+         "plot_ribbon": "02d01_Snake_TestCase.ipynb",
          "sample_ribbon": "02d01_Snake_TestCase.ipynb",
          "plot_ribbon_samples": "02d01_Snake_TestCase.ipynb",
          "sample_ribbon_2D": "02d01_Snake_TestCase.ipynb",
@@ -18,6 +27,7 @@ index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
          "directed_swiss_roll": "02d02 Circles and Swiss roll Datasets.ipynb",
          "directed_spiral_uniform": "02d02 Circles and Swiss roll Datasets.ipynb",
          "directed_swiss_roll_uniform": "02d02 Circles and Swiss roll Datasets.ipynb",
+         "directed_swiss_roll_sklearn": "02d02 Circles and Swiss roll Datasets.ipynb",
          "angle_x": "02d03 Spheres and Donuts with Flow (datasets).ipynb",
          "whirlpool": "02d03 Spheres and Donuts with Flow (datasets).ipynb",
          "rejection_sample_for_torus": "02d03 Spheres and Donuts with Flow (datasets).ipynb",
@@ -25,11 +35,9 @@ index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
          "directed_one_variable_function": "02d05 Branch and Clusters.ipynb",
          "directed_sinh_branch": "02d05 Branch and Clusters.ipynb",
          "static_clusters": "02d05 Branch and Clusters.ipynb",
-         "GeneralFlowEmbedder": "05a01 Flow_Embedding_with_Implicit_Vectors.ipynb",
          "affinity_from_flow": "05b Flow Embedding with Diffusion.ipynb",
          "affinity_matrix_from_pointset_to_pointset": "05b Flow Embedding with Diffusion.ipynb",
          "GaussianVectorField": "05b Flow Embedding with Diffusion.ipynb",
-         "anisotropic_kernel": "05b Flow Embedding with Diffusion.ipynb",
          "FlowArtist": "05b Flow Embedding with Diffusion.ipynb",
          "smoothness_of_vector_field": "05b Flow Embedding with Diffusion.ipynb",
          "DiffusionFlowEmbedder": "05b Flow Embedding with Diffusion.ipynb",
@@ -47,16 +55,18 @@ index = {"plot_ribbon": "02d01_Snake_TestCase.ipynb",
          "save_embedding_visualization": "05c01a Training Utils for Flow Embedding.ipynb",
          "collate_loss": "05c01a Training Utils for Flow Embedding.ipynb",
          "FETrainer": "05c01a Training Utils for Flow Embedding.ipynb",
-         "DiffusionDistanceFlowEmbedder": "05c05 Diffusion Distance based Loss - Tests and Visualizations.ipynb"}
+         "DiffusionDistanceFlowEmbedder": "05c05 Diffusion Distance based Loss - Tests and Visualizations.ipynb",
+         "FixedDiffusionMapEmbedding": "05c05b Learning flow around a fixed diffusion map.ipynb",
+         "FlowEmbedderAroundDiffusionMap": "05c05b Learning flow around a fixed diffusion map.ipynb"}
 
-modules = ["datasets.py",
-           "embeddings.py",
+modules = ["utils.py",
+           "datasets.py",
            "diffusion_flow_embedding.py",
            "multiscale_flow_embedder.py",
            "flow_embedding_training_utils.py",
            "diffusion_distance_flow_embedder.py"]
 
-doc_url = "https://professorwug.github.io/directed_graphs/"
+doc_url = "https://x.riddle.press/directed_graphs/"
 
 git_url = "https://github.com/professorwug/directed_graphs/tree/master/"
 

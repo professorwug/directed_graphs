@@ -13,14 +13,14 @@ entries:
       title: module name here
       url: core.html
     - output: web,pdf
+      title: 'Graph Utilities: kernels, normalizations, and building diffusion matrices'
+      url: 01a Graph Utils.html
+    - output: web,pdf
       title: Batch Testing Scripts
       url: 01d Batch Testing Scripts.html
     - output: web,pdf
       title: Title
       url: Untitled.html
-    - output: web,pdf
-      title: Comparing regular and backward node2vec on trees
-      url: 02c Trees.html
     - output: web,pdf
       title: 'FlowEmbedder: Snake Test Case'
       url: 02d01a_Snake_With5b.html
@@ -31,15 +31,6 @@ entries:
       title: 'Manifold with Flow Datasets, Part 3: The Sphere, The Torus, and the
         Paraboloid'
       url: 02d03 Spheres and Donuts with Flow (datasets).html
-    - output: web,pdf
-      title: Testing the Flow Embedder
-      url: 05a Testing Distance-based Flow Embedder.html
-    - output: web,pdf
-      title: Flow Embedding with Implicit Vectors
-      url: 05a01 Flow_Embedding_with_Implicit_Vectors.html
-    - output: web,pdf
-      title: Model Embedding Spaces
-      url: 05a02 Model Spaces for Flow Embeddings.html
     - output: web,pdf
       title: Flow Embedding with Diffusion
       url: 05b Flow Embedding with Diffusion.html
@@ -73,6 +64,12 @@ entries:
     - output: web,pdf
       title: Visualization Utils for the Flow Embedder
       url: 05c01a Training Utils for Flow Embedding.html
+    - output: web,pdf
+      title: Diffusion Distance Based Loss
+      url: 05c05 Diffusion Distance based Loss - Tests and Visualizations.html
+    - output: web,pdf
+      title: Learning flow around a fixed diffusion map
+      url: 05c05b Learning flow around a fixed diffusion map.html
     output: web
     title: directed_graphs
   output: web
