@@ -133,25 +133,32 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         t_dmap = 1,
         dmap_coords_to_use = 2,
     ):
-        # initialize parameters
         super(MultiscaleDiffusionFlowEmbedder, self).__init__()
 
         # generate default parameters
         embedder = (
             FeedForwardReLU(shape=(3, 4, 8, 4, 2)) if embedder is None else embedder
         )
+        loss_keys = [
+            "diffusion",
+            "smoothness",
+            "reconstruction",
+            "diffusion map regularization",
+            "flow cosine loss",
+            "flow neighbor loss",
+        ]
         loss_weights = (
             {
-                "diffusion": 1,
-                "smoothness": 0,
-                "reconstruction": 0,
-                "diffusion map regularization": 0,
-                "flow cosine loss": 0,
-                "flow neighbor loss": 0,
+                "diffusion": 1
             }
             if loss_weights is None
             else loss_weights
         )
+        for key in loss_keys:
+            if key not in loss_weights.keys():
+                loss_weights[key] = 0
+
+        # initialize parameters
         self.X = X
         self.ground_truth_flows = flows
         self.ts = ts
