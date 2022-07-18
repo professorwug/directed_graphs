@@ -22,9 +22,6 @@ entries:
       title: Title
       url: Untitled.html
     - output: web,pdf
-      title: Comparing regular and backward node2vec on trees
-      url: 02c Trees.html
-    - output: web,pdf
       title: 'FlowEmbedder: Snake Test Case'
       url: 02d01a_Snake_With5b.html
     - output: web,pdf
@@ -34,15 +31,6 @@ entries:
       title: 'Manifold with Flow Datasets, Part 3: The Sphere, The Torus, and the
         Paraboloid'
       url: 02d03 Spheres and Donuts with Flow (datasets).html
-    - output: web,pdf
-      title: Testing the Flow Embedder
-      url: 05a Testing Distance-based Flow Embedder.html
-    - output: web,pdf
-      title: Flow Embedding with Implicit Vectors
-      url: 05a01 Flow_Embedding_with_Implicit_Vectors.html
-    - output: web,pdf
-      title: Model Embedding Spaces
-      url: 05a02 Model Spaces for Flow Embeddings.html
     - output: web,pdf
       title: Flow Embedding with Diffusion
       url: 05b Flow Embedding with Diffusion.html
