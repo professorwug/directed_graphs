@@ -66,10 +66,16 @@ entries:
       url: 05c01a Training Utils for Flow Embedding.html
     - output: web,pdf
       title: Diffusion Distance Based Loss
-      url: 05c05 Diffusion Distance based Loss - Tests and Visualizations.html
+      url: 05c05a Diffusion map embedding with an autoencoder.html
     - output: web,pdf
       title: Learning flow around a fixed diffusion map
       url: 05c05b Learning flow around a fixed diffusion map.html
+    - output: web,pdf
+      title: New Loss
+      url: 05d 7-18 Loss.html
+    - output: web,pdf
+      title: Diffusion Maps on Manifolds with Flow
+      url: 05e Symmetrized Flow-based Diffusion Map.html
     output: web
     title: directed_graphs
   output: web
