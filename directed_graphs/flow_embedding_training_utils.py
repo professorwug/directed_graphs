@@ -172,9 +172,11 @@ class FETrainer(object):
             )
 
     def training_gif(self, duration=10):
+        file_names = glob.glob(f"visualizations/{self.timestamp}/*.jpg")
+        file_names.sort()
         frames = [
             Image.open(image)
-            for image in glob.glob(f"visualizations/{self.timestamp}/*.jpg")
+            for image in file_names
         ]
         frame_one = frames[0]
         frame_one.save(
