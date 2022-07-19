@@ -81,8 +81,8 @@ class DiffusionDistanceFlowEmbedder(FETrainer):
 import torch.nn as nn
 import torch
 from scipy.sparse import diags
-from .utils import make_sparse_safe, diffusion_coordinates
-
+from .utils import make_sparse_safe, diffusion_coordinates, diffusion_map_from_points
+import numpy as np
 
 class FixedDiffusionMapEmbedding(nn.Module):
     """

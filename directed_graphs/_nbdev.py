@@ -62,7 +62,7 @@ index = {"make_sparse_safe": "01a Graph Utils.ipynb",
          "DiffusionDistanceFlowEmbedder": "05c05a Diffusion map embedding with an autoencoder.ipynb",
          "compare_distance_matrices": "05c05a Diffusion map embedding with an autoencoder.ipynb",
          "FixedDiffusionMapEmbedding": "05c05b Learning flow around a fixed diffusion map.ipynb",
-         "FlowEmbedderAroundDiffusionMap": "05c05b Learning flow around a fixed diffusion map.ipynb"}
+         "FlowEmbedderAroundDiffusionMap": "05d01a Testing Flow Neighbors Loss on the Swiss Roll.ipynb"}
 
 modules = ["utils.py",
            "datasets.py",
@@ -70,7 +70,8 @@ modules = ["utils.py",
            "multiscale_flow_embedder.py",
            "flow_embedding_training_utils.py",
            "diffusion_distance_flow_embedder.py",
-           "diffusion_and_kld_embedder.py"]
+           "diffusion_and_kld_embedder.py",
+           "flow_neighbor_embedder.py"]
 
 doc_url = "https://x.riddle.press/directed_graphs/"
 
