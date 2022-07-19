@@ -105,7 +105,11 @@ from .diffusion_flow_embedding import (
     flow_neighbor_loss,
     precomputed_distance_loss,
 )
-from .utils import diffusion_map_from_points
+from .utils import (
+    diffusion_map_from_points,
+    diffusion_map_from_affinities,
+)
+
 
 class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
     def __init__(
@@ -129,9 +133,9 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         loss_weights=None,
         use_embedding_grid=False,
         device=torch.device("cpu"),
-        k_dmap = 20,
-        t_dmap = 1,
-        dmap_coords_to_use = 2,
+        k_dmap=20,
+        t_dmap=1,
+        dmap_coords_to_use=2,
     ):
         super(MultiscaleDiffusionFlowEmbedder, self).__init__()
 
@@ -147,13 +151,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             "flow cosine loss",
             "flow neighbor loss",
         ]
-        loss_weights = (
-            {
-                "diffusion": 1
-            }
-            if loss_weights is None
-            else loss_weights
-        )
+        loss_weights = {"diffusion": 1} if loss_weights is None else loss_weights
         for key in loss_keys:
             if key not in loss_weights.keys():
                 loss_weights[key] = 0
@@ -209,17 +207,23 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 
         # Precompute graph distances for any loss functions that regularize against a precomputed embedding
         if self.loss_weights["diffusion map regularization"] > 0:
-            X_numpy = X.clone().cpu().numpy()
-            diff_map = diffusion_map_from_points(X_numpy, k=k_dmap, t=t_dmap, plot_evals = True)
+            P_graph_symmetrized = self.P_graph + self.P_graph.T
+            diff_map = diffusion_map_from_affinities(
+                P_graph_symmetrized, t = t_dmap, plot_evals = False
+            )
             self.diff_coords = diff_map[:, :dmap_coords_to_use]
             self.diff_coords = self.diff_coords.real
             # scale to be between 0 and 1 (by default, the diff coords are tiny, which messes up the flow embedder)
-#             self.diff_coords = 2 * (self.diff_coords / np.max(self.diff_coords))
+            #             self.diff_coords = 2 * (self.diff_coords / np.max(self.diff_coords))
             self.diff_coords = torch.tensor(self.diff_coords.copy()).to(device)
             self.precomputed_distances = torch.cdist(self.diff_coords, self.diff_coords)
             # scale distances between 0 and 1
-            self.precomputed_distances = 2 * (self.precomputed_distances/torch.max(self.precomputed_distances))
-            self.precomputed_distances = self.precomputed_distances.detach() # no need to have gradients from this operation
+            self.precomputed_distances = 2 * (
+                self.precomputed_distances / torch.max(self.precomputed_distances)
+            )
+            self.precomputed_distances = (
+                self.precomputed_distances.detach()
+            )  # no need to have gradients from this operation
 
         # training ops
         self.KLD = nn.KLDivLoss(reduction="batchmean", log_target=False)
@@ -320,8 +324,10 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             smoothness_loss = 0
 
         if self.loss_weights["diffusion map regularization"] != 0:
-            diffmap_loss = precomputed_distance_loss(self.precomputed_distances, self.embedded_points)
-#           diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
+            diffmap_loss = precomputed_distance_loss(
+                self.precomputed_distances, self.embedded_points
+            )
+            #           diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
             self.losses["diffusion map regularization"].append(diffmap_loss)
         else:
             diffmap_loss = 0
@@ -336,7 +342,9 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
 
         if self.loss_weights["flow neighbor loss"] != 0:
             neighbor_loss = neighbor_loss(
-                self.P_graph, self.embedded_points, self.FlowArtist(self.embedded_points)
+                self.P_graph,
+                self.embedded_points,
+                self.FlowArtist(self.embedded_points),
             )
             self.losses["flow neighbor loss"].append(neighbor_loss)
         else:
