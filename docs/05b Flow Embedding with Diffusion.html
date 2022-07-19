@@ -372,7 +372,7 @@ When the flow is aligned with the direction, this returns 1. When it is perpendi
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="affinity_from_flow" class="doc_header"><code>affinity_from_flow</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L14" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_from_flow</code>(<strong><code>flows</code></strong>, <strong><code>directions_array</code></strong>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>, <strong><code>sigma</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="affinity_from_flow" class="doc_header"><code>affinity_from_flow</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L15" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_from_flow</code>(<strong><code>flows</code></strong>, <strong><code>directions_array</code></strong>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>, <strong><code>sigma</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 <p>Compute probabilities of transition in the given directions based on the flow.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>flows : torch tensor of shape n_points x n_dims
@@ -1187,7 +1187,7 @@ returns (n_points)</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="affinity_matrix_from_pointset_to_pointset" class="doc_header"><code>affinity_matrix_from_pointset_to_pointset</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L58" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_matrix_from_pointset_to_pointset</code>(<strong><code>pointset1</code></strong>, <strong><code>pointset2</code></strong>, <strong><code>flows</code></strong>, <strong><code>n_neighbors</code></strong>=<em><code>None</code></em>, <strong><code>sigma</code></strong>=<em><code>0.5</code></em>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="affinity_matrix_from_pointset_to_pointset" class="doc_header"><code>affinity_matrix_from_pointset_to_pointset</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L59" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_matrix_from_pointset_to_pointset</code>(<strong><code>pointset1</code></strong>, <strong><code>pointset2</code></strong>, <strong><code>flows</code></strong>, <strong><code>n_neighbors</code></strong>=<em><code>None</code></em>, <strong><code>sigma</code></strong>=<em><code>0.5</code></em>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 <p>Compute affinity matrix between the points of pointset1 and pointset2, using the provided flow.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>pointset1 : torch tensor, n1 x d
@@ -2024,7 +2024,7 @@ Affinity matrix: torch tensor of shape n1 x n2</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="GaussianVectorField" class="doc_header"><code>class</code> <code>GaussianVectorField</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L90" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>GaussianVectorField</code>(<strong><code>n_dims</code></strong>, <strong><code>n_gaussians</code></strong>, <strong><code>device</code></strong>, <strong><code>random_initalization</code></strong>=<em><code>True</code></em>) :: <code>Module</code></p>
+<h2 id="GaussianVectorField" class="doc_header"><code>class</code> <code>GaussianVectorField</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L91" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>GaussianVectorField</code>(<strong><code>n_dims</code></strong>, <strong><code>n_gaussians</code></strong>, <strong><code>device</code></strong>, <strong><code>random_initalization</code></strong>=<em><code>True</code></em>) :: <code>Module</code></p>
 </blockquote>
 <p>Base class for all neural network modules.</p>
 <p>Your models should also subclass this class.</p>
@@ -2139,7 +2139,7 @@ parameters converted too when you call :meth:<code>to</code>, etc.</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="anisotropic_kernel" class="doc_header"><code>anisotropic_kernel</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L127" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>anisotropic_kernel</code>(<strong><code>D</code></strong>, <strong><code>sigma</code></strong>=<em><code>0.7</code></em>, <strong><code>alpha</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="anisotropic_kernel" class="doc_header"><code>anisotropic_kernel</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L128" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>anisotropic_kernel</code>(<strong><code>D</code></strong>, <strong><code>sigma</code></strong>=<em><code>0.7</code></em>, <strong><code>alpha</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 <p>Computes anisotropic kernel of given distances matrix.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>D : ndarray or sparse
@@ -2183,7 +2183,7 @@ This is a good function.</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="FlowArtist" class="doc_header"><code>FlowArtist</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L148" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>FlowArtist</code>(<strong><code>FA_type</code></strong>, <strong><code>dim</code></strong>=<em><code>2</code></em>, <strong><code>num_gauss</code></strong>=<em><code>0</code></em>, <strong><code>shape</code></strong>=<em><code>[2, 4, 8, 4, 2]</code></em>, <strong><code>device</code></strong>=<em><code>device(type='cpu')</code></em>)</p>
+<h4 id="FlowArtist" class="doc_header"><code>FlowArtist</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L149" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>FlowArtist</code>(<strong><code>FA_type</code></strong>, <strong><code>dim</code></strong>=<em><code>2</code></em>, <strong><code>num_gauss</code></strong>=<em><code>0</code></em>, <strong><code>shape</code></strong>=<em><code>[2, 4, 8, 4, 2]</code></em>, <strong><code>device</code></strong>=<em><code>device(type='cpu')</code></em>)</p>
 </blockquote>
 
 </div>
@@ -2224,7 +2224,7 @@ $$ \frac{v^T L v}{v^T v} $$
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="smoothness_of_vector_field" class="doc_header"><code>smoothness_of_vector_field</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L184" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>smoothness_of_vector_field</code>(<strong><code>embedded_points</code></strong>, <strong><code>vector_field_function</code></strong>, <strong><code>device</code></strong>, <strong><code>use_grid</code></strong>=<em><code>True</code></em>, <strong><code>grid_width</code></strong>=<em><code>20</code></em>)</p>
+<h4 id="smoothness_of_vector_field" class="doc_header"><code>smoothness_of_vector_field</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L185" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>smoothness_of_vector_field</code>(<strong><code>embedded_points</code></strong>, <strong><code>vector_field_function</code></strong>, <strong><code>device</code></strong>, <strong><code>use_grid</code></strong>=<em><code>True</code></em>, <strong><code>grid_width</code></strong>=<em><code>20</code></em>)</p>
 </blockquote>
 
 </div>
@@ -2332,7 +2332,7 @@ $$ \frac{v^T L v}{v^T v} $$
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="DiffusionFlowEmbedder" class="doc_header"><code>class</code> <code>DiffusionFlowEmbedder</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L227" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>DiffusionFlowEmbedder</code>(<strong><code>X</code></strong>, <strong><code>flows</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>sigma_graph</code></strong>=<em><code>0.5</code></em>, <strong><code>sigma_embedding</code></strong>=<em><code>0.5</code></em>, <strong><code>embedding_dimension</code></strong>=<em><code>2</code></em>, <strong><code>device</code></strong>=<em><code>device(type='cpu')</code></em>, <strong><code>autoencoder_shape</code></strong>=<em><code>[10, 10]</code></em>, <strong><code>flow_artist</code></strong>=<em><code>'gaussian'</code></em>, <strong><code>flow_artist_shape</code></strong>=<em><code>[30, 20, 10]</code></em>, <strong><code>flow_strength_graph</code></strong>=<em><code>5</code></em>, <strong><code>flow_strength_embedding</code></strong>=<em><code>5</code></em>, <strong><code>learnable_flow_strength</code></strong>=<em><code>True</code></em>, <strong><code>multiscale_loss</code></strong>=<em><code>True</code></em>, <strong><code>weight_of_flow</code></strong>=<em><code>0.5</code></em>, <strong><code>learning_rate</code></strong>=<em><code>1e-05</code></em>, <strong><code>smoothness</code></strong>=<em><code>1</code></em>, <strong><code>embedding_bounds</code></strong>=<em><code>4</code></em>, <strong><code>num_gaussians</code></strong>=<em><code>25</code></em>, <strong><code>labels</code></strong>=<em><code>None</code></em>) :: <code>Module</code></p>
+<h2 id="DiffusionFlowEmbedder" class="doc_header"><code>class</code> <code>DiffusionFlowEmbedder</code><a href="https://github.com/professorwug/directed_graphs/tree/master/directed_graphs/diffusion_flow_embedding.py#L228" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>DiffusionFlowEmbedder</code>(<strong><code>X</code></strong>, <strong><code>flows</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>sigma_graph</code></strong>=<em><code>0.5</code></em>, <strong><code>sigma_embedding</code></strong>=<em><code>0.5</code></em>, <strong><code>embedding_dimension</code></strong>=<em><code>2</code></em>, <strong><code>device</code></strong>=<em><code>device(type='cpu')</code></em>, <strong><code>autoencoder_shape</code></strong>=<em><code>[10, 10]</code></em>, <strong><code>flow_artist</code></strong>=<em><code>'gaussian'</code></em>, <strong><code>flow_artist_shape</code></strong>=<em><code>[30, 20, 10]</code></em>, <strong><code>flow_strength_graph</code></strong>=<em><code>5</code></em>, <strong><code>flow_strength_embedding</code></strong>=<em><code>5</code></em>, <strong><code>learnable_flow_strength</code></strong>=<em><code>True</code></em>, <strong><code>multiscale_loss</code></strong>=<em><code>True</code></em>, <strong><code>weight_of_flow</code></strong>=<em><code>0.5</code></em>, <strong><code>learning_rate</code></strong>=<em><code>1e-05</code></em>, <strong><code>smoothness</code></strong>=<em><code>1</code></em>, <strong><code>embedding_bounds</code></strong>=<em><code>4</code></em>, <strong><code>num_gaussians</code></strong>=<em><code>25</code></em>, <strong><code>labels</code></strong>=<em><code>None</code></em>) :: <code>Module</code></p>
 </blockquote>
 <p>Base class for all neural network modules.</p>
 <p>Your models should also subclass this class.</p>

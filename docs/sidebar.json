@@ -19,7 +19,9 @@
     "05c Multiscale Flow Embeddings with a Grid": "05c Multiscale Diffusion Flow Embedding.html",
     "A collection of Loss functions for Flow Embedder": "05c01 Loss functions.html",
     "Visualization Utils for the Flow Embedder": "05c01a Training Utils for Flow Embedding.html",
-    "Diffusion Distance Based Loss": "05c05 Diffusion Distance based Loss - Tests and Visualizations.html",
-    "Learning flow around a fixed diffusion map": "05c05b Learning flow around a fixed diffusion map.html"
+    "Diffusion Distance Based Loss": "05c05a Diffusion map embedding with an autoencoder.html",
+    "Learning flow around a fixed diffusion map": "05c05b Learning flow around a fixed diffusion map.html",
+    "New Loss": "05d 7-18 Loss.html",
+    "Diffusion Maps on Manifolds with Flow": "05e Symmetrized Flow-based Diffusion Map.html"
   }
 }
