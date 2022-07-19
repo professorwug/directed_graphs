@@ -169,6 +169,7 @@ class FlowEmbedderAroundDiffusionMap(FETrainer):
             device=device,
             use_embedding_grid=False,
             embedder=FixedDiffusionMapEmbedding(X, t=1, k=18, device=device),
+            loss_weight = loss_weights,
         ).to(device)
         self.title = "Diffusion Distance FE"
         self.epochs_between_visualization = 1
