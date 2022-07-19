@@ -7,3 +7,4 @@ matplotlib
 networkx
 node2vec
 karateclub
+nbdev
