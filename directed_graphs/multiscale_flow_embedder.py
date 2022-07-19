@@ -160,6 +160,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         for key in self.loss_keys:
             if key not in loss_weights.keys():
                 loss_weights[key] = 0
+        self.loss_weights = loss_weights
+        print("Using loss weights:",self.loss_weights)
 
         # initialize model parameters: store the data and flows inside the model for future reference by any of our (many) loss functions
         self.X = X
@@ -182,7 +184,6 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         self.use_embedding_grid = use_embedding_grid
 
         self.eps = 0.001
-        self.loss_weights = loss_weights
         self.labels = labels
         self.embedding_dimension = embedding_dimension
         # set device (used for shuffling points around during visualization)
