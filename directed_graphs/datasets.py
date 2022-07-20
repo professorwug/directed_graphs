@@ -224,18 +224,19 @@ def plot_directed_2d(X, flow, labels, mask_prob=0.5):
   plt.show()
 
 # Cell
-def plot_origin_3d(ax, lim):
-  ax.plot(lim,[0,0],[0,0], color="k", alpha=0.5)
-  ax.plot([0,0],lim,[0,0], color="k", alpha=0.5)
-  ax.plot([0,0],[0,0],lim, color="k", alpha=0.5)
+def plot_origin_3d(ax, xlim, ylim, zlim):
+  ax.plot(xlim,[0,0],[0,0], color="k", alpha=0.5)
+  ax.plot([0,0],ylim,[0,0], color="k", alpha=0.5)
+  ax.plot([0,0],[0,0],zlim, color="k", alpha=0.5)
 
-def plot_directed_3d(X, flow, labels, mask_prob=0.5):
+def plot_directed_3d(X, flow, labels, mask_prob=0.5, origin=False):
   num_nodes = X.shape[0]
   colors = plt.cm.viridis(labels/(2*np.pi))
   mask = np.random.rand(num_nodes) > mask_prob
   fig = plt.figure()
   ax = fig.add_subplot(projection='3d')
-  plot_origin_3d(ax, lim=[-1,1])
+  if origin:
+    plot_origin_3d(ax, xlim=[X[:,0].min(),X[:,0].max()], ylim=[X[:,1].min(),X[:,1].max()], zlim=[X[:,2].min(),X[:,2].max()])
   ax.scatter(X[:,0], X[:,1], X[:,2], marker=".", c=labels)
   ax.quiver(X[mask,0], X[mask,1], X[mask,2], flow[mask,0], flow[mask,1], flow[mask,2], alpha=0.1, length=0.5)
   plt.show()

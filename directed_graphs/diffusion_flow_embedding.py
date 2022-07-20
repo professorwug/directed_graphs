@@ -3,7 +3,7 @@
 __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset', 'GaussianVectorField',
            'anisotropic_kernel', 'FlowArtist', 'smoothness_of_vector_field', 'DiffusionFlowEmbedder',
            'kl_divergence_loss', 'kld_symmetric_loss', 'diffusion_map_loss', 'precomputed_distance_loss',
-           'flow_cosine_loss', 'directed_neighbors', 'flow_neighbor_loss']
+           'flow_cosine_loss', 'directed_neighbors', 'flow_neighbor_loss', 'flow_neighbor_cosine_loss']
 
 # Cell
 # hide
@@ -514,7 +514,7 @@ def directed_neighbors(num_nodes, P_graph, n_neighbors=5):
   # remove self loop
   P_graph = P_graph - torch.eye(num_nodes).to(P_graph.device)
   # return k nearest neighbor indices
-  neighbors = P_graph.argsort(axis=1, descending=True)[:,:n_neighbors]
+  _, neighbors = torch.topk(P_graph, n_neighbors)
   # convert to edge_index format
   row = torch.arange(num_nodes).repeat_interleave(n_neighbors).to(P_graph.device)
   col = neighbors.flatten().to(P_graph.device)
@@ -526,4 +526,15 @@ def flow_neighbor_loss(neighbors, embedded_points, embedded_flows):
   directions = embedded_points[col,:] - embedded_points[row,:]
   flows = embedded_flows[row,:]
   loss = torch.norm(directions - flows)**2
+  return loss
+
+# Cell
+import torch.nn.functional as F
+def flow_neighbor_cosine_loss(neighbors, embedded_points, embedded_flows):
+  row, col = neighbors
+  directions = embedded_points[col,:] - embedded_points[row,:]
+  flows = embedded_flows[row,:]
+  normed_directions = F.normalize(directions, dim=-1)
+  normed_flows = F.normalize(flows, dim=-1)
+  loss = torch.norm(normed_directions * normed_flows)**2
   return loss
