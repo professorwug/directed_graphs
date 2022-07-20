@@ -217,7 +217,7 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             self.decoder = None
 
         # Precompute graph distances for any loss functions that regularize against a precomputed embedding
-        if self.loss_weights["diffusion map regularization"] > 0:
+        if self.loss_weights["diffusion map regularization"] != 0:
             P_graph_symmetrized = self.P_graph + self.P_graph.T
             diff_map = diffusion_map_from_affinities(
                 P_graph_symmetrized, t=t_dmap, plot_evals=False

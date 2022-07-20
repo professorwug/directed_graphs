@@ -71,8 +71,14 @@ entries:
       title: Learning flow around a fixed diffusion map
       url: 05c05b Learning flow around a fixed diffusion map.html
     - output: web,pdf
+      title: 05d01a Flow Neighbors Loss on the Swiss Roll
+      url: 05d01a Testing Flow Neighbors Loss on the Swiss Roll.html
+    - output: web,pdf
       title: New Loss
-      url: 05d 7-18 Loss.html
+      url: 05d02b 7-18 Loss - Attempt at Unrolling Swiss Roll.html
+    - output: web,pdf
+      title: Flow Neighbor Loss on Toy Datasets
+      url: 05d02 Flow Neighbor Loss on Toy Datasets.html
     - output: web,pdf
       title: Diffusion Maps on Manifolds with Flow
       url: 05e Symmetrized Flow-based Diffusion Map.html
