@@ -8,3 +8,5 @@ networkx
 node2vec
 karateclub
 nbdev
+tqdm
+pillow
