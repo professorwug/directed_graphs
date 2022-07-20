@@ -153,10 +153,15 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             "flow cosine loss",  # enforces same angles between pairs of flows in ambient and embedding space (DON'T USE)
             "flow neighbor loss",  # enforces flow in embedding to point towards "flow neighbors" -- points in the ambient space with high flow affinity
         ]
-        loss_weights = {"diffusion": 1} if loss_weights is None else loss_weights
+        if loss_weights is None:
+            loss_weights = {"diffusion": 1}
+        else:
+            loss_weights = loss_weights
         for key in self.loss_keys:
             if key not in loss_weights.keys():
                 loss_weights[key] = 0
+        self.loss_weights = loss_weights
+        print("Using loss weights:",self.loss_weights)
 
         # initialize model parameters: store the data and flows inside the model for future reference by any of our (many) loss functions
         self.X = X
@@ -179,7 +184,6 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
         self.use_embedding_grid = use_embedding_grid
 
         self.eps = 0.001
-        self.loss_weights = loss_weights
         self.labels = labels
         self.embedding_dimension = embedding_dimension
         # set device (used for shuffling points around during visualization)
@@ -351,8 +355,8 @@ class MultiscaleDiffusionFlowEmbedder(torch.nn.Module):
             self.losses["flow cosine loss"].append(0)
 
         if self.loss_weights["flow neighbor loss"] != 0:
-            neighbor_loss = neighbor_loss(
-                self.P_graph,
+            neighbor_loss = flow_neighbor_loss(
+                self.neighbors,
                 self.embedded_points,
                 self.FlowArtist(self.embedded_points),
             )
