@@ -21,7 +21,9 @@
     "Visualization Utils for the Flow Embedder": "05c01a Training Utils for Flow Embedding.html",
     "Diffusion Distance Based Loss": "05c05a Diffusion map embedding with an autoencoder.html",
     "Learning flow around a fixed diffusion map": "05c05b Learning flow around a fixed diffusion map.html",
-    "New Loss": "05d 7-18 Loss.html",
+    "05d01a Flow Neighbors Loss on the Swiss Roll": "05d01a Testing Flow Neighbors Loss on the Swiss Roll.html",
+    "New Loss": "05d02b 7-18 Loss - Attempt at Unrolling Swiss Roll.html",
+    "Flow Neighbor Loss on Toy Datasets": "05d02 Flow Neighbor Loss on Toy Datasets.html",
     "Diffusion Maps on Manifolds with Flow": "05e Symmetrized Flow-based Diffusion Map.html"
   }
 }
