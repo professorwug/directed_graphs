@@ -10,3 +10,4 @@ karateclub
 nbdev
 tqdm
 pillow
+scvelo
