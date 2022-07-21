@@ -486,7 +486,7 @@ def static_clusters(num_nodes=250, num_clusters=5, radius=1, sigma=0.2, xtilt=0,
   thetas = np.repeat([2*np.pi*i/num_clusters for i in range(num_clusters)], num_nodes//num_clusters)
   x = np.cos(thetas) * radius + np.random.normal(loc=0, scale=sigma, size=num_nodes)
   y = np.sin(thetas) * radius + np.random.normal(loc=0, scale=sigma, size=num_nodes)
-  z = np.zeros(num_nodes)
+  z = np.zeros(num_nodes) + np.random.normal(loc=0, scale=sigma, size=num_nodes)
   X = np.column_stack((x, y, z))
   flow = np.zeros(X.shape)
   X, flow, lables = xy_tilt(X, flow, thetas, xtilt=xtilt, ytilt=ytilt)
