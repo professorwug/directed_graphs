@@ -435,10 +435,9 @@ def directed_one_variable_function(func, deriv, xlow, xhigh, num_nodes=100, sigm
   w = np.zeros(num_nodes)
   flow = np.column_stack((u, v, w))
   # noise
-  deriv_square = v**2
-  noise = np.random.normal(0, sigma, num_nodes) * np.sqrt(deriv_square/(deriv_square + 1))
-  x += noise
-  y += -1/v * noise
+  x += np.random.normal(0, sigma, num_nodes)
+  y += np.random.normal(0, sigma, num_nodes)
+  z += np.random.normal(0, sigma, num_nodes)
   X = np.column_stack((x, y, z))
   return X, flow, labels
 

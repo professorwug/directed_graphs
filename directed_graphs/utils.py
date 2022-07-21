@@ -105,6 +105,10 @@ def diffusion_coordinates(P_symmetric, D, t = 1, plot_evals = False):
     Dnoh = diags(D**-0.5)
     # Decompose Ms
     eig_vals, eig_vecs = scipy.sparse.linalg.eigs(P_symmetric)
+    # sort eigenvalues and eigenvectors(they are inconsistently sorted by default)
+    sorted_idxs = np.argsort(eig_vals)
+    eig_vals = eig_vals[sorted_idxs]
+    eig_vecs = eig_vecs[:,sorted_idxs]
     # Normalize the eigenvector
     eig_psi_components = Dnoh @ eig_vecs
     eig_psi_components = eig_psi_components @ np.diag(np.power(np.linalg.norm(eig_psi_components, axis=0), -1))
